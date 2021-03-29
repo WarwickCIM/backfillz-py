@@ -1,10 +1,8 @@
 """Test module for backfillz."""
 
-from backfillz import __author__, __email__, __version__
+from backfillz import as_backfillz
 
 
-def test_project_info():
-    """Test __author__ value."""
-    assert __author__ == "Roly Perera"
-    assert __email__ == "rperera@turing.ac.uk"
-    assert __version__ == "0.0.0"
+def test() -> None:
+    # "that backfillz object can be created"
+    sample_backfillz = as_backfillz(sample_stanfit, verbose = false)

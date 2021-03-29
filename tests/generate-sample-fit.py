@@ -1,4 +1,5 @@
 import stan
+from stan.fit import Fit
 
 schools_code = """
 data {
@@ -25,9 +26,9 @@ schools_data = {"J": 8,
                 "sigma": [15, 10, 16, 11,  9, 11, 10, 18]}
 
 
-def generate_fit() -> None:
+def generate_fit() -> Fit:
     posterior = stan.build(schools_code, data=schools_data, random_seed=1)
-    fit = posterior.sample(num_chains=4, num_samples=1000)
+    return posterior.sample(num_chains=4, num_samples=1000)
 #    df = fit.to_frame()
 
 
