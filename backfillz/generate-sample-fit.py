@@ -28,4 +28,8 @@ schools_data = {"J": 8,
 def generate_fit() -> None:
     posterior = stan.build(schools_code, data=schools_data, random_seed=1)
     fit = posterior.sample(num_chains=4, num_samples=1000)
-    df = fit.to_frame()
+#    df = fit.to_frame()
+
+
+if __name__ == '__main__':
+    generate_fit()
