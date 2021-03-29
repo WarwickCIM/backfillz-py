@@ -1,0 +1,58 @@
+---
+name: build-publish
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Install poetry
+        run: pip install poetry
+      - name: Install dependencies
+        run: poetry update
+      - name: Check style with flake8
+        run: poetry run flake8 backfillz/ tests/
+      - name: Check type hinting with mypy
+        run: poetry run mypy --strict --config-file=mypy.ini backfillz/
+      - name: Unit & coverage test with pytest
+        run: poetry run pytest
+
+  docs:
+    runs-on: ubuntu-latest
+    needs:
+        build
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - run: pip install mkdocs-material
+      - run: mkdocs gh-deploy --force
+
+  publish:
+    runs-on: ubuntu-20.04
+    needs:
+        docs
+    if: github.ref == 'refs/heads/release'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Install poetry
+        run: pip install poetry
+      - name: Bump version number
+        run: poetry version ${{ github.event.release.tag_name }}
+      - name: Build package
+        run: poetry build
+      - name: Publish package
+        run: poetry publish -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }}
