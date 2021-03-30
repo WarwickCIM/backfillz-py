@@ -14,6 +14,8 @@ def as_backfillz(fit: Fit, verbose: bool) -> Backfillz:
     # create backfillz object
     backfillz_object = Backfillz()
 
+    print(fit.extract(permuted=False,inc_warmup=True))
+
     # populate backfillz object and set theme
     #  if (class(object) == "stanfit") {
     #    backfillz_object@mcmc_samples <-

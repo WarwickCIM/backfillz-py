@@ -1,5 +1,7 @@
 <!-- badges: start -->
 
+[![Release build](https://github.com/WarwickCIM/backfillz-py/actions/workflows/build-publish.yml/badge.svg?branch=release)](https://github.com/WarwickCIM/backfillz-py/actions/workflows/build-publish.yml)
+[![Develop build](https://github.com/WarwickCIM/backfillz-py/actions/workflows/build-publish.yml/badge.svg?branch=develop)](https://github.com/WarwickCIM/backfillz-py/actions/workflows/build-publish.yml)
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <!-- badges: end -->
@@ -13,7 +15,9 @@ BackFillz-py slices and dices MCMC chains so increasingly parameter rich, comple
 
 # Quick Start
 
-TODO - Python version
+Install from [PyPI](https://pypi.org/project/backfillz/).
+
+TODO - code example
 
 # Current prototype plots
 
