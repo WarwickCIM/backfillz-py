@@ -2,7 +2,7 @@
 
 from tests.generate_sample_fit import generate_fit
 
-from backfillz.backfillz import as_backfillz
+from backfillz.Backfillz import as_backfillz
 
 
 def test() -> None:

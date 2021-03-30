@@ -1,7 +1,5 @@
 from typing import List
 
-from stan.fit import Fit  # type: ignore
-
 
 class BackfillzTheme:
     """Backfillz visualisation settings."""
@@ -92,7 +90,7 @@ solarized_dark: BackfillzTheme = BackfillzTheme(
     ]
 )
 
-demo1: BackfillzTheme = BackfillzTheme(
+demo_1: BackfillzTheme = BackfillzTheme(
     name="demo 1",
     text_family="mono",
     text_font=1,
@@ -117,7 +115,7 @@ demo1: BackfillzTheme = BackfillzTheme(
     ]
 )
 
-demo2: BackfillzTheme = BackfillzTheme(
+demo_2: BackfillzTheme = BackfillzTheme(
     name="demo 2",
     text_family="sans",
     text_font=1,
@@ -141,47 +139,3 @@ demo2: BackfillzTheme = BackfillzTheme(
         "#F29530"
     ]
 )
-
-
-class Backfillz:
-    """Represents a Backfillz user session."""
-
-    fit: Fit
-    theme: BackfillzTheme
-
-    def __init__(self, mcmc_samples: Fit) -> None:
-        """Initialise a Backfillz session."""
-        pass
-
-    def set_theme(self, theme: str, verbose: bool = True) -> None:
-        """Set Backfillz theme."""
-        if verbose:
-            print("Setting backfillz object theme to " + theme)
-        if theme == "default":
-            self.theme = default
-        elif theme == "solarized_dark":
-            self.theme = solarized_dark
-        elif theme == "demo 1":
-            pass
-        elif theme == "demo 2":
-            pass
-        else:
-            raise Exception("Theme not recognised")
-
-
-def as_backfillz(fit: Fit, verbose: bool) -> Backfillz:
-    """Create a Backfillz session from a PyStan fit."""
-    backfillz = Backfillz(fit)
-    backfillz.set_theme("default", verbose)
-
-    # initialise plot history
-    #  backfillz_object@plot_history <- data.frame(
-    #    ID = 1,
-    #    Date = date(),
-    #    Event = "Object Creation",
-    #    R_version = R.Version()$version.string,
-    #    Saved = FALSE,
-    #    stringsAsFactors = FALSE
-    #  )
-
-    return backfillz
