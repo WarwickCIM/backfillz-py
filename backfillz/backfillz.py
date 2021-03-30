@@ -22,7 +22,7 @@ class BackfillzTheme:
         mg_colour: str,
         fg_colour: str,
         alpha: float,
-        theme_palette: List[str]
+        palette: List[str]
     ):
         self.name = name
         self.text_family = text_family
@@ -38,9 +38,9 @@ class BackfillzTheme:
         self.mg_colour = mg_colour
         self.fg_colour = fg_colour
         self.alpha = alpha
-        self.theme_palette = theme_palette
+        self.palette = palette
 
-default : BackfillzTheme = BackfillzTheme(
+default: BackfillzTheme = BackfillzTheme(
     name = "default",
     text_family = "sans",
     text_font = 1,
@@ -55,7 +55,7 @@ default : BackfillzTheme = BackfillzTheme(
     mg_colour = "grey50",
     fg_colour = "black",
     alpha = 0.7,
-    theme_palette = [
+    palette = [
         "#FF0000",
         "#0000FF",
         "#FF00FF",
@@ -64,6 +64,32 @@ default : BackfillzTheme = BackfillzTheme(
         "#FF6347"
     ]
 )
+
+solarizedDark: BackfillzTheme = BackfillzTheme(
+    name="solarized_dark",
+    text_family="mono",
+    text_font=1,
+    text_font_colour="#2AA198",
+    text_cex_title=2,
+    text_cex_main=1,
+    text_cex_axis=0.8,
+    text_col_title="grey10",
+    text_col_main="grey60",
+    text_col_axis="grey40",
+    bg_colour="#002B36",
+    mg_colour="grey50",
+    fg_colour="#93A1A1",
+    alpha=0.7,
+    palette=[
+        "#657B83",
+        "#D30102",
+        "#D33682",
+        "#859900",
+        "#93A1A1",
+        "#268BD2"
+    ]
+)
+
 
 class Backfillz:
     """Represents a Backfillz user session."""
@@ -78,36 +104,10 @@ class Backfillz:
         # set theme values
         if theme=="default":
             if verbose:
-              print("Setting backfillz object theme to default")
-        } else if (theme ==  "solarized_dark") {
-        if (verbose) {
-          message("Setting backfillz object theme to solarized dark")
-        }
-        backfillz_object@theme_name               <- "solarized_dark"
-        backfillz_object@theme_text_family        <- "mono"
-        backfillz_object@theme_text_font          <- 1
-        backfillz_object@theme_text_font_colour   <- "#2AA198"
-
-        backfillz_object@theme_text_cex_title     <- 2
-        backfillz_object@theme_text_cex_main      <- 1
-        backfillz_object@theme_text_cex_axis      <- 0.8
-
-        backfillz_object@theme_text_col_title     <- "grey10"
-        backfillz_object@theme_text_col_main      <- "grey60"
-        backfillz_object@theme_text_col_axis      <- "grey40"
-
-        backfillz_object@theme_bg_colour          <- "#002B36"
-        backfillz_object@theme_mg_colour          <- "grey50"
-        backfillz_object@theme_fg_colour          <- "#93A1A1"
-        backfillz_object@theme_alpha              <- 0.7
-        backfillz_object@theme_palette            <- list(
-          "#657B83",
-          "#D30102",
-          "#D33682",
-          "#859900",
-          "#93A1A1",
-          "#268BD2"
-        )
+                print("Setting backfillz object theme to default")
+        elif theme=="solarized_dark":
+            if verbose:
+                print("Setting backfillz object theme to solarized dark")
         } else if (theme ==  "demo 1") {
         if (verbose) {
           message("Setting backfillz object theme to demo 1")
