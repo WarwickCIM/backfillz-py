@@ -1,3 +1,4 @@
+import pandas as pd
 from stan.fit import Fit  # type: ignore
 
 from backfillz.BackfillzTheme import BackfillzTheme, default, demo_1, demo_2, solarized_dark
@@ -8,9 +9,18 @@ class Backfillz:
 
     fit: Fit
     theme: BackfillzTheme
+    plot_history: pd.DataFrame
 
     def __init__(self, mcmc_samples: Fit) -> None:
         """Initialise a Backfillz session."""
+        #  backfillz_object@plot_history <- data.frame(
+        #    ID = 1,
+        #    Date = date(),
+        #    Event = "Object Creation",
+        #    R_version = R.Version()$version.string,
+        #    Saved = FALSE,
+        #    stringsAsFactors = FALSE
+        #  )
         pass
 
     def set_theme(self, theme: str, verbose: bool = True) -> None:
@@ -33,15 +43,4 @@ def as_backfillz(fit: Fit, verbose: bool) -> Backfillz:
     """Create a Backfillz session from a PyStan fit."""
     backfillz = Backfillz(fit)
     backfillz.set_theme("default", verbose)
-
-    # initialise plot history
-    #  backfillz_object@plot_history <- data.frame(
-    #    ID = 1,
-    #    Date = date(),
-    #    Event = "Object Creation",
-    #    R_version = R.Version()$version.string,
-    #    Saved = FALSE,
-    #    stringsAsFactors = FALSE
-    #  )
-
     return backfillz
