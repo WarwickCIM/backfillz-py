@@ -1,10 +1,10 @@
-from stan.fit import Fit
+from stan.fit import Fit # type: ignore
 
 
 class Backfillz:
     """Represents a Backfillz user session."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialise a Backfillz session."""
         pass
 
