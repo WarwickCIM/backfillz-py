@@ -1,4 +1,4 @@
-import pandas as pd
+import pandas as pd  # type: ignore
 from stan.fit import Fit  # type: ignore
 
 from backfillz.BackfillzTheme import BackfillzTheme, default, demo_1, demo_2, solarized_dark
