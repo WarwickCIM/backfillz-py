@@ -22,11 +22,12 @@ model {
 """
 
 schools_data = {"J": 8,
-                "y": [28,  8, -3,  7, -1,  1, 18, 12],
-                "sigma": [15, 10, 16, 11,  9, 11, 10, 18]}
+                "y": [28, 8, -3, 7, -1, 1, 18, 12],
+                "sigma": [15, 10, 16, 11, 9, 11, 10, 18]}
 
 
 def generate_fit() -> Fit:
+    """Make PyStan fit from the Eight Schools example."""
     posterior = stan.build(schools_code, data=schools_data, random_seed=1)
     return posterior.sample(num_chains=4, num_samples=1000)
 #    df = fit.to_frame()
