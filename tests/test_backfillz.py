@@ -1,10 +1,15 @@
 """Test module for backfillz."""
 
-from backfillz import __author__, __email__, __version__
+from tests.generate_sample_fit import generate_fit
+
+from backfillz.Backfillz import as_backfillz
 
 
-def test_project_info():
-    """Test __author__ value."""
-    assert __author__ == "Roly Perera"
-    assert __email__ == "rperera@turing.ac.uk"
-    assert __version__ == "0.0.0"
+def test() -> None:
+    """Backfillz object can be created."""
+    sample_backfillz = as_backfillz(generate_fit(), verbose=False)
+    print(sample_backfillz)
+
+
+if __name__ == '__main__':
+    test()
