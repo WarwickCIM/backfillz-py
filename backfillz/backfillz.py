@@ -1,4 +1,4 @@
-from stan.fit import Fit # type: ignore
+from stan.fit import Fit  # type: ignore
 
 
 class Backfillz:
