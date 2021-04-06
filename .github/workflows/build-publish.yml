@@ -23,7 +23,7 @@ jobs:
       - name: Check type hinting with mypy
         run: poetry run mypy --strict --config-file=mypy.ini backfillz/
       - name: Unit & coverage test with pytest
-        run: poetry run pytest --no-cov # disable coverage for now
+        run: cd tests && poetry run pytest --no-cov # disable coverage for now
 
   docs:
     runs-on: ubuntu-latest
