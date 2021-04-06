@@ -1,30 +1,31 @@
 from datetime import datetime
-import pandas as pd
 import sys
-from typing import Optional
+
+import pandas as pd  # type: ignore
 
 from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 
+
 def plot_slice_histogram(
     backfillz: Backfillz,
-    save_plot: bool = False,
-    verbose: bool = True):
-
-    # Preallocate the data frame stored in the backfillz object
-    backfillz.df_slice_histogram = pd.DataFrame(columns=[
+    save_plot: bool = False
+) -> None:
+    """Plot a slice histogram."""
+    df_slice_histogram: pd.DataFrame = pd.DataFrame(columns=[
         'parameter'  # character
         'sample_min'  # numeric
         'sample_max'  # numeric
         'stringsAsFactors'  # bool (False)
     ])
 
-    parameters = array(attributes(backfillz.fit).dimnames.parameters)[1:2]
+    # array(attributes(backfillz.fit).dimnames.parameters)[1:2]
+    parameters = pd.Series(['a', 'b'])  # todo
     lower = pd.Series([0, 0.8])
     upper = pd.Series([0.4, 1])
-    slices = pd.DataFrame(columns=[
-      'parameters'  # character
-      'lower'  # numeric
-      'upper'  # numeric
+    slices: pd.DataFrame = pd.DataFrame(columns=[
+        'parameters'  # character
+        'lower'  # numeric
+        'upper'  # numeric
     ])
     for parameter in parameters:
         slices = pd.concat(
@@ -37,7 +38,7 @@ def plot_slice_histogram(
         )
 
     for parameter in parameters:
-        create_single_plot(slices, parameter)
+        _create_single_plot(slices, parameter)
 
     ident = max(map(lambda entry: entry.ident, backfillz.plot_history)) + 1
 
@@ -52,5 +53,5 @@ def plot_slice_histogram(
     ))
 
 
-def create_single_plot(slices, parameter):
+def _create_single_plot(slices: pd.DataFrame, parameter: str) -> None:
     pass
