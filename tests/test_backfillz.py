@@ -7,10 +7,11 @@ from backfillz.Backfillz import as_backfillz
 def test() -> None:
     """Backfillz object can be created."""
     stan = generate_fit()
-    file = "model_fit"
+    file = "expected_backfillz"
     stan.save(file)
     sample_backfillz = as_backfillz(stan.fit, verbose=False)
     expected_stan = Stan.load(file)
+    print(str(stan.fit))
     assert expected_stan.equal(stan)
 
     print(sample_backfillz)

@@ -40,13 +40,12 @@ class Stan:
 
     def save(self, file: str) -> None:
         with open(file + ".pkl", "wb") as f:
-            pickle.dump({'model': self.model, 'fit': self.fit}, f, protocol=-1)
+            pickle.dump(self, f, protocol=-1)
 
     @staticmethod
     def load(file: str) -> Stan:
         with open(file + ".pkl", "rb") as f:
-            saved = pickle.load(f)
-            return Stan(saved.model, saved.fit)
+            return pickle.load(f)
 
     def equal(self, other: Stan) -> bool:
         return str(self) == str(other)
