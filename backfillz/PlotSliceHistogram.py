@@ -8,7 +8,7 @@ from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
-    df_slice_histogram: pd.DataFrame = pd.DataFrame(columns=[
+    pd.DataFrame(columns=[  # TODO: store in Backfillz object
         'parameter',  # character
         'sample_min',  # numeric
         'sample_max'  # numeric
