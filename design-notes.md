@@ -8,3 +8,4 @@ Differences to Backfillz-R
 - given conversion methods from Stan fits and data frames to Backfillz, cleaner for plot methods just to take 
   Backfillz objects 
 - `slices` argument to `plot_slice_histogram` is an unused complexity; drop for now
+- dropping `stringsAsFactors` for now (not sure what Python equivalent is)

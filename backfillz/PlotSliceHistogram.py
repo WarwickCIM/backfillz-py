@@ -19,29 +19,25 @@ def plot_slice_histogram(
     ])
 
     parameters = array(attributes(backfillz.fit).dimnames.parameters)[1:2]
-    lower = c(0, 0.8)
-    upper = c(0.4, 1)
+    lower = pd.Series([0, 0.8])
+    upper = pd.Series([0.4, 1])
     slices = pd.DataFrame(columns=[
       'parameters'  # character
       'lower'  # numeric
       'upper'  # numeric
-      'stringsAsFactors'  # bool (True)
     ])
     for parameter in parameters:
-        slices = rbind(
+        slices = pd.concat(
             slices,
-            pd.DataFrame(
-                parameters = rep(parameter, length(upper)),
-                lower = lower,
-                upper = upper,
-                stringsAsFactors = True
-            )
+            pd.DataFrame({
+                'parameters': pd.Series([parameter] * upper.size),
+                'lower': lower,
+                'upper': upper
+            })
         )
 
-    parameters = matrix(parameters)
-
     for parameter in parameters:
-        create_single_plot(parameter)
+        create_single_plot(slices, parameter)
 
     ident = max(map(lambda entry: entry.ident, backfillz.plot_history)) + 1
 
@@ -56,5 +52,5 @@ def plot_slice_histogram(
     ))
 
 
-def create_single_plot(parameter):
+def create_single_plot(slices, parameter):
     pass
