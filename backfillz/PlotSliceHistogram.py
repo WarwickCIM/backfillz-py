@@ -28,14 +28,14 @@ def plot_slice_histogram(
         'upper'  # numeric
     ])
     for parameter in parameters:
-        slices = pd.concat(
+        slices = pd.concat([
             slices,
             pd.DataFrame({
                 'parameters': pd.Series([parameter] * upper.size),
                 'lower': lower,
                 'upper': upper
             })
-        )
+        ])
 
     for parameter in parameters:
         _create_single_plot(slices, parameter)
