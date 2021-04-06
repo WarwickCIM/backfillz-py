@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 import sys
@@ -9,30 +10,21 @@ from backfillz.BackfillzTheme import BackfillzTheme, default, demo_1, demo_2, so
 
 
 class HistoryEvent(Enum):
-    """The kind of history event."""
+    """A category of history event."""
 
     OBJECT_CREATION = 1
 
 
+@dataclass
 class HistoryEntry:
     """An entry in the Backfillz history log."""
 
-    def __init__(
-        self,
-        ident: int,
-        date: datetime,
-        event: HistoryEvent,
-        python_version: str,  # more specific type?
-        saved: bool,
-        strings_as_factors: bool  # not sure what this is
-    ) -> None:
-        """Create a history entry."""
-        self.ident = ident,
-        self.date = date,
-        self.event = event,
-        self.python_version = python_version,
-        self.saved = saved,
-        self.strings_as_factors = strings_as_factors
+    ident: int
+    date: datetime
+    event: HistoryEvent
+    python_version: str
+    saved: bool
+    strings_as_factors: bool  # not sure what this is
 
 
 class Backfillz:
@@ -41,10 +33,7 @@ class Backfillz:
     theme: BackfillzTheme
     plot_history: List[HistoryEntry]
 
-    def __init__(
-        self,
-        fit: Fit
-    ) -> None:
+    def __init__(self, fit: Fit) -> None:
         """Initialise a Backfillz session."""
         fit = fit
         self.set_theme("default", False)
