@@ -6,16 +6,12 @@ import pandas as pd  # type: ignore
 from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 
 
-def plot_slice_histogram(
-    backfillz: Backfillz,
-    save_plot: bool = False
-) -> None:
+def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
     df_slice_histogram: pd.DataFrame = pd.DataFrame(columns=[
-        'parameter'  # character
-        'sample_min'  # numeric
+        'parameter',  # character
+        'sample_min',  # numeric
         'sample_max'  # numeric
-        'stringsAsFactors'  # bool (False)
     ])
 
     # array(attributes(backfillz.fit).dimnames.parameters)[1:2]
@@ -23,8 +19,8 @@ def plot_slice_histogram(
     lower = pd.Series([0, 0.8])
     upper = pd.Series([0.4, 1])
     slices: pd.DataFrame = pd.DataFrame(columns=[
-        'parameters'  # character
-        'lower'  # numeric
+        'parameters',  # character
+        'lower',  # numeric
         'upper'  # numeric
     ])
     for parameter in parameters:
@@ -34,8 +30,8 @@ def plot_slice_histogram(
                 'parameters': pd.Series([parameter] * upper.size),
                 'lower': lower,
                 'upper': upper
-            })
-        ])
+            }),
+        ], ignore_index=True)
 
     for parameter in parameters:
         _create_single_plot(slices, parameter)
