@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 import pickle
 
@@ -35,20 +36,25 @@ schools_data = {"J": 8,
 @dataclass
 class Stan:
     """Bundle a Stan fit with its model."""
+
     model: Model
     fit: Fit
 
     def save(self, file: str) -> None:
+        """Save Stan model and fit using supplied file name."""
         with open(file + ".pkl", "wb") as f:
             pickle.dump(self, f, protocol=-1)
 
     @staticmethod
     def load(file: str) -> Stan:
+        """Load Stan model and fit using supplied file name."""
         with open(file + ".pkl", "rb") as f:
             return pickle.load(f)
 
     def equal(self, other: Stan) -> bool:
+        """Test Stan model and fit for equality."""
         return str(self) == str(other)
+
 
 def generate_fit() -> Stan:
     """Make PyStan fit from the Eight Schools example."""
