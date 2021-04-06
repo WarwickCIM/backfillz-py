@@ -7,7 +7,6 @@ from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 
 def plot_slice_histogram(
     backfillz: Backfillz,
-    slices: Optional[pd.DataFrame] = None,
     save_plot: bool = False,
     verbose: bool = True):
 
@@ -19,33 +18,25 @@ def plot_slice_histogram(
         'stringsAsFactors'  # bool (False)
     ])
 
-    if slices is not None:
-        parameters = array(unique(slices.parameters))
-    else:
-        if verbose:
-            print("Using default slices of 0 - 0.4, 0.8 - 1.")
-            print("Plotting the first two parameters only.")
-            print("To plot other parameters please pass a slice argument to plot_slice_histogram")
-
-        parameters = array(attributes(backfillz.fit).dimnames.parameters)[1:2]
-        lower = c(0, 0.8)
-        upper = c(0.4, 1)
-        slices = pd.DataFrame(columns=[
-          'parameters'  # character
-          'lower'  # numeric
-          'upper'  # numeric
-          'stringsAsFactors'  # bool (True)
-        ])
-        for parameter in parameters:
-            slices = rbind(
-                slices,
-                pd.DataFrame(
-                    parameters = rep(parameter, length(upper)),
-                    lower = lower,
-                    upper = upper,
-                    stringsAsFactors = True
-                )
+    parameters = array(attributes(backfillz.fit).dimnames.parameters)[1:2]
+    lower = c(0, 0.8)
+    upper = c(0.4, 1)
+    slices = pd.DataFrame(columns=[
+      'parameters'  # character
+      'lower'  # numeric
+      'upper'  # numeric
+      'stringsAsFactors'  # bool (True)
+    ])
+    for parameter in parameters:
+        slices = rbind(
+            slices,
+            pd.DataFrame(
+                parameters = rep(parameter, length(upper)),
+                lower = lower,
+                upper = upper,
+                stringsAsFactors = True
             )
+        )
 
     parameters = matrix(parameters)
 
