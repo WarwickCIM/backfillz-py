@@ -10,9 +10,10 @@ from backfillz.BackfillzTheme import BackfillzTheme, default, demo_1, demo_2, so
 
 
 class HistoryEvent(Enum):
-    """A category of history event."""
+    """Category of event."""
 
     OBJECT_CREATION = 1
+    SLICE_HISTOGRAM = 2
 
 
 @dataclass
@@ -35,7 +36,7 @@ class Backfillz:
 
     def __init__(self, fit: Fit) -> None:
         """Initialise a Backfillz session."""
-        fit = fit
+        fit = fit  # called mcmc_samples in R version; rethink?
         self.set_theme("default", False)
         self.plot_history = [
             HistoryEntry(

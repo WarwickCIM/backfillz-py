@@ -1,7 +1,9 @@
+from datetime import datetime
 import pandas as pd
+import sys
 from typing import Optional
 
-from backfillz.Backfillz import Backfillz
+from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 
 def plot_slice_histogram(
     backfillz: Backfillz,
@@ -9,66 +11,59 @@ def plot_slice_histogram(
     save_plot: bool = False,
     verbose: bool = True):
 
-  # Preallocate the data frame stored in the backfillz object
-  backfillz.df_slice_histogram = pd.DataFrame(columns=[
-    'parameter'  # character
-    'sample_min'  # numeric
-    'sample_max'  # numeric
-    'stringsAsFactors'  # bool (False)
-  ])
+    # Preallocate the data frame stored in the backfillz object
+    backfillz.df_slice_histogram = pd.DataFrame(columns=[
+        'parameter'  # character
+        'sample_min'  # numeric
+        'sample_max'  # numeric
+        'stringsAsFactors'  # bool (False)
+    ])
 
-  if slices is None:
-    if verbose:
-      print("Using default slices of 0 - 0.4, 0.8 - 1.")
-      print("Plotting the first two parameters only.")
-      print("To plot other parameters please pass a slice argument to plot_slice_histogram")
+    if slices is not None:
+        parameters = array(unique(slices.parameters))
+    else:
+        if verbose:
+            print("Using default slices of 0 - 0.4, 0.8 - 1.")
+            print("Plotting the first two parameters only.")
+            print("To plot other parameters please pass a slice argument to plot_slice_histogram")
 
-    parameters = as.array(attributes(object@mcmc_samples)$dimnames$parameters)[1:2]
-    lower = c(0, 0.8)
-    upper = c(0.4, 1)
-    slices = pd.DataFrame(
-      'parameters'  # character
-      'lower'  # numeric
-      'upper'  # numeric
-      'stringsAsFactors'  # bool (True)
-    )
-    for (parameter in parameters) {
-      slices <- rbind(
-        slices,
-        data.frame(
-          parameters = rep(parameter, length(upper)),
-          lower = lower,
-          upper = upper,
-          stringsAsFactors = TRUE
-        )
-      )
-    }
-  } else { # if the user has passed a slices  argument
-    # Extract the parameters
-    parameters <- as.array(unique(slices$parameters))
-  }
+        parameters = array(attributes(backfillz.fit).dimnames.parameters)[1:2]
+        lower = c(0, 0.8)
+        upper = c(0.4, 1)
+        slices = pd.DataFrame(columns=[
+          'parameters'  # character
+          'lower'  # numeric
+          'upper'  # numeric
+          'stringsAsFactors'  # bool (True)
+        ])
+        for parameter in parameters:
+            slices = rbind(
+                slices,
+                pd.DataFrame(
+                    parameters = rep(parameter, length(upper)),
+                    lower = lower,
+                    upper = upper,
+                    stringsAsFactors = True
+                )
+            )
 
-  parameters <- as.matrix(parameters)
+    parameters = matrix(parameters)
 
-  # Create a plot for each parameter
-  apply(X = parameters, FUN = create_single_plot, MARGIN = 1)
+    for parameter in parameters:
+        create_single_plot(parameter)
 
-  id <- max(object@plot_history$ID + 1)
+    ident = max(map(lambda entry: entry.ident, backfillz.plot_history)) + 1
 
-  # Update log
-  object@plot_history <- rbind(
-    object@plot_history,
-    data.frame(
-      ID = id,
-      Date = date(),
-      Event = "Slice Histogram",
-      R_version = R.Version()$version.string,
-      Saved = save_plot,
-      stringsAsFactors = FALSE
-    )
-  )
+    # Update log
+    backfillz.plot_history.append(HistoryEntry(
+        ident=ident,
+        date=datetime.now(),
+        event=HistoryEvent.SLICE_HISTOGRAM,
+        python_version=sys.version,
+        saved=save_plot,
+        strings_as_factors=False
+    ))
 
-  return(object)
 
 def create_single_plot(parameter):
     pass
