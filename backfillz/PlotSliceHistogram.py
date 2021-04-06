@@ -1,50 +1,36 @@
+import pandas as pd
+from typing import Optional
+
 from backfillz.Backfillz import Backfillz
 
 def plot_slice_histogram(
-    object: Backfillz,
-    slices = NULL,
-    save_plot = False,
-    verbose = True):
-
-  # check inputs
-  if (
-    !class(object) == "stanfit" &
-     !class(object) == "backfillz" &
-     !class(object) == "data.frame") {
-    stop("Object is not a stanfit, Backfillz or data frame object")
-  }
-
-  # convert stanfit
-  if ((class(object) == "stanfit") | (class(object) == "data.frame")) {
-    object <- as_backfillz(object, verbose)
-  }
+    backfillz: Backfillz,
+    slices: Optional[pd.DataFrame] = None,
+    save_plot: bool = False,
+    verbose: bool = True):
 
   # Preallocate the data frame stored in the backfillz object
-  object@df_slice_histogram <- data.frame(
-    parameter = character(),
-    sample_min = numeric(),
-    sample_max = numeric(),
-    stringsAsFactors = FALSE
-  )
+  backfillz.df_slice_histogram = pd.DataFrame(columns=[
+    'parameter'  # character
+    'sample_min'  # numeric
+    'sample_max'  # numeric
+    'stringsAsFactors'  # bool (False)
+  ])
 
-  # Check slices argument
-  if (is.null(slices)) { # if no argument for slices
-    if (verbose) {
-          message("Using default slices of 0 - 0.4, 0.8 - 1.")
-          message("Plotting the first two parameters only.")
-          message(
-            paste0("To plot other parameters please pass ",
-            "a slice argument to plot_slice_histogram"))
-    }
-    parameters <-
-     as.array(attributes(object@mcmc_samples)$dimnames$parameters)[1:2]
-    lower <- c(0, 0.8)
-    upper <- c(0.4, 1)
-    slices <- data.frame(
-      parameters = character(),
-      lower = numeric(),
-      upper = numeric(),
-      stringsAsFactors = TRUE
+  if slices is None:
+    if verbose:
+      print("Using default slices of 0 - 0.4, 0.8 - 1.")
+      print("Plotting the first two parameters only.")
+      print("To plot other parameters please pass a slice argument to plot_slice_histogram")
+
+    parameters = as.array(attributes(object@mcmc_samples)$dimnames$parameters)[1:2]
+    lower = c(0, 0.8)
+    upper = c(0.4, 1)
+    slices = pd.DataFrame(
+      'parameters'  # character
+      'lower'  # numeric
+      'upper'  # numeric
+      'stringsAsFactors'  # bool (True)
     )
     for (parameter in parameters) {
       slices <- rbind(
