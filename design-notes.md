@@ -4,3 +4,6 @@ Differences to Backfillz-R
 
 - "Themes" are objects of type `BackfillzTheme`
 - default theme is only defined once
+- Backfillz object is mutable; no need to pass as argument
+- given conversion methods from Stan fits and data frames to Backfillz, cleaner for plot methods just to take 
+  Backfillz objects 
