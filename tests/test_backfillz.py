@@ -1,15 +1,30 @@
 """Test module for backfillz."""
 
-from tests.generate_sample_fit import generate_fit
+from tests.generate_sample_fit import generate_fit, Stan
 
-from backfillz.Backfillz import as_backfillz
+from backfillz.Backfillz import Backfillz
+from backfillz.PlotSliceHistogram import plot_slice_histogram
 
 
-def test() -> None:
+def test_sample_fit() -> None:
     """Backfillz object can be created."""
-    sample_backfillz = as_backfillz(generate_fit(), verbose=False)
-    print(sample_backfillz)
+    stan = generate_fit()
+    file = "expected_backfillz"
+#    stan.save(file)
+    Backfillz(stan.fit)
+    expected_stan = Stan.load(file)
+    print(str(expected_stan))
+    print(str(stan))
+    assert expected_stan.equal(stan)
+
+
+def test_plot_slice_histogram() -> None:
+    """Slice histogram plot is correctly generated."""
+    stan = generate_fit()
+    backfillz = Backfillz(stan.fit)
+    plot_slice_histogram(backfillz)
 
 
 if __name__ == '__main__':
-    test()
+    test_sample_fit()
+    test_plot_slice_histogram()

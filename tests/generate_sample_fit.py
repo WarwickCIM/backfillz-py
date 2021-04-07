@@ -1,5 +1,12 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+import pickle
+
 import stan
 from stan.fit import Fit
+from stan.model import Model
+
 
 schools_code = """
 data {
@@ -26,11 +33,33 @@ schools_data = {"J": 8,
                 "sigma": [15, 10, 16, 11, 9, 11, 10, 18]}
 
 
-def generate_fit() -> Fit:
+@dataclass
+class Stan:
+    """Bundle a Stan fit with its model."""
+
+    model: Model
+    fit: Fit
+
+    def save(self, file: str) -> None:
+        """Save Stan model and fit using supplied file name."""
+        with open(file + ".pkl", "wb") as f:
+            pickle.dump(self, f, protocol=-1)
+
+    @staticmethod
+    def load(file: str) -> Stan:
+        """Load Stan model and fit using supplied file name."""
+        with open(file + ".pkl", "rb") as f:
+            return pickle.load(f)
+
+    def equal(self, other: Stan) -> bool:
+        """For now just compare fit for (str) equality. Model name seems to vary unpredictably."""
+        return str(self.fit) == str(other.fit)
+
+
+def generate_fit() -> Stan:
     """Make PyStan fit from the Eight Schools example."""
-    posterior = stan.build(schools_code, data=schools_data, random_seed=1)
-    return posterior.sample(num_chains=4, num_samples=1000)
-#    df = fit.to_frame()
+    model = stan.build(schools_code, data=schools_data, random_seed=1)
+    return Stan(model, model.sample(num_chains=4, num_samples=1000))
 
 
 if __name__ == '__main__':
