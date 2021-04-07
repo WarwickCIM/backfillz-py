@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 import sys
@@ -16,16 +15,29 @@ class HistoryEvent(Enum):
     SLICE_HISTOGRAM = 2
 
 
-@dataclass
 class HistoryEntry:
     """An entry in the Backfillz history log."""
+
+    count = 0
 
     ident: int
     date: datetime
     event: HistoryEvent
     python_version: str
     saved: bool
-    strings_as_factors: bool  # not sure what this is
+
+    def __init__(
+        self,
+        event: HistoryEvent,
+        saved: bool
+    ) -> None:
+        """Construct a history entry."""
+        self.ident = HistoryEntry.count
+        HistoryEntry.count += 1
+        self.date = datetime.now()
+        self.event = event
+        self.python_version = sys.version
+        self.saved = saved
 
 
 class Backfillz:
@@ -36,17 +48,10 @@ class Backfillz:
 
     def __init__(self, fit: Fit) -> None:
         """Initialise a Backfillz session."""
-        fit = fit  # called mcmc_samples in R version; rethink?
+        self.fit = fit  # called mcmc_samples in R version; rethink?
         self.set_theme("default", False)
         self.plot_history = [
-            HistoryEntry(
-                ident=1,
-                date=datetime.now(),
-                event=HistoryEvent.OBJECT_CREATION,
-                python_version=sys.version,
-                saved=False,
-                strings_as_factors=False
-            )
+            HistoryEntry(HistoryEvent.OBJECT_CREATION, False)
         ]
 
     def set_theme(self, theme: str, verbose: bool = True) -> None:

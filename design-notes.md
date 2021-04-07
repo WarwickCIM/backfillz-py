@@ -10,3 +10,5 @@ Differences to Backfillz-R
 - `slices` argument to `plot_slice_histogram` is an unused complexity; drop for now
 - dropping `stringsAsFactors` for now (not sure what Python equivalent is)
 - kill `verbose` for now
+- comparing fitted model doesn't work if we include the model itself (model_name seems unpredictable)
+- not storing plot summaries on Backfillz -- need use cases to drive design
