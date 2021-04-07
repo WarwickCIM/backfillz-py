@@ -39,14 +39,7 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     ident = max(map(lambda entry: entry.ident, backfillz.plot_history)) + 1
 
     # Update log
-    backfillz.plot_history.append(HistoryEntry(
-        ident=ident,
-        date=datetime.now(),
-        event=HistoryEvent.SLICE_HISTOGRAM,
-        python_version=sys.version,
-        saved=save_plot,
-        strings_as_factors=False
-    ))
+    backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
 
 
 def _create_single_plot(slices: pd.DataFrame, parameter: str) -> None:
