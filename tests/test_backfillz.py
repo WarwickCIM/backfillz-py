@@ -13,7 +13,8 @@ def test_sample_fit() -> None:
 #    stan.save(file)
     Backfillz(stan.fit)
     expected_stan = Stan.load(file)
-    print(str(stan.fit))
+    print(str(expected_stan))
+    print(str(stan))
     assert expected_stan.equal(stan)
 
 
