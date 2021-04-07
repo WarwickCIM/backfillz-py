@@ -20,7 +20,7 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = "3.9.2"
+python = "3.9.4"
 importlib_metadata = "3.4.0"
 pystan = "3.0.0"
 pandas = "1.2.3"
