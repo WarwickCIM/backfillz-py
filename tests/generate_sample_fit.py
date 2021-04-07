@@ -52,8 +52,8 @@ class Stan:
             return pickle.load(f)
 
     def equal(self, other: Stan) -> bool:
-        """Test Stan model and fit for equality."""
-        return str(self) == str(other)
+        """For now just compare fit for (str) equality. Model name seems to vary unpredictably."""
+        return str(self.fit) == str(other.fit)
 
 
 def generate_fit() -> Stan:
