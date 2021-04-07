@@ -1,5 +1,5 @@
+import numpy as np
 import pandas as pd  # type: ignore
-import numpy as np  # type: ignore
 
 from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 
@@ -35,5 +35,5 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     print(backfillz.fit[param].shape)
     max_sample = np.amax(backfillz.fit[param])
     min_sample = np.amin(backfillz.fit[param])
-
-    print(f"Creating plot for { {'parameter': param, 'sample_min': min_sample, 'sample_max': max_sample} }")
+    plot = {'parameter': param, 'sample_min': min_sample, 'sample_max': max_sample}
+    print(f'Creating plot for { plot }')
