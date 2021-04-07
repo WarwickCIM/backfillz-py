@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 import sys
@@ -32,6 +31,7 @@ class HistoryEntry:
         event: HistoryEvent,
         saved: bool
     ) -> None:
+        """Construct a history entry."""
         self.ident = HistoryEntry.count
         HistoryEntry.count += 1
         self.date = datetime.now()
@@ -48,7 +48,7 @@ class Backfillz:
 
     def __init__(self, fit: Fit) -> None:
         """Initialise a Backfillz session."""
-        fit = fit  # called mcmc_samples in R version; rethink?
+        self.fit = fit  # called mcmc_samples in R version; rethink?
         self.set_theme("default", False)
         self.plot_history = [
             HistoryEntry(HistoryEvent.OBJECT_CREATION, False)

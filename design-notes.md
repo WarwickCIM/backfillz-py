@@ -11,3 +11,4 @@ Differences to Backfillz-R
 - dropping `stringsAsFactors` for now (not sure what Python equivalent is)
 - kill `verbose` for now
 - comparing fitted model doesn't work if we include the model itself (model_name seems unpredictable)
+- not storing plot summaries on Backfillz -- need use cases to drive design

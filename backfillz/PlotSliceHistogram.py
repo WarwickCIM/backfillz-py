@@ -1,21 +1,12 @@
-from datetime import datetime
-import sys
-
 import pandas as pd  # type: ignore
+import numpy as np  # type: ignore
 
 from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
-    pd.DataFrame(columns=[  # TODO: store in Backfillz object
-        'parameter',  # character
-        'sample_min',  # numeric
-        'sample_max'  # numeric
-    ])
-
-    # array(attributes(backfillz.fit).dimnames.parameters)[1:2]
-    parameters = pd.Series(['a', 'b'])  # todo
+    params = pd.Series(backfillz.fit.param_names[0:2])
     lower = pd.Series([0, 0.8])
     upper = pd.Series([0.4, 1])
     slices: pd.DataFrame = pd.DataFrame(columns=[
@@ -23,24 +14,26 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
         'lower',  # numeric
         'upper'  # numeric
     ])
-    for parameter in parameters:
+    for param in params:
         slices = pd.concat([
             slices,
             pd.DataFrame({
-                'parameters': pd.Series([parameter] * upper.size),
+                'parameters': pd.Series([param] * upper.size),
                 'lower': lower,
                 'upper': upper
             }),
         ], ignore_index=True)
 
-    for parameter in parameters:
-        _create_single_plot(slices, parameter)
-
-    ident = max(map(lambda entry: entry.ident, backfillz.plot_history)) + 1
+    for param in params:
+        _create_single_plot(backfillz, slices, param)
 
     # Update log
     backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
 
 
-def _create_single_plot(slices: pd.DataFrame, parameter: str) -> None:
-    pass
+def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) -> None:
+    print(backfillz.fit[param].shape)
+    max_sample = np.amax(backfillz.fit[param])
+    min_sample = np.amin(backfillz.fit[param])
+
+    print(f"Creating plot for { {'parameter': param, 'sample_min': min_sample, 'sample_max': max_sample} }")
