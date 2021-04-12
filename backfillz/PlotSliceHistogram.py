@@ -44,12 +44,19 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
 
     # Check, order and tag the slice
     param_col = slices['parameters']
-    param_count = slices.loc[param_col == param].shape[0]
-    param_col2 = param_col.map(
-        lambda param2: range(param_count) if param == param2 else pd.NA
-    )
+    param_count: int = 0
+
+    # Should look for a nicer idiom
+    def count_param(param2: str) -> int:
+        if param == param2:
+            nonlocal param_count
+            param_count += 1
+            return param_count
+        else:
+            return pd.NA
+
+    param_col2 = param_col.map(count_param)
     print(param_col2)
-    # concat is pure in Python, but not sure if we need imperative update anyway
     slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
 
     output_file("temp.html")
