@@ -48,14 +48,18 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     param_col2 = param_col.map(
         lambda param2: range(param_count) if param == param2 else pd.NA
     )
+    print(param_col2)
     # concat is pure in Python, but not sure if we need imperative update anyway
-    slices = pd.concat([slices, param_col2], axis=1)
+    slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
 
     output_file("temp.html")
     fig: Figure = figure(plot_width=400, plot_height=400)
 
+    print(slices.loc[param_col == param])
+
     slices.loc[param_col == param].apply(
-        lambda row: _create_slice(backfillz, fig, row['lower'], row['upper'], row['order'], param_count)
+        lambda row: _create_slice(backfillz, fig, row['lower'], row['upper'], row['order'], param_count),
+        axis=1
     )
 
     show(fig)
