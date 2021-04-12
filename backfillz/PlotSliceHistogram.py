@@ -36,7 +36,6 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
 
 def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) -> None:
     [n_chains, n] = backfillz.fit[param].shape
-    print(slices)
     max_sample = np.amax(backfillz.fit[param])
     min_sample = np.amin(backfillz.fit[param])
     plot = {'parameter': param, 'sample_min': min_sample, 'sample_max': max_sample}
@@ -56,13 +55,10 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             return pd.NA
 
     param_col2 = param_col.map(count_param)
-    print(param_col2)
     slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
 
     output_file("temp.html")
     fig: Figure = figure(plot_width=400, plot_height=400)
-
-    print(slices.loc[param_col == param])
 
     slices.loc[param_col == param].apply(
         lambda row: _create_slice(backfillz, fig, row['lower'], row['upper'], row['order'], param_count),
@@ -113,10 +109,12 @@ def _create_slice(backfillz: Backfillz, fig: Figure, lower: float, upper: float,
     fig.line(
         [0, 1],
         [lower, (order - 1) / max_order],
+        line_width=2,
         color=backfillz.theme.fg_colour
     )
     fig.line(
         [0, 1],
         [upper, order / max_order],
+        line_width=2,
         color=backfillz.theme.fg_colour
     )
