@@ -40,5 +40,56 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     print(f'Creating plot for { plot }')
 
     # Check, order and tag the slice
-    slices.loc[slices['parameter'] == param]
+    param_col = slices['parameters']
+    print(slices.loc[param_col == param])
+    param_col2 = param_col.map(lambda param2: slices.loc[param_col == param].shape[0] if param == param2 else pd.NA)
+    # concat is pure in Python, but not sure if we need imperative update anyway
+    slices = pd.concat([slices, param_col2], axis=1)
 
+    # Graphics parameters to find Python equivalent of:
+
+    # par(fig = c(0.08 + 1 / 3, 2 / 3 - 0.08, 0.25, 0.85),
+    #    family = object@theme_text_family,
+    #    font = object@theme_text_font,
+    #    bg = object@theme_bg_colour,
+    #    fg = object@theme_fg_colour,
+    #    col.lab = object@theme_text_font_colour,
+    #    col.axis = object@theme_text_font_colour,
+    #    cex.axis = object@theme_text_cex_axis,
+    #    cex.main = object@theme_text_cex_title,
+    #    cex.lab = object@theme_text_cex_main,
+    #    bty = "n")
+    #
+    # par(mar = c(0, 0, 0, 0))
+
+    # Other preliminaries to do:
+    # plot(
+    #  0:1, 0:1, type = "n", yaxs = "i", axes = FALSE, xaxs = "i", ann = FALSE
+    # )
+    #
+    # background rectangle - colour to match the rects in the Left Hand Plot
+    # rect(0, 0, 1, 1, border = FALSE,
+    #     col = adjustcolor(object@theme_mg_colour,
+    #                       alpha.f = object@theme_alpha)
+    # )
+
+
+def create_slice(backfillz: Backfillz, order, x, y) -> None:
+    polygon(
+        x=[0, 1, 1, 0],
+        y=[x[1], (x[3] - 1) / max(order), x[3] / max(order), x[2]],
+        col=backfillz.theme.bg_colour,
+        border=NA
+    )
+    lines(
+        x=[0, 1],
+        y=[x[1], (x[3] - 1) / max(order)],
+        lty=1,
+        col=backfillz.theme.fg_colour
+    )
+    lines(
+        x=[0, 1],
+        y=[x[2], x[3] / max(order)],
+        lty=1,
+        col=backfillz.theme.fg_colour
+    )
