@@ -1,6 +1,8 @@
+from typing import List
+
+from bokeh.plotting import Figure, figure, output_file, show  #type: ignore
 import numpy as np
 import pandas as pd  # type: ignore
-from bokeh.plotting import figure, Figure, show
 
 from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 
@@ -42,12 +44,21 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
 
     # Check, order and tag the slice
     param_col = slices['parameters']
-    print(slices.loc[param_col == param])
-    param_col2 = param_col.map(lambda param2: slices.loc[param_col == param].shape[0] if param == param2 else pd.NA)
+    param_count = slices.loc[param_col == param].shape[0]
+    param_col2 = param_col.map(
+        lambda param2: range(param_count) if param == param2 else pd.NA
+    )
     # concat is pure in Python, but not sure if we need imperative update anyway
     slices = pd.concat([slices, param_col2], axis=1)
 
+    output_file("temp.html")
     fig: Figure = figure(plot_width=400, plot_height=400)
+
+    slices.loc[param_col == param].apply(
+        lambda row: _create_slice(backfillz, fig, row['lower'], row['upper'], row['order'], param_count)
+    )
+
+    show(fig)
 
     # Graphics parameters to find Python equivalent of:
 
@@ -77,10 +88,12 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     # )
 
 
-def create_slice(backfillz: Backfillz, fig: Figure, order, x, y) -> None:
+# y not used..?
+def _create_slice(backfillz: Backfillz, fig: Figure, lower: float, upper: float, order: int, max_order: int) -> None:
+    print(lower, upper, order, max_order)
     fig.patch(
         [0, 1, 1, 0],
-        [x[1], (x[3] - 1) / max(order), x[3] / max(order), x[2]],
+        [lower, (order - 1) / max_order, order / max_order, upper],
         color=backfillz.theme.bg_colour,
         alpha=0.5,
         line_width=1,
@@ -88,11 +101,11 @@ def create_slice(backfillz: Backfillz, fig: Figure, order, x, y) -> None:
     )
     fig.line(
         [0, 1],
-        [x[1], (x[3] - 1) / max(order)],
+        [lower, (order - 1) / max_order],
         color=backfillz.theme.fg_colour
     )
     fig.line(
         [0, 1],
-        [x[2], x[3] / max(order)],
+        [upper, order / max_order],
         color=backfillz.theme.fg_colour
     )
