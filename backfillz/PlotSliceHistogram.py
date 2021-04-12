@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd  # type: ignore
+from bokeh.plotting import figure, Figure, show
 
 from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 
@@ -46,6 +47,8 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     # concat is pure in Python, but not sure if we need imperative update anyway
     slices = pd.concat([slices, param_col2], axis=1)
 
+    fig: Figure = figure(plot_width=400, plot_height=400)
+
     # Graphics parameters to find Python equivalent of:
 
     # par(fig = c(0.08 + 1 / 3, 2 / 3 - 0.08, 0.25, 0.85),
@@ -74,22 +77,22 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     # )
 
 
-def create_slice(backfillz: Backfillz, order, x, y) -> None:
-    polygon(
-        x=[0, 1, 1, 0],
-        y=[x[1], (x[3] - 1) / max(order), x[3] / max(order), x[2]],
-        col=backfillz.theme.bg_colour,
-        border=NA
+def create_slice(backfillz: Backfillz, fig: Figure, order, x, y) -> None:
+    fig.patch(
+        [0, 1, 1, 0],
+        [x[1], (x[3] - 1) / max(order), x[3] / max(order), x[2]],
+        color=backfillz.theme.bg_colour,
+        alpha=0.5,
+        line_width=1,
+        # border=NA           TO DO
     )
-    lines(
-        x=[0, 1],
-        y=[x[1], (x[3] - 1) / max(order)],
-        lty=1,
-        col=backfillz.theme.fg_colour
+    fig.line(
+        [0, 1],
+        [x[1], (x[3] - 1) / max(order)],
+        color=backfillz.theme.fg_colour
     )
-    lines(
-        x=[0, 1],
-        y=[x[2], x[3] / max(order)],
-        lty=1,
-        col=backfillz.theme.fg_colour
+    fig.line(
+        [0, 1],
+        [x[2], x[3] / max(order)],
+        color=backfillz.theme.fg_colour
     )
