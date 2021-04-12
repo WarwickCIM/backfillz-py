@@ -32,8 +32,13 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
 
 
 def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) -> None:
-    print(backfillz.fit[param].shape)
+    [n_chains, n] = backfillz.fit[param].shape
+    print(slices)
     max_sample = np.amax(backfillz.fit[param])
     min_sample = np.amin(backfillz.fit[param])
     plot = {'parameter': param, 'sample_min': min_sample, 'sample_max': max_sample}
     print(f'Creating plot for { plot }')
+
+    # Check, order and tag the slice
+    slices.loc[slices['parameter'] == param]
+
