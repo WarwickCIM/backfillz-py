@@ -1,43 +1,26 @@
+from dataclasses import dataclass
 from typing import List
 
 
+@dataclass
 class BackfillzTheme:
     """Backfillz visualisation settings."""
 
-    def __init__(
-        self,
-        name: str,
-        text_family: str,
-        text_font: float,
-        text_font_colour: str,
-        text_cex_title: float,
-        text_cex_main: float,
-        text_cex_axis: float,
-        text_col_title: str,
-        text_col_main: str,
-        text_col_axis: str,
-        bg_colour: str,
-        mg_colour: str,
-        fg_colour: str,
-        alpha: float,
-        palette: List[str]
-    ):
-        """Construct theme object."""
-        self.name = name
-        self.text_family = text_family
-        self.text_font = text_font
-        self.text_font_colour = text_font_colour
-        self.text_cex_title = text_cex_title
-        self.text_cex_main = text_cex_main
-        self.text_cex_axis = text_cex_axis
-        self.text_col_title = text_col_title
-        self.text_col_main = text_col_main
-        self.text_col_axis = text_col_axis
-        self.bg_colour = bg_colour
-        self.mg_colour = mg_colour
-        self.fg_colour = fg_colour
-        self.alpha = alpha
-        self.palette = palette
+    name: str
+    text_family: str
+    text_font: float
+    text_font_colour: str
+    text_cex_title: float
+    text_cex_main: float
+    text_cex_axis: float
+    text_col_title: str
+    text_col_main: str
+    text_col_axis: str
+    bg_colour: str
+    mg_colour: str
+    fg_colour: str
+    alpha: float
+    palette: List[str]
 
 
 default: BackfillzTheme = BackfillzTheme(
