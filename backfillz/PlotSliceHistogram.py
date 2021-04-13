@@ -1,5 +1,6 @@
 from typing import List
 
+from bokeh.models import LinearAxis
 from bokeh.plotting import Figure, figure, output_file, show  # type: ignore
 import numpy as np
 import pandas as pd  # type: ignore
@@ -61,16 +62,19 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
 
     output_file("temp.html")
-    fig: Figure = figure(plot_width=400, plot_height=400)
+    fig: Figure = figure(plot_width=400, plot_height=400, toolbar_location=None)
+    fig.xaxis.visible = False
+    fig.xgrid.visible = False
+    fig.ygrid.visible = False
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
     slices.loc[param_col == param].apply(
-        lambda row: _create_slice(
+        lambda slice: _create_slice(
             backfillz,
             fig,
-            row['lower'],
-            row['upper'],
-            row['order'],
+            slice['lower'],
+            slice['upper'],
+            slice['order'],
             param_count,
             max_sample,
             30,  # hard-coded for now
@@ -88,6 +92,9 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             color=backfillz.theme.palette[n]
         )
 
+    x_axis = LinearAxis(bounds=(min_sample, max_sample))
+    x_axis.minor_tick_line_color = None
+    fig.add_layout(x_axis, 'below')
     show(fig)
 
 
