@@ -1,6 +1,6 @@
 from typing import List
 
-from bokeh.models import LinearAxis  #type: ignore
+from bokeh.models import LinearAxis  # type: ignore
 from bokeh.plotting import Figure, figure, output_file, show  # type: ignore
 import numpy as np
 import pandas as pd  # type: ignore
