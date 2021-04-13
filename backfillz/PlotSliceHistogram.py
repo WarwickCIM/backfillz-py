@@ -105,22 +105,22 @@ def _create_slice(
     fig.patch(
         _translate(x_offset, _scale(x_scale, [0, 1, 1, 0])),
         _scale(y_scale, [lower, (order - 1) / max_order, order / max_order, upper]),
-        color="gray",  # backfillz.theme.bg_colour,
+        color=backfillz.theme.bg_colour,
         alpha=0.5,
         line_width=1,
         # border=NA           TO DO
     )
     fig.line(
-        _translate(x_offset,_scale(x_scale, [0, 1])),
+        _translate(x_offset, _scale(x_scale, [0, 1])),
         _scale(y_scale, [lower, (order - 1) / max_order]),
-        line_width=2,
-        color="red"  # backfillz.theme.fg_colour
+        line_width=1,
+        color=backfillz.theme.fg_colour
     )
     fig.line(
         _translate(x_offset, _scale(x_scale, [0, 1])),
         _scale(y_scale, [upper, order / max_order]),
-        line_width=2,
-        color="blue"  # backfillz.theme.fg_colour
+        line_width=1,
+        color=backfillz.theme.fg_colour
     )
 
 
