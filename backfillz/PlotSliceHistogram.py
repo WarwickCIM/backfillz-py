@@ -1,3 +1,6 @@
+from typing import List
+
+from bokeh.plotting import Figure, figure, output_file, show  # type: ignore
 import numpy as np
 import pandas as pd  # type: ignore
 
@@ -6,7 +9,7 @@ from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
-    params = pd.Series(backfillz.fit.param_names[0:2])
+    params = pd.Series(backfillz.mcmc_samples.param_names[0:2])
     lower = pd.Series([0, 0.8])
     upper = pd.Series([0.4, 1])
     slices: pd.DataFrame = pd.DataFrame(columns=[
@@ -23,6 +26,7 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
                 'upper': upper
             }),
         ], ignore_index=True)
+    print(slices)
 
     for param in params:
         _create_single_plot(backfillz, slices, param)
@@ -32,8 +36,92 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
 
 
 def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) -> None:
-    print(backfillz.fit[param].shape)
-    max_sample = np.amax(backfillz.fit[param])
-    min_sample = np.amin(backfillz.fit[param])
+    [dims, n_draws] = backfillz.mcmc_samples[param].shape
+    print(f"draws: {n_draws}, dims: {dims}, parameter: {param}")
+    max_sample = np.amax(backfillz.mcmc_samples[param])
+    min_sample = np.amin(backfillz.mcmc_samples[param])
     plot = {'parameter': param, 'sample_min': min_sample, 'sample_max': max_sample}
-    print(f'Creating plot for { plot }')
+    print(plot)
+
+    # Check, order and tag the slice
+    param_col = slices['parameters']
+    param_count: int = 0
+
+    # TODO: better idiom
+    def count_param(param2: str) -> int:
+        if param == param2:
+            nonlocal param_count
+            param_count += 1
+            return param_count
+        else:
+            return 0  # R seems to put NaN here, maybe doesn't matter
+
+    param_col2 = param_col.map(count_param)
+    slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
+
+    output_file("temp.html")
+    fig: Figure = figure(plot_width=400, plot_height=400)
+
+    xs = backfillz.mcmc_samples[param][0]  # scalar parameter; what about vectors?
+
+    # MIDDLE: JOINING SEGMENTS--------------------------------------
+    slices.loc[param_col == param].apply(
+        lambda row: _create_slice(
+            backfillz,
+            fig,
+            row['lower'],
+            row['upper'],
+            row['order'],
+            param_count,
+            30,  # hard-coded for now
+            xs.size),
+        axis=1
+    )
+
+    # LEFT: TRACE PLOT ------------------------------------------
+    # # Plot every chain
+    fig.line(
+        xs,
+        range(0, xs.size),
+        line_width=1,
+        color="black"  # pick from backfillz.theme.palette using chain no. as index
+    )
+
+    show(fig)
+
+
+def _create_slice(
+    backfillz: Backfillz,
+    fig: Figure,
+    lower: float,
+    upper: float,
+    order: int,
+    max_order: int,
+    x_scale: int,
+    y_scale: int
+) -> None:
+    print(lower, upper, order, max_order)
+    fig.patch(
+        _scale(x_scale, [0, 1, 1, 0]),
+        _scale(y_scale, [lower, (order - 1) / max_order, order / max_order, upper]),
+        color="gray",  # backfillz.theme.bg_colour,
+        alpha=0.5,
+        line_width=1,
+        # border=NA           TO DO
+    )
+    fig.line(
+        _scale(x_scale, [0, 1]),
+        _scale(y_scale, [lower, (order - 1) / max_order]),
+        line_width=2,
+        color="red"  # backfillz.theme.fg_colour
+    )
+    fig.line(
+        _scale(x_scale, [0, 1]),
+        _scale(y_scale, [upper, order / max_order]),
+        line_width=2,
+        color="blue"  # backfillz.theme.fg_colour
+    )
+
+
+def _scale(factor: float, xs: List[float]) -> List[float]:
+    return [x * factor for x in xs]

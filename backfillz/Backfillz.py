@@ -48,7 +48,7 @@ class Backfillz:
 
     def __init__(self, fit: Fit) -> None:
         """Initialise a Backfillz session."""
-        self.fit = fit  # called mcmc_samples in R version; rethink?
+        self.mcmc_samples = fit
         self.set_theme("default", False)
         self.plot_history = [
             HistoryEntry(HistoryEvent.OBJECT_CREATION, False)

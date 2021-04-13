@@ -24,6 +24,7 @@ python = "3.9.4"
 importlib_metadata = "3.4.0"
 pystan = "3.0.0"
 pandas = "1.2.3"
+bokeh = "^2.3.1"
 
 [tool.poetry.dev-dependencies]
 mkdocs-material = "^6.1.5"
