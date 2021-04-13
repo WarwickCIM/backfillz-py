@@ -1,6 +1,6 @@
 from typing import List
 
-from bokeh.models import LinearAxis
+from bokeh.models import LinearAxis  #type: ignore
 from bokeh.plotting import Figure, figure, output_file, show  # type: ignore
 import numpy as np
 import pandas as pd  # type: ignore
@@ -62,7 +62,15 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
 
     output_file("temp.html")
-    fig: Figure = figure(plot_width=400, plot_height=400, toolbar_location=None)
+    fig: Figure = figure(
+        title=f"Trace slice histogram of {param}",
+        plot_width=400,
+        plot_height=400,
+        toolbar_location=None
+    )
+    fig.title.text_font_size = f"{backfillz.theme.text_cex_title}em"
+    # TODO: set title colour to backfillz@theme.text_col_title
+    fig.yaxis.minor_tick_line_color = None
     fig.xaxis.visible = False
     fig.xgrid.visible = False
     fig.ygrid.visible = False
