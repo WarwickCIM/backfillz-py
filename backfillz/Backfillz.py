@@ -3,6 +3,7 @@ from enum import Enum
 import sys
 from typing import List
 
+import numpy as np
 from stan.fit import Fit  # type: ignore
 
 from backfillz.BackfillzTheme import BackfillzTheme, default, demo_1, demo_2, solarized_dark
@@ -53,6 +54,14 @@ class Backfillz:
         self.plot_history = [
             HistoryEntry(HistoryEvent.OBJECT_CREATION, False)
         ]
+
+    def iter_chains(self, param: str, index: int = 0) -> np.ndarray:
+        """Return the (num_chains x num_samples) matrix of draws for a given parameter."""
+        num_chains, num_samples = self.mcmc_samples.num_chains, self.mcmc_samples.num_samples
+        xss = np.zeros((num_chains, num_samples))
+        for n in range(0, num_chains):
+            xss[n] = self.mcmc_samples[param][index][n * num_samples: (n + 1) * num_samples]
+        return xss
 
     def set_theme(self, theme: str, verbose: bool = True) -> None:
         """Set Backfillz theme."""

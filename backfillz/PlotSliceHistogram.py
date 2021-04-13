@@ -1,5 +1,6 @@
 from typing import List
 
+from bokeh.models import LinearAxis  # type: ignore
 from bokeh.plotting import Figure, figure, output_file, show  # type: ignore
 import numpy as np
 import pandas as pd  # type: ignore
@@ -26,7 +27,6 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
                 'upper': upper
             }),
         ], ignore_index=True)
-    print(slices)
 
     for param in params:
         _create_single_plot(backfillz, slices, param)
@@ -35,9 +35,11 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
 
 
+# Assume scalar parameter for now; what about vectors?
 def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) -> None:
-    [dims, n_draws] = backfillz.mcmc_samples[param].shape
-    print(f"draws: {n_draws}, dims: {dims}, parameter: {param}")
+    chains = backfillz.iter_chains(param)
+    [n_chains, n_iter] = chains.shape
+    print(f"iterations: {n_iter}, chains: {n_chains}, parameter: {param}")
     max_sample = np.amax(backfillz.mcmc_samples[param])
     min_sample = np.amin(backfillz.mcmc_samples[param])
     plot = {'parameter': param, 'sample_min': min_sample, 'sample_max': max_sample}
@@ -54,39 +56,53 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             param_count += 1
             return param_count
         else:
-            return 0  # R seems to put NaN here, maybe doesn't matter
+            return 0  # R version puts NaN here, but maybe doesn't matter
 
     param_col2 = param_col.map(count_param)
     slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
 
     output_file("temp.html")
-    fig: Figure = figure(plot_width=400, plot_height=400)
-
-    xs = backfillz.mcmc_samples[param][0]  # scalar parameter; what about vectors?
+    fig: Figure = figure(
+        title=f"Trace slice histogram of {param}",
+        plot_width=400,
+        plot_height=400,
+        toolbar_location=None
+    )
+    fig.title.text_font_size = f"{backfillz.theme.text_cex_title}em"
+    # TODO: set title colour to backfillz@theme.text_col_title
+    fig.yaxis.minor_tick_line_color = None
+    fig.xaxis.visible = False
+    fig.xgrid.visible = False
+    fig.ygrid.visible = False
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
     slices.loc[param_col == param].apply(
-        lambda row: _create_slice(
+        lambda slice: _create_slice(
             backfillz,
             fig,
-            row['lower'],
-            row['upper'],
-            row['order'],
+            slice['lower'],
+            slice['upper'],
+            slice['order'],
             param_count,
+            max_sample,
             30,  # hard-coded for now
-            xs.size),
+            n_iter
+        ),
         axis=1
     )
 
     # LEFT: TRACE PLOT ------------------------------------------
-    # # Plot every chain
-    fig.line(
-        xs,
-        range(0, xs.size),
-        line_width=1,
-        color="black"  # pick from backfillz.theme.palette using chain no. as index
-    )
+    for n in range(0, n_chains):
+        fig.line(
+            chains[n],
+            range(0, chains[n].size),
+            line_width=1,
+            color=backfillz.theme.palette[n]
+        )
 
+    x_axis = LinearAxis(bounds=(min_sample, max_sample))
+    x_axis.minor_tick_line_color = None
+    fig.add_layout(x_axis, 'below')
     show(fig)
 
 
@@ -97,31 +113,35 @@ def _create_slice(
     upper: float,
     order: int,
     max_order: int,
+    x_offset: int,
     x_scale: int,
     y_scale: int
 ) -> None:
-    print(lower, upper, order, max_order)
     fig.patch(
-        _scale(x_scale, [0, 1, 1, 0]),
+        _translate(x_offset, _scale(x_scale, [0, 1, 1, 0])),
         _scale(y_scale, [lower, (order - 1) / max_order, order / max_order, upper]),
-        color="gray",  # backfillz.theme.bg_colour,
+        color=backfillz.theme.bg_colour,
         alpha=0.5,
         line_width=1,
         # border=NA           TO DO
     )
     fig.line(
-        _scale(x_scale, [0, 1]),
+        _translate(x_offset, _scale(x_scale, [0, 1])),
         _scale(y_scale, [lower, (order - 1) / max_order]),
-        line_width=2,
-        color="red"  # backfillz.theme.fg_colour
+        line_width=1,
+        color=backfillz.theme.fg_colour
     )
     fig.line(
-        _scale(x_scale, [0, 1]),
+        _translate(x_offset, _scale(x_scale, [0, 1])),
         _scale(y_scale, [upper, order / max_order]),
-        line_width=2,
-        color="blue"  # backfillz.theme.fg_colour
+        line_width=1,
+        color=backfillz.theme.fg_colour
     )
 
 
 def _scale(factor: float, xs: List[float]) -> List[float]:
     return [x * factor for x in xs]
+
+
+def _translate(offset: float, xs: List[float]) -> List[float]:
+    return [x + offset for x in xs]

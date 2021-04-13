@@ -1,8 +1,10 @@
 # Meeting notes
 
+# 27 April 2021
+
 # 13 Apr 2021
 
-## Progress so far
+## Progress
 - Use PyStan to generate sample model from 8 Schools example
 - save (pickle) the sample model and test generated model against saved version
 - first pass over slice histogram plot:
