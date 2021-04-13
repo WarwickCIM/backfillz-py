@@ -1,3 +1,5 @@
+from typing import List
+
 from bokeh.plotting import Figure, figure, output_file, show  # type: ignore
 import numpy as np
 import pandas as pd  # type: ignore
@@ -60,16 +62,24 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     output_file("temp.html")
     fig: Figure = figure(plot_width=400, plot_height=400)
 
+    xs = backfillz.mcmc_samples[param][0]  # scalar parameter; what about vectors?
+
     # MIDDLE: JOINING SEGMENTS--------------------------------------
     slices.loc[param_col == param].apply(
-        lambda row:
-            _create_slice(backfillz, fig, row['lower'], row['upper'], row['order'], param_count),
+        lambda row: _create_slice(
+            backfillz,
+            fig,
+            row['lower'],
+            row['upper'],
+            row['order'],
+            param_count,
+            30,  # hard-coded for now
+            xs.size),
         axis=1
     )
 
     # LEFT: TRACE PLOT ------------------------------------------
     # # Plot every chain
-    xs = backfillz.mcmc_samples[param][0]  # scalar parameter; what about vectors?
     fig.line(
         xs,
         range(0, xs.size),
@@ -86,26 +96,32 @@ def _create_slice(
     lower: float,
     upper: float,
     order: int,
-    max_order: int
+    max_order: int,
+    x_scale: int,
+    y_scale: int
 ) -> None:
     print(lower, upper, order, max_order)
     fig.patch(
-        [0, 1, 1, 0],
-        [lower, (order - 1) / max_order, order / max_order, upper],
+        _scale(x_scale, [0, 1, 1, 0]),
+        _scale(y_scale, [lower, (order - 1) / max_order, order / max_order, upper]),
         color="gray",  # backfillz.theme.bg_colour,
         alpha=0.5,
         line_width=1,
         # border=NA           TO DO
     )
     fig.line(
-        [0, 1],
-        [lower, (order - 1) / max_order],
+        _scale(x_scale, [0, 1]),
+        _scale(y_scale, [lower, (order - 1) / max_order]),
         line_width=2,
         color="red"  # backfillz.theme.fg_colour
     )
     fig.line(
-        [0, 1],
-        [upper, order / max_order],
+        _scale(x_scale, [0, 1]),
+        _scale(y_scale, [upper, order / max_order]),
         line_width=2,
         color="blue"  # backfillz.theme.fg_colour
     )
+
+
+def _scale(factor: float, xs: List[float]) -> List[float]:
+    return [x * factor for x in xs]
