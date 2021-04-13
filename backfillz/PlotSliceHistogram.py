@@ -72,6 +72,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             row['upper'],
             row['order'],
             param_count,
+            max_sample,
             30,  # hard-coded for now
             n_iter
         ),
@@ -97,11 +98,12 @@ def _create_slice(
     upper: float,
     order: int,
     max_order: int,
+    x_offset: int,
     x_scale: int,
     y_scale: int
 ) -> None:
     fig.patch(
-        _scale(x_scale, [0, 1, 1, 0]),
+        _translate(x_offset, _scale(x_scale, [0, 1, 1, 0])),
         _scale(y_scale, [lower, (order - 1) / max_order, order / max_order, upper]),
         color="gray",  # backfillz.theme.bg_colour,
         alpha=0.5,
@@ -109,13 +111,13 @@ def _create_slice(
         # border=NA           TO DO
     )
     fig.line(
-        _scale(x_scale, [0, 1]),
+        _translate(x_offset,_scale(x_scale, [0, 1])),
         _scale(y_scale, [lower, (order - 1) / max_order]),
         line_width=2,
         color="red"  # backfillz.theme.fg_colour
     )
     fig.line(
-        _scale(x_scale, [0, 1]),
+        _translate(x_offset, _scale(x_scale, [0, 1])),
         _scale(y_scale, [upper, order / max_order]),
         line_width=2,
         color="blue"  # backfillz.theme.fg_colour
@@ -124,3 +126,7 @@ def _create_slice(
 
 def _scale(factor: float, xs: List[float]) -> List[float]:
     return [x * factor for x in xs]
+
+
+def _translate(offset: float, xs: List[float]) -> List[float]:
+    return [x + offset for x in xs]
