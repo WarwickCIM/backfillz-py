@@ -2,6 +2,13 @@
 
 # 13 Apr 2021
 
+## Progress so far
+- Use PyStan to generate sample model from 8 Schools example
+- save (pickle) the sample model and test generated model against saved version
+- first pass over slice histogram plot:
+  - LEFT: line plot of all draws (no per-chain colouring yet)
+  - MIDDLE: initial stab at "joining segments"
+
 ## Questions for James
 
 ### plot_slice_histogram
@@ -14,4 +21,3 @@
 - in `fig = c(0.08 + 1 / 3, 2 / 3 - 0.08, 0.25, 0.85)`, are the 1/3 and 2/3 partitioning a virtual viewport and 0.08 
   is acting as a margin?
 - in the trace plot, what does the scaling of the x and y axis into this virtual viewport?
-
