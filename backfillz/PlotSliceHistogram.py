@@ -37,7 +37,7 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
 # Assume scalar parameter for now; what about vectors?
 def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) -> None:
     chains = backfillz.iter_chains(param)
-    [n_iter, n_chains] = chains.shape
+    [n_chains, n_iter] = chains.shape
     print(f"iterations: {n_iter}, chains: {n_chains}, parameter: {param}")
     max_sample = np.amax(backfillz.mcmc_samples[param])
     min_sample = np.amin(backfillz.mcmc_samples[param])
@@ -79,7 +79,6 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     )
 
     # LEFT: TRACE PLOT ------------------------------------------
-    # # Plot every chain
     for n in range(0, n_chains):
         fig.line(
             chains[n],
