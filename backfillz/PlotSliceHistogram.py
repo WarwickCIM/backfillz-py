@@ -9,7 +9,7 @@ from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
-    params = pd.Series(backfillz.fit.param_names[0:2])
+    params = pd.Series(backfillz.mcmc_samples.param_names[0:2])
     lower = pd.Series([0, 0.8])
     upper = pd.Series([0.4, 1])
     slices: pd.DataFrame = pd.DataFrame(columns=[
@@ -35,9 +35,10 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
 
 
 def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) -> None:
-    [n_chains, n] = backfillz.fit[param].shape
-    max_sample = np.amax(backfillz.fit[param])
-    min_sample = np.amin(backfillz.fit[param])
+    [dims, n_draws] = backfillz.mcmc_samples[param].shape
+    print(f"draws: {n_draws}, dims: {dims}, parameter: {param}")
+    max_sample = np.amax(backfillz.mcmc_samples[param])
+    min_sample = np.amin(backfillz.mcmc_samples[param])
     plot = {'parameter': param, 'sample_min': min_sample, 'sample_max': max_sample}
     print(f'Creating plot for { plot }')
 
@@ -45,7 +46,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     param_col = slices['parameters']
     param_count: int = 0
 
-    # Should look for a nicer idiom
+    # TODO: better idiom
     def count_param(param2: str) -> int:
         if param == param2:
             nonlocal param_count
@@ -73,8 +74,13 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     # }
 
     # # Plot every chain
-    # apply(X = rbind(1:n_chains, object@mcmc_samples[, , parameter]),
-    #       FUN = line_plot, MARGIN = 2)
+    xs = backfillz.mcmc_samples[param][0]  # scalar parameter; what about vectors?
+    fig.line(
+        xs,
+        range(0, xs.size),
+        line_width=1,
+        color="black"
+    )
 
     show(fig)
 
