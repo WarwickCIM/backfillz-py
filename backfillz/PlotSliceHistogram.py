@@ -1,6 +1,6 @@
 from typing import List
 
-from bokeh.plotting import Figure, figure, output_file, show  #type: ignore
+from bokeh.plotting import Figure, figure, output_file, show  # type: ignore
 import numpy as np
 import pandas as pd  # type: ignore
 
@@ -65,34 +65,18 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         axis=1
     )
 
+    # line_plot <- function(x) {
+    #   lines(x[-1],
+    #         1:n,
+    #         col = alpha(object@theme_palette[[x[1]]], 1),
+    #   )
+    # }
+
+    # # Plot every chain
+    # apply(X = rbind(1:n_chains, object@mcmc_samples[, , parameter]),
+    #       FUN = line_plot, MARGIN = 2)
+
     show(fig)
-
-    # Graphics parameters to find Python equivalent of:
-
-    # par(fig = c(0.08 + 1 / 3, 2 / 3 - 0.08, 0.25, 0.85),
-    #    family = object@theme_text_family,
-    #    font = object@theme_text_font,
-    #    bg = object@theme_bg_colour,
-    #    fg = object@theme_fg_colour,
-    #    col.lab = object@theme_text_font_colour,
-    #    col.axis = object@theme_text_font_colour,
-    #    cex.axis = object@theme_text_cex_axis,
-    #    cex.main = object@theme_text_cex_title,
-    #    cex.lab = object@theme_text_cex_main,
-    #    bty = "n")
-    #
-    # par(mar = c(0, 0, 0, 0))
-
-    # Other preliminaries to do:
-    # plot(
-    #  0:1, 0:1, type = "n", yaxs = "i", axes = FALSE, xaxs = "i", ann = FALSE
-    # )
-    #
-    # background rectangle - colour to match the rects in the Left Hand Plot
-    # rect(0, 0, 1, 1, border = FALSE,
-    #     col = adjustcolor(object@theme_mg_colour,
-    #                       alpha.f = object@theme_alpha)
-    # )
 
 
 # y not used..?
@@ -101,7 +85,7 @@ def _create_slice(backfillz: Backfillz, fig: Figure, lower: float, upper: float,
     fig.patch(
         [0, 1, 1, 0],
         [lower, (order - 1) / max_order, order / max_order, upper],
-        color=backfillz.theme.bg_colour,
+        color="gray",  # backfillz.theme.bg_colour,
         alpha=0.5,
         line_width=1,
         # border=NA           TO DO
@@ -110,11 +94,12 @@ def _create_slice(backfillz: Backfillz, fig: Figure, lower: float, upper: float,
         [0, 1],
         [lower, (order - 1) / max_order],
         line_width=2,
-        color=backfillz.theme.fg_colour
+        color="red"  # backfillz.theme.fg_colour
     )
     fig.line(
         [0, 1],
         [upper, order / max_order],
         line_width=2,
-        color=backfillz.theme.fg_colour
+        color="blue"  # backfillz.theme.fg_colour
     )
+
