@@ -26,7 +26,6 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
                 'upper': upper
             }),
         ], ignore_index=True)
-    print(slices)
 
     for param in params:
         _create_single_plot(backfillz, slices, param)
@@ -35,9 +34,11 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
 
 
+# Assume scalar parameter for now; what about vectors?
 def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) -> None:
-    [dims, n_draws] = backfillz.mcmc_samples[param].shape
-    print(f"draws: {n_draws}, dims: {dims}, parameter: {param}")
+    chains = backfillz.iter_chains(param)
+    [n_iter, n_chains] = chains.shape
+    print(f"iterations: {n_iter}, chains: {n_chains}, parameter: {param}")
     max_sample = np.amax(backfillz.mcmc_samples[param])
     min_sample = np.amin(backfillz.mcmc_samples[param])
     plot = {'parameter': param, 'sample_min': min_sample, 'sample_max': max_sample}
@@ -54,15 +55,13 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             param_count += 1
             return param_count
         else:
-            return 0  # R seems to put NaN here, maybe doesn't matter
+            return 0  # R version puts NaN here, but maybe doesn't matter
 
     param_col2 = param_col.map(count_param)
     slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
 
     output_file("temp.html")
     fig: Figure = figure(plot_width=400, plot_height=400)
-
-    xs = backfillz.mcmc_samples[param][0]  # scalar parameter; what about vectors?
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
     slices.loc[param_col == param].apply(
@@ -74,18 +73,20 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             row['order'],
             param_count,
             30,  # hard-coded for now
-            xs.size),
+            n_iter
+        ),
         axis=1
     )
 
     # LEFT: TRACE PLOT ------------------------------------------
     # # Plot every chain
-    fig.line(
-        xs,
-        range(0, xs.size),
-        line_width=1,
-        color="black"  # pick from backfillz.theme.palette using chain no. as index
-    )
+    for n in range(0, n_chains):
+        fig.line(
+            chains[n],
+            range(0, chains[n].size),
+            line_width=1,
+            color=backfillz.theme.palette[n]
+        )
 
     show(fig)
 
@@ -100,7 +101,6 @@ def _create_slice(
     x_scale: int,
     y_scale: int
 ) -> None:
-    print(lower, upper, order, max_order)
     fig.patch(
         _scale(x_scale, [0, 1, 1, 0]),
         _scale(y_scale, [lower, (order - 1) / max_order, order / max_order, upper]),
