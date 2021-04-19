@@ -77,16 +77,16 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
     slices.loc[param_col == param].apply(
-        lambda slice: _create_slice(
+        lambda slc: _create_slice(
             backfillz,
             fig,
-            slice['lower'],
-            slice['upper'],
-            slice['order'],
-            param_count,
-            max_sample,
-            30,  # hard-coded for now
-            n_iter
+            slc['lower'],
+            slc['upper'],
+            slc['order'],
+            max_order=param_count,
+            x_offset=max_sample,
+            x_scale=30,  # hard-coded for now
+            y_scale=n_iter
         ),
         axis=1
     )
@@ -105,6 +105,16 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     fig.add_layout(x_axis, 'below')
 
     # RIGHT: TRACE PLOT ------------------------------------------
+    slices.loc[param_col == param].apply(
+        lambda slc: _create_slice_histogram(
+            backfillz,
+            slc['lower'],
+            slc['upper'],
+            slc['order'],
+            max_order=param_count,
+        ),
+        axis = 1
+    )
 
     show(fig)
 
@@ -140,6 +150,26 @@ def _create_slice(
         line_width=1,
         color=backfillz.theme.fg_colour
     )
+
+
+def _create_slice_histogram(
+    backfillz: Backfillz,
+    lower: float,
+    upper: float,
+    order: int,
+    max_order: int,
+) -> None:
+    print("BANANAS")
+    print(backfillz.mcmc_samples['mu'].shape)
+
+#    hist = np.histogram(backfillz.mcmc_samples[(x$lower * n):(x$upper * n), , parameter],
+#                      breaks=
+#                      c(
+#                          seq(floor(min_sample),
+#                              ceiling(max_sample), length=40)
+#                      ),
+#                      plot=FALSE
+#                      )
 
 
 def _scale(factor: float, xs: List[float]) -> List[float]:
