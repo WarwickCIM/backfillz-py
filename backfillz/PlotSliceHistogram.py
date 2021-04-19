@@ -1,3 +1,4 @@
+from math import ceil, floor
 from typing import List
 
 from bokeh.models import LinearAxis  # type: ignore
@@ -40,8 +41,8 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     chains = backfillz.iter_chains(param)
     [n_chains, n_iter] = chains.shape
     print(f"iterations: {n_iter}, chains: {n_chains}, parameter: {param}")
-    max_sample = np.amax(backfillz.mcmc_samples[param])
-    min_sample = np.amin(backfillz.mcmc_samples[param])
+    max_sample: float = np.amax(backfillz.mcmc_samples[param])
+    min_sample: float = np.amin(backfillz.mcmc_samples[param])
     plot = {'parameter': param, 'sample_min': min_sample, 'sample_max': max_sample}
     print(plot)
 
@@ -49,7 +50,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     param_col = slices['parameters']
     param_count: int = 0
 
-    # TODO: better idiom
+    # TODO: ugh
     def count_param(param2: str) -> int:
         if param == param2:
             nonlocal param_count
@@ -108,10 +109,13 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     slices.loc[param_col == param].apply(
         lambda slc: _create_slice_histogram(
             backfillz,
+            chains,
             slc['lower'],
             slc['upper'],
             slc['order'],
             max_order=param_count,
+            min_sample=min_sample,
+            max_sample=max_sample
         ),
         axis = 1
     )
@@ -154,22 +158,21 @@ def _create_slice(
 
 def _create_slice_histogram(
     backfillz: Backfillz,
+    chains: np.ndarray,
     lower: float,
     upper: float,
     order: int,
     max_order: int,
+    min_sample: float,
+    max_sample: float
 ) -> None:
-    print("BANANAS")
-    print(backfillz.mcmc_samples['mu'].shape)
-
-#    hist = np.histogram(backfillz.mcmc_samples[(x$lower * n):(x$upper * n), , parameter],
-#                      breaks=
-#                      c(
-#                          seq(floor(min_sample),
-#                              ceiling(max_sample), length=40)
-#                      ),
-#                      plot=FALSE
-#                      )
+    [n_chains, n] = chains.shape
+    # first chain only for now; need to consider all?
+    hist, _ = np.histogram(
+        chains[0, floor(lower * n):floor(upper * n)],
+        bins=np.linspace(start=floor(min_sample), stop=ceil(max_sample), num=40)
+    )
+    print(hist)
 
 
 def _scale(factor: float, xs: List[float]) -> List[float]:
