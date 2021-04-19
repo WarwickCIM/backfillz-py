@@ -103,6 +103,9 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     x_axis = LinearAxis(bounds=(min_sample, max_sample))
     x_axis.minor_tick_line_color = None
     fig.add_layout(x_axis, 'below')
+
+    # RIGHT: TRACE PLOT ------------------------------------------
+
     show(fig)
 
 
