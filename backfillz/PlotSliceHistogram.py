@@ -1,5 +1,5 @@
 from math import ceil, floor
-from typing import List
+from typing import List, Tuple
 
 from bokeh.layouts import column, row  # type: ignore
 from bokeh.models import LinearAxis, Range1d  # type: ignore
@@ -8,6 +8,22 @@ import numpy as np
 import pandas as pd  # type: ignore
 
 from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
+
+
+def _blank_figure(
+    width: int,
+    height: int,
+    x_range: Tuple[float, float],
+    y_range: Tuple[float, float]
+) -> Figure:
+    p: Figure = figure(plot_width=width, plot_height=height, toolbar_location=None)
+    p.min_border = 1
+    p.y_range = Range1d(y_range[0], y_range[1])
+    p.yaxis.minor_tick_line_color = None
+    p.xaxis.visible = False
+    p.xgrid.visible = False
+    p.ygrid.visible = False
+    return p
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
@@ -64,6 +80,8 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
 
     plot_height: int = 600
+    middle_width: int = 30  # check against R version
+
     output_file("temp.html")
     p: Figure = figure(
 #        title=f"Trace slice histogram of {param}",
@@ -75,9 +93,8 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     p.title.text_font_size = f"{backfillz.theme.text_cex_title}em"
     # TODO: set title colour to backfillz@theme.text_col_title
     p.y_range = Range1d(0, n_iter)
+    p.x_range = Range1d(min_sample, max_sample + middle_width)
     p.yaxis.minor_tick_line_color = None
-    p.yaxis.fixed_location = min_sample
-    p.yaxis.bounds = (0, n_iter)
     p.xaxis.visible = False
     p.xgrid.visible = False
     p.ygrid.visible = False
@@ -91,13 +108,6 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             line_width=1,
             color=backfillz.theme.palette[n]
         )
-
-    xaxis = LinearAxis(bounds=(min_sample, max_sample))
-    xaxis.minor_tick_line_color = None
-    xaxis.fixed_location = 0
-    p.add_layout(xaxis, 'below')
-
-    middle_width: int = 30  # check against R version
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
     slices.loc[param_col == param].apply(
@@ -128,6 +138,11 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         ),
         axis=1
     )
+
+    xaxis = LinearAxis(bounds=(min_sample, max_sample))
+    xaxis.minor_tick_line_color = None
+    xaxis.fixed_location = 0
+    p.add_layout(xaxis, 'below')
 
     show(row(p, column(hgrams.tolist())))
 
