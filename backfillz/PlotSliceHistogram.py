@@ -102,7 +102,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         y_range=(0, n_iter)
     )
     fig: Figure = go.Figure(
-        layout=go.Layout(plot_bgcolor='rgba(0,0,0,0)')
+        layout=go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
     )
 
     # p.title=f"Trace slice histogram of {param}",
