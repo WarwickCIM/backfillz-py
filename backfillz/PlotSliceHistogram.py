@@ -76,6 +76,8 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     fig.xgrid.visible = False
     fig.ygrid.visible = False
 
+    middle_width: int = 30  # check against R version
+
     # MIDDLE: JOINING SEGMENTS--------------------------------------
     slices.loc[param_col == param].apply(
         lambda slc: _create_slice(
@@ -86,7 +88,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             slc['order'],
             max_order=param_count,
             x_offset=max_sample,
-            x_scale=30,  # hard-coded for now
+            width=middle_width,
             y_scale=n_iter
         ),
         axis=1
@@ -105,17 +107,19 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     x_axis.minor_tick_line_color = None
     fig.add_layout(x_axis, 'below')
 
-    # RIGHT: TRACE PLOT ------------------------------------------
+    # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
     slices.loc[param_col == param].apply(
         lambda slc: _create_slice_histogram(
             backfillz,
+            fig,
             chains,
             slc['lower'],
             slc['upper'],
             slc['order'],
             max_order=param_count,
             min_sample=min_sample,
-            max_sample=max_sample
+            max_sample=max_sample,
+            x_start=middle_width
         ),
         axis = 1
     )
@@ -130,12 +134,12 @@ def _create_slice(
     upper: float,
     order: int,
     max_order: int,
-    x_offset: int,
-    x_scale: int,
+    x_offset: float,
+    width: int,
     y_scale: int
 ) -> None:
     fig.patch(
-        _translate(x_offset, _scale(x_scale, [0, 1, 1, 0])),
+        _translate(x_offset, _scale(width, [0, 1, 1, 0])),
         _scale(y_scale, [lower, (order - 1) / max_order, order / max_order, upper]),
         color=backfillz.theme.bg_colour,
         alpha=0.5,
@@ -143,13 +147,13 @@ def _create_slice(
         # border=NA           TO DO
     )
     fig.line(
-        _translate(x_offset, _scale(x_scale, [0, 1])),
+        _translate(x_offset, _scale(width, [0, 1])),
         _scale(y_scale, [lower, (order - 1) / max_order]),
         line_width=1,
         color=backfillz.theme.fg_colour
     )
     fig.line(
-        _translate(x_offset, _scale(x_scale, [0, 1])),
+        _translate(x_offset, _scale(width, [0, 1])),
         _scale(y_scale, [upper, order / max_order]),
         line_width=1,
         color=backfillz.theme.fg_colour
@@ -158,21 +162,30 @@ def _create_slice(
 
 def _create_slice_histogram(
     backfillz: Backfillz,
+    p: Figure,
     chains: np.ndarray,
     lower: float,
     upper: float,
     order: int,
     max_order: int,
     min_sample: float,
-    max_sample: float
+    max_sample: float,
+    x_start: float
 ) -> None:
     [n_chains, n] = chains.shape
     # first chain only for now; need to consider all?
-    hist, _ = np.histogram(
+    hist, edges = np.histogram(
         chains[0, floor(lower * n):floor(upper * n)],
         bins=np.linspace(start=floor(min_sample), stop=ceil(max_sample), num=40)
     )
-    print(hist)
+    p.quad(
+        bottom=0,
+        top=hist,
+        left=[x_start + x for x in edges[:-1]],
+        right=[x_start + x for x in edges[1:]],
+        fill_color='red',
+        line_color='black'
+    )
 
 
 def _scale(factor: float, xs: List[float]) -> List[float]:
