@@ -18,7 +18,9 @@ def _blank_figure(
 ) -> Figure:
     p: Figure = figure(plot_width=width, plot_height=height, toolbar_location=None)
     p.min_border = 1
-    p.y_range = Range1d(y_range[0], y_range[1])
+    p.outline_line_color = None
+    p.x_range = Range1d(*x_range)
+    p.y_range = Range1d(*y_range)
     p.yaxis.minor_tick_line_color = None
     p.xaxis.visible = False
     p.xgrid.visible = False
@@ -90,15 +92,15 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         toolbar_location=None
     )
     p.min_border = 1
-    p.title.text_font_size = f"{backfillz.theme.text_cex_title}em"
-    # TODO: set title colour to backfillz@theme.text_col_title
     p.y_range = Range1d(0, n_iter)
     p.x_range = Range1d(min_sample, max_sample + middle_width)
     p.yaxis.minor_tick_line_color = None
     p.xaxis.visible = False
     p.xgrid.visible = False
     p.ygrid.visible = False
-#    p.outline_line_color = None
+
+    p.title.text_font_size = f"{backfillz.theme.text_cex_title}em"
+    # TODO: set title colour to backfillz@theme.text_col_title
 
     # LEFT: TRACE PLOT ------------------------------------------
     for n in range(0, n_chains):
