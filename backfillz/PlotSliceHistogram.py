@@ -2,7 +2,7 @@ from math import ceil, floor
 from typing import List
 
 from bokeh.layouts import column  # type: ignore
-from bokeh.models import LinearAxis  # type: ignore
+from bokeh.models import LinearAxis, Range1d  # type: ignore
 from bokeh.plotting import Figure, figure, output_file, show
 import numpy as np
 import pandas as pd  # type: ignore
@@ -144,7 +144,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     )
     show(column(hgrams.tolist()))
 
-    show(p)
+    # show(p)
 
 
 def _create_slice(
@@ -222,16 +222,15 @@ def _slice_histogram(
     [_, n] = chains.shape
     p = figure(plot_width=200, plot_height=int(height), toolbar_location=None, y_axis_location='right')
     p.min_border = 0
+    p.x_range = Range1d(min_sample, max_sample)
+    p.y_range = Range1d(0, height)  # hack for now
+    p.xaxis.minor_tick_line_color = None
     p.yaxis.minor_tick_line_color = None
-    p.yaxis.fixed_location = max_sample
-    p.yaxis.bounds = (0, n)
-    p.xaxis.fixed_location = 0
+#    p.yaxis.fixed_location = max_sample
+#    p.yaxis.bounds = (0, n)
+#    p.xaxis.fixed_location = 0
     p.grid.visible = False
-    p.x_range.range_padding_units = 'absolute'
-    p.x_range.range_padding = 1
-    p.y_range.range_padding_units = 'absolute'
-    p.y_range.range_padding = 1
-    p.outline_line_color=None
+    p.outline_line_color = None
 
     x_start = -min(min_sample, 0)
     # first chain only for now; need to consider all?
