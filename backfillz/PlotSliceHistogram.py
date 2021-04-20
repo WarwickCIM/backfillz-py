@@ -14,9 +14,15 @@ def _blank_figure(
     width: int,
     height: int,
     x_range: Tuple[float, float],
-    y_range: Tuple[float, float]
+    y_range: Tuple[float, float],
+    y_axis_location: str = 'left'
 ) -> Figure:
-    p: Figure = figure(plot_width=width, plot_height=height, toolbar_location=None)
+    p: Figure = figure(
+        plot_width=width,
+        plot_height=height,
+        toolbar_location=None,
+        y_axis_location=y_axis_location
+    )
     p.min_border = 1
     p.outline_line_color = None
     p.x_range = Range1d(*x_range)
@@ -85,22 +91,16 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     middle_width: int = 30  # check against R version
 
     output_file("temp.html")
-    p: Figure = figure(
-#        title=f"Trace slice histogram of {param}",
-        plot_width=800,
-        plot_height=plot_height,
-        toolbar_location=None
+    p: Figure = _blank_figure(
+        width=800,
+        height=plot_height,
+        x_range=(min_sample, max_sample + middle_width),
+        y_range=(0, n_iter)
     )
-    p.min_border = 1
-    p.y_range = Range1d(0, n_iter)
-    p.x_range = Range1d(min_sample, max_sample + middle_width)
-    p.yaxis.minor_tick_line_color = None
-    p.xaxis.visible = False
-    p.xgrid.visible = False
-    p.ygrid.visible = False
 
+    # p.title=f"Trace slice histogram of {param}",
+    # p.title.text_color = backfillz.theme.text_col_title
     p.title.text_font_size = f"{backfillz.theme.text_cex_title}em"
-    # TODO: set title colour to backfillz@theme.text_col_title
 
     # LEFT: TRACE PLOT ------------------------------------------
     for n in range(0, n_chains):
@@ -201,15 +201,13 @@ def _slice_histogram(
     y_max = max(hist)
     print(y_max)
 
-    p = figure(plot_width=200, plot_height=int(height), toolbar_location=None, y_axis_location='right')
-    p.min_border = 1  # else bottom edge of each bar is clipped
-    p.x_range = Range1d(min_sample, max_sample)
-    p.y_range = Range1d(0, y_max)
-    p.xaxis.visible = False
-    p.yaxis.minor_tick_line_color = None
-    p.yaxis.bounds = (0, n)
-    p.grid.visible = False
-    p.outline_line_color = None
+    p = _blank_figure(
+        width=200,
+        height=int(height),
+        x_range=(min_sample, max_sample),
+        y_range=(0, y_max),
+        y_axis_location='right'
+    )
     p.quad(
         bottom=0,
         top=hist,
