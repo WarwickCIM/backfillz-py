@@ -219,7 +219,7 @@ def _slice_histogram(
     max_sample: float,
     height: float
 ) -> None:
-    p = figure(plot_width=int(max_sample - min_sample), plot_height=int(height), toolbar_location=None)
+    p = figure(plot_width=200, plot_height=int(height), toolbar_location=None)
     x_start = -min(min_sample, 0)
     [_, n] = chains.shape
     # first chain only for now; need to consider all?
