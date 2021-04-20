@@ -177,20 +177,33 @@ def _create_slice(
     fig.add_trace(go.Scatter(
         x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
         y=_scale(y_scale, [lower, (order - 1) / max_order, order / max_order, upper]),
-        fill='toself'
+        mode='lines',
+        line=dict(width=0),
+        fill='toself',
+        fillcolor='rgba(240,240,240,255)'
     ))
     p.line(
         _translate(x_offset, _scale(width, [0, 1])),
         _scale(y_scale, [lower, (order - 1) / max_order]),
-        line_width=1,
-        color=backfillz.theme.fg_colour
+        line_width=5,
+        color='red'  # backfillz.theme.fg_colour
     )
+    fig.add_trace(go.Scatter(
+        x=_translate(x_offset, _scale(width, [0, 1])),
+        y=_scale(y_scale, [lower, (order - 1) / max_order]),
+        line=dict(color=backfillz.theme.fg_colour, width=1)
+    ))
     p.line(
         _translate(x_offset, _scale(width, [0, 1])),
         _scale(y_scale, [upper, order / max_order]),
-        line_width=1,
-        color=backfillz.theme.fg_colour
+        line_width=5,
+        color='blue'  # backfillz.theme.fg_colour
     )
+    fig.add_trace(go.Scatter(
+        x=_translate(x_offset, _scale(width, [0, 1])),
+        y=_scale(y_scale, [upper, order / max_order]),
+        line=dict(color=backfillz.theme.fg_colour, width=1)
+    ))
 
 
 def _slice_histogram(
