@@ -164,36 +164,6 @@ def _create_slice(
     )
 
 
-def _create_slice_histogram(
-    backfillz: Backfillz,
-    p: Figure,
-    chains: np.ndarray,
-    lower: float,
-    upper: float,
-    min_sample: float,
-    max_sample: float,
-    x_start: float,
-    y_start: float,
-    height: float
-) -> None:
-    x_start = x_start - min(min_sample, 0)
-    [_, n] = chains.shape
-    # first chain only for now; need to consider all?
-    hist, edges = np.histogram(
-        chains[0, floor(lower * n):floor(upper * n)],
-        bins=np.linspace(start=floor(min_sample), stop=ceil(max_sample), num=40)
-    )
-    y_max = max(hist)
-    p.quad(
-        bottom=y_start,
-        top=[y_start + y / y_max * height for y in hist],
-        left=[x_start + x for x in edges[:-1]],
-        right=[x_start + x for x in edges[1:]],
-        fill_color=backfillz.theme.bg_colour,
-        line_color=backfillz.theme.fg_colour
-    )
-
-
 def _slice_histogram(
     backfillz: Backfillz,
     chains: np.ndarray,
