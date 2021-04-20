@@ -124,6 +124,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         lambda slc: _create_slice(
             backfillz,
             p,
+            fig,
             slc['lower'],
             slc['upper'],
             slc['order'],
@@ -156,6 +157,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
 
 def _create_slice(
     backfillz: Backfillz,
+    p: Figure,
     fig: Figure,
     lower: float,
     upper: float,
@@ -165,21 +167,25 @@ def _create_slice(
     width: int,
     y_scale: int
 ) -> None:
-    fig.patch(
+    p.patch(
         _translate(x_offset, _scale(width, [0, 1, 1, 0])),
         _scale(y_scale, [lower, (order - 1) / max_order, order / max_order, upper]),
-        color=backfillz.theme.bg_colour,
         alpha=0.5,
         line_width=1,
         # border=NA           TO DO
     )
-    fig.line(
+    fig.add_trace(go.Scatter(
+        x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
+        y=_scale(y_scale, [lower, (order - 1) / max_order, order / max_order, upper]),
+        fill='toself'
+    ))
+    p.line(
         _translate(x_offset, _scale(width, [0, 1])),
         _scale(y_scale, [lower, (order - 1) / max_order]),
         line_width=1,
         color=backfillz.theme.fg_colour
     )
-    fig.line(
+    p.line(
         _translate(x_offset, _scale(width, [0, 1])),
         _scale(y_scale, [upper, order / max_order]),
         line_width=1,
