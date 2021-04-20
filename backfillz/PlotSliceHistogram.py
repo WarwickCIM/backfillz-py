@@ -1,7 +1,7 @@
 from math import ceil, floor
 from typing import List
 
-from bokeh.layouts import column  # type: ignore
+from bokeh.layouts import column, row  # type: ignore
 from bokeh.models import LinearAxis, Range1d  # type: ignore
 from bokeh.plotting import Figure, figure, output_file, show
 import numpy as np
@@ -63,13 +63,15 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     param_col2 = param_col.map(count_param)
     slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
 
+    plot_height: int = 600
     output_file("temp.html")
     p: Figure = figure(
-        title=f"Trace slice histogram of {param}",
+#        title=f"Trace slice histogram of {param}",
         plot_width=800,
-        plot_height=600,
+        plot_height=plot_height,
         toolbar_location=None
     )
+    p.min_border = 2
     p.title.text_font_size = f"{backfillz.theme.text_cex_title}em"
     # TODO: set title colour to backfillz@theme.text_col_title
     p.yaxis.minor_tick_line_color = None
@@ -78,9 +80,9 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     p.xaxis.visible = False
     p.xgrid.visible = False
     p.ygrid.visible = False
+    p.outline_line_color = None
 
     middle_width: int = 30  # check against R version
-    height: int = n_iter
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
     slices.loc[param_col == param].apply(
@@ -93,7 +95,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             max_order=max_order,
             x_offset=max_sample,
             width=middle_width,
-            y_scale=height
+            y_scale=n_iter
         ),
         axis=1
     )
@@ -113,7 +115,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     p.add_layout(xaxis, 'below')
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
-    histogram_height: float = height / max_order
+    histogram_height: float = n_iter / max_order
     slices.loc[param_col == param].apply(
         lambda slc: _create_slice_histogram(
             backfillz,
@@ -138,13 +140,13 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             slc['upper'],
             min_sample=min_sample,
             max_sample=max_sample,
-            height=histogram_height
+            height=(1 / max_order) * plot_height
         ),
         axis=1
     )
-    show(column(hgrams.tolist()))
+    # show(column(hgrams.tolist()))
 
-    # show(p)
+    show(row(p, column(hgrams.tolist())))
 
 
 def _create_slice(
@@ -220,17 +222,6 @@ def _slice_histogram(
     height: float
 ) -> Figure:
     [_, n] = chains.shape
-    p = figure(plot_width=200, plot_height=int(height), toolbar_location=None, y_axis_location='right')
-    p.min_border = 1  # else bottom edge of each bar is clipped
-    p.x_range = Range1d(min_sample, max_sample)
-    p.y_range = Range1d(0, height)
-    p.xaxis.visible = False
-    p.yaxis.minor_tick_line_color = None
-#    p.yaxis.fixed_location = max_sample
-    p.yaxis.bounds = (0, n)
-    p.grid.visible = False
-#    p.outline_line_color = None
-
     x_start = -min(min_sample, 0)
     # first chain only for now; need to consider all?
     hist, edges = np.histogram(
@@ -238,9 +229,20 @@ def _slice_histogram(
         bins=np.linspace(start=floor(min_sample), stop=ceil(max_sample), num=40)
     )
     y_max = max(hist)
+    print(y_max)
+
+    p = figure(plot_width=200, plot_height=int(height), toolbar_location=None, y_axis_location='right')
+    p.min_border = 1  # else bottom edge of each bar is clipped
+    p.x_range = Range1d(min_sample, max_sample)
+    p.y_range = Range1d(0, y_max)
+    p.xaxis.visible = False
+    p.yaxis.minor_tick_line_color = None
+    p.yaxis.bounds = (0, n)
+    p.grid.visible = False
+    p.outline_line_color = None
     p.quad(
         bottom=0,
-        top=[y / y_max * height for y in hist],
+        top=hist,
         left=[x_start + x for x in edges[:-1]],
         right=[x_start + x for x in edges[1:]],
         fill_color=backfillz.theme.bg_colour,
