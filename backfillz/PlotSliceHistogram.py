@@ -12,7 +12,7 @@ from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
-    params = pd.Series(backfillz.mcmc_samples.param_names[0:2])
+    params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
     lower = pd.Series([0, 0.8])
     upper = pd.Series([0.4, 1])
     slices: pd.DataFrame = pd.DataFrame(columns=[
@@ -115,23 +115,6 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     p.add_layout(xaxis, 'below')
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
-    histogram_height: float = n_iter / max_order
-    slices.loc[param_col == param].apply(
-        lambda slc: _create_slice_histogram(
-            backfillz,
-            p,
-            chains,
-            slc['lower'],
-            slc['upper'],
-            min_sample=min_sample,
-            max_sample=max_sample,
-            x_start=max_sample + middle_width,
-            height=histogram_height,
-            y_start=(slc['order'] - 1) * histogram_height
-        ),
-        axis=1
-    )
-
     hgrams = slices.loc[param_col == param].apply(
         lambda slc: _slice_histogram(
             backfillz,
@@ -144,7 +127,6 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         ),
         axis=1
     )
-    # show(column(hgrams.tolist()))
 
     show(row(p, column(hgrams.tolist())))
 
