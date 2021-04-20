@@ -63,18 +63,19 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
 
     output_file("temp.html")
-    fig: Figure = figure(
+    p: Figure = figure(
         title=f"Trace slice histogram of {param}",
-        plot_width=400,
-        plot_height=400,
+        plot_width=800,
+        plot_height=600,
         toolbar_location=None
     )
-    fig.title.text_font_size = f"{backfillz.theme.text_cex_title}em"
+    p.title.text_font_size = f"{backfillz.theme.text_cex_title}em"
     # TODO: set title colour to backfillz@theme.text_col_title
-    fig.yaxis.minor_tick_line_color = None
-    fig.xaxis.visible = False
-    fig.xgrid.visible = False
-    fig.ygrid.visible = False
+    p.yaxis.minor_tick_line_color = None
+    p.yaxis.bounds = (0, n_iter)
+    p.xaxis.visible = False
+    p.xgrid.visible = False
+    p.ygrid.visible = False
 
     middle_width: int = 30  # check against R version
     height: int = n_iter
@@ -83,7 +84,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     slices.loc[param_col == param].apply(
         lambda slc: _create_slice(
             backfillz,
-            fig,
+            p,
             slc['lower'],
             slc['upper'],
             slc['order'],
@@ -97,7 +98,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
 
     # LEFT: TRACE PLOT ------------------------------------------
     for n in range(0, n_chains):
-        fig.line(
+        p.line(
             chains[n],
             range(0, chains[n].size),
             line_width=1,
@@ -106,14 +107,15 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
 
     x_axis = LinearAxis(bounds=(min_sample, max_sample))
     x_axis.minor_tick_line_color = None
-    fig.add_layout(x_axis, 'below')
+    x_axis.fixed_location = 0
+    p.add_layout(x_axis, 'below')
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
     histogram_height: float = height / max_order
     slices.loc[param_col == param].apply(
         lambda slc: _create_slice_histogram(
             backfillz,
-            fig,
+            p,
             chains,
             slc['lower'],
             slc['upper'],
@@ -126,7 +128,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         axis=1
     )
 
-    show(fig)
+    show(p)
 
 
 def _create_slice(
