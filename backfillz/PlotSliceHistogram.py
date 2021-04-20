@@ -1,8 +1,9 @@
 from math import ceil, floor
 from typing import List
 
+from bokeh.layouts import column  # type: ignore
 from bokeh.models import LinearAxis  # type: ignore
-from bokeh.plotting import Figure, figure, output_file, show  # type: ignore
+from bokeh.plotting import Figure, figure, output_file, show
 import numpy as np
 import pandas as pd  # type: ignore
 
@@ -141,8 +142,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         ),
         axis=1
     )
-    for _, hgram in hgrams.items():
-        show(hgram)
+    show(column(hgrams.tolist()))
 
     show(p)
 
@@ -218,10 +218,24 @@ def _slice_histogram(
     min_sample: float,
     max_sample: float,
     height: float
-) -> None:
-    p = figure(plot_width=200, plot_height=int(height), toolbar_location=None)
-    x_start = -min(min_sample, 0)
+) -> Figure:
     [_, n] = chains.shape
+    p = figure(plot_width=200, plot_height=int(height), toolbar_location=None)
+    p.min_border = 0
+    p.yaxis.minor_tick_line_color = None
+    p.yaxis.fixed_location = max_sample
+    p.yaxis.bounds = (0, n)
+    p.xaxis.fixed_location = 0
+    p.xaxis.minor_tick_line_color = None
+#    p.xaxis.visible = False
+    p.grid.visible = False
+    p.x_range.range_padding_units = 'absolute'
+    p.x_range.range_padding = 1
+    p.y_range.range_padding_units = 'absolute'
+    p.y_range.range_padding = 1
+    p.outline_line_color=None
+
+    x_start = -min(min_sample, 0)
     # first chain only for now; need to consider all?
     hist, edges = np.histogram(
         chains[0, floor(lower * n):floor(upper * n)],
@@ -237,7 +251,6 @@ def _slice_histogram(
         line_color=backfillz.theme.fg_colour
     )
     return p
-
 
 def _scale(factor: float, xs: List[float]) -> List[float]:
     return [x * factor for x in xs]
