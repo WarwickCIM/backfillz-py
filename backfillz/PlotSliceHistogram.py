@@ -185,23 +185,25 @@ def _create_slice(
     p.line(
         _translate(x_offset, _scale(width, [0, 1])),
         _scale(y_scale, [lower, (order - 1) / max_order]),
-        line_width=5,
-        color='red'  # backfillz.theme.fg_colour
+        line_width=1,
+        color=backfillz.theme.fg_colour
     )
     fig.add_trace(go.Scatter(
         x=_translate(x_offset, _scale(width, [0, 1])),
         y=_scale(y_scale, [lower, (order - 1) / max_order]),
+        mode='lines',
         line=dict(color=backfillz.theme.fg_colour, width=1)
     ))
     p.line(
         _translate(x_offset, _scale(width, [0, 1])),
         _scale(y_scale, [upper, order / max_order]),
-        line_width=5,
-        color='blue'  # backfillz.theme.fg_colour
+        line_width=1,
+        color=backfillz.theme.fg_colour
     )
     fig.add_trace(go.Scatter(
         x=_translate(x_offset, _scale(width, [0, 1])),
         y=_scale(y_scale, [upper, order / max_order]),
+        mode='lines',
         line=dict(color=backfillz.theme.fg_colour, width=1)
     ))
 
