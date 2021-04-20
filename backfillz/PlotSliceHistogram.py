@@ -2,7 +2,7 @@ from math import ceil, floor
 from typing import List, Tuple
 
 from bokeh.layouts import column, row  # type: ignore
-from bokeh.models import LinearAxis, Range1d  # type: ignore
+from bokeh.models import Range1d  # type: ignore
 from bokeh.plotting import Figure, figure, output_file, show  # type: ignore
 import numpy as np
 import pandas as pd  # type: ignore
