@@ -221,16 +221,17 @@ def _slice_histogram(
 ) -> Figure:
     [_, n] = chains.shape
     p = figure(plot_width=200, plot_height=int(height), toolbar_location=None, y_axis_location='right')
-    p.min_border = 0
+    p.min_border = 1  # else bottom edge of each bar is clipped
     p.x_range = Range1d(min_sample, max_sample)
-    p.y_range = Range1d(0, height)  # hack for now
+    p.y_range = Range1d(0, height)
+#    p.xaxis.visible = False
     p.xaxis.minor_tick_line_color = None
     p.yaxis.minor_tick_line_color = None
 #    p.yaxis.fixed_location = max_sample
-#    p.yaxis.bounds = (0, n)
+    p.yaxis.bounds = (0, n)
 #    p.xaxis.fixed_location = 0
     p.grid.visible = False
-    p.outline_line_color = None
+#    p.outline_line_color = None
 
     x_start = -min(min_sample, 0)
     # first chain only for now; need to consider all?
