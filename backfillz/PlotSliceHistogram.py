@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 from bokeh.layouts import column, row  # type: ignore
 from bokeh.models import LinearAxis, Range1d  # type: ignore
-from bokeh.plotting import Figure, figure, output_file, show
+from bokeh.plotting import Figure, figure, output_file, show  # type: ignore
 import numpy as np
 import pandas as pd  # type: ignore
 
@@ -217,6 +217,7 @@ def _slice_histogram(
         line_color=backfillz.theme.fg_colour
     )
     return p
+
 
 def _scale(factor: float, xs: List[float]) -> List[float]:
     return [x * factor for x in xs]
