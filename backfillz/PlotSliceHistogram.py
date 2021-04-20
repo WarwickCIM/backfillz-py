@@ -220,14 +220,12 @@ def _slice_histogram(
     height: float
 ) -> Figure:
     [_, n] = chains.shape
-    p = figure(plot_width=200, plot_height=int(height), toolbar_location=None)
+    p = figure(plot_width=200, plot_height=int(height), toolbar_location=None, y_axis_location='right')
     p.min_border = 0
     p.yaxis.minor_tick_line_color = None
     p.yaxis.fixed_location = max_sample
     p.yaxis.bounds = (0, n)
     p.xaxis.fixed_location = 0
-    p.xaxis.minor_tick_line_color = None
-#    p.xaxis.visible = False
     p.grid.visible = False
     p.x_range.range_padding_units = 'absolute'
     p.x_range.range_padding = 1
