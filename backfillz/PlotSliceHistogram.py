@@ -48,14 +48,14 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
 
     # Check, order and tag the slice
     param_col = slices['parameters']
-    param_count: int = 0
+    max_order: int = 0
 
     # TODO: ugh
     def count_param(param2: str) -> int:
         if param == param2:
-            nonlocal param_count
-            param_count += 1
-            return param_count
+            nonlocal max_order
+            max_order += 1
+            return max_order
         else:
             return 0  # R version puts NaN here, but maybe doesn't matter
 
@@ -77,6 +77,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     fig.ygrid.visible = False
 
     middle_width: int = 30  # check against R version
+    height: int = n_iter
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
     slices.loc[param_col == param].apply(
@@ -86,10 +87,10 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             slc['lower'],
             slc['upper'],
             slc['order'],
-            max_order=param_count,
+            max_order=max_order,
             x_offset=max_sample,
             width=middle_width,
-            y_scale=n_iter
+            y_scale=height
         ),
         axis=1
     )
@@ -108,6 +109,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     fig.add_layout(x_axis, 'below')
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
+    histogram_height: float = height / max_order
     slices.loc[param_col == param].apply(
         lambda slc: _create_slice_histogram(
             backfillz,
@@ -115,13 +117,13 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             chains,
             slc['lower'],
             slc['upper'],
-            slc['order'],
-            max_order=param_count,
             min_sample=min_sample,
             max_sample=max_sample,
-            x_start=middle_width
+            x_start=max_sample + middle_width,
+            height=histogram_height,
+            y_start=(slc['order'] - 1) * histogram_height
         ),
-        axis = 1
+        axis=1
     )
 
     show(fig)
@@ -166,25 +168,27 @@ def _create_slice_histogram(
     chains: np.ndarray,
     lower: float,
     upper: float,
-    order: int,
-    max_order: int,
     min_sample: float,
     max_sample: float,
-    x_start: float
+    x_start: float,
+    y_start: float,
+    height: float
 ) -> None:
-    [n_chains, n] = chains.shape
+    x_start = x_start - min(min_sample, 0)
+    [_, n] = chains.shape
     # first chain only for now; need to consider all?
     hist, edges = np.histogram(
         chains[0, floor(lower * n):floor(upper * n)],
         bins=np.linspace(start=floor(min_sample), stop=ceil(max_sample), num=40)
     )
+    y_max = max(hist)
     p.quad(
-        bottom=0,
-        top=hist,
+        bottom=y_start,
+        top=[y_start + y / y_max * height for y in hist],
         left=[x_start + x for x in edges[:-1]],
         right=[x_start + x for x in edges[1:]],
-        fill_color='red',
-        line_color='black'
+        fill_color=backfillz.theme.bg_colour,
+        line_color=backfillz.theme.fg_colour
     )
 
 
