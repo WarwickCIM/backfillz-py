@@ -92,10 +92,10 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             color=backfillz.theme.palette[n]
         )
 
-#    xaxis = LinearAxis(bounds=(min_sample, max_sample))
-#    xaxis.minor_tick_line_color = None
-#    xaxis.fixed_location = 0
-#    p.add_layout(xaxis, 'below')
+    xaxis = LinearAxis(bounds=(min_sample, max_sample))
+    xaxis.minor_tick_line_color = None
+    xaxis.fixed_location = 0
+    p.add_layout(xaxis, 'below')
 
     middle_width: int = 30  # check against R version
 
