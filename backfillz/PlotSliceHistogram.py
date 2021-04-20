@@ -87,12 +87,14 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     param_col2 = param_col.map(count_param)
     slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
 
+    plot_width: int = 800
     plot_height: int = 600
     middle_width: int = 30  # check against R version
+    right_width: int = 300
 
     output_file("temp.html")
     p: Figure = _blank_figure(
-        width=800,
+        width=plot_width,
         height=plot_height,
         x_range=(min_sample, max_sample + middle_width),
         y_range=(0, n_iter)
@@ -136,6 +138,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             slc['upper'],
             min_sample=min_sample,
             max_sample=max_sample,
+            width=right_width,
             height=(1 / max_order) * plot_height
         ),
         axis=1
@@ -189,6 +192,7 @@ def _slice_histogram(
     upper: float,
     min_sample: float,
     max_sample: float,
+    width: float,
     height: float
 ) -> Figure:
     [_, n] = chains.shape
@@ -202,7 +206,7 @@ def _slice_histogram(
     print(y_max)
 
     p = _blank_figure(
-        width=200,
+        width=width,
         height=int(height),
         x_range=(min_sample, max_sample),
         y_range=(0, y_max),
