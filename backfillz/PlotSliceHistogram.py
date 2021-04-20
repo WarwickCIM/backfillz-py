@@ -72,6 +72,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     p.title.text_font_size = f"{backfillz.theme.text_cex_title}em"
     # TODO: set title colour to backfillz@theme.text_col_title
     p.yaxis.minor_tick_line_color = None
+    p.yaxis.fixed_location = min_sample
     p.yaxis.bounds = (0, n_iter)
     p.xaxis.visible = False
     p.xgrid.visible = False
@@ -105,10 +106,10 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             color=backfillz.theme.palette[n]
         )
 
-    x_axis = LinearAxis(bounds=(min_sample, max_sample))
-    x_axis.minor_tick_line_color = None
-    x_axis.fixed_location = 0
-    p.add_layout(x_axis, 'below')
+    xaxis = LinearAxis(bounds=(min_sample, max_sample))
+    xaxis.minor_tick_line_color = None
+    xaxis.fixed_location = 0
+    p.add_layout(xaxis, 'below')
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
     histogram_height: float = height / max_order
