@@ -82,6 +82,20 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     p.ygrid.visible = False
     p.outline_line_color = None
 
+    # LEFT: TRACE PLOT ------------------------------------------
+    for n in range(0, n_chains):
+        p.line(
+            chains[n],
+            range(0, chains[n].size),
+            line_width=1,
+            color=backfillz.theme.palette[n]
+        )
+
+    xaxis = LinearAxis(bounds=(min_sample, max_sample))
+    xaxis.minor_tick_line_color = None
+    xaxis.fixed_location = 0
+    p.add_layout(xaxis, 'below')
+
     middle_width: int = 30  # check against R version
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
@@ -99,20 +113,6 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         ),
         axis=1
     )
-
-    # LEFT: TRACE PLOT ------------------------------------------
-    for n in range(0, n_chains):
-        p.line(
-            chains[n],
-            range(0, chains[n].size),
-            line_width=1,
-            color=backfillz.theme.palette[n]
-        )
-
-    xaxis = LinearAxis(bounds=(min_sample, max_sample))
-    xaxis.minor_tick_line_color = None
-    xaxis.fixed_location = 0
-    p.add_layout(xaxis, 'below')
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
     hgrams = slices.loc[param_col == param].apply(
