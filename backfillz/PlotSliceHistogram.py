@@ -71,7 +71,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         plot_height=plot_height,
         toolbar_location=None
     )
-    p.min_border = 2
+    p.min_border = 1
     p.title.text_font_size = f"{backfillz.theme.text_cex_title}em"
     # TODO: set title colour to backfillz@theme.text_col_title
     p.yaxis.minor_tick_line_color = None
