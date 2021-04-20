@@ -129,6 +129,20 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         axis=1
     )
 
+    hgrams = slices.loc[param_col == param].apply(
+        lambda slc: _slice_histogram(
+            backfillz,
+            chains,
+            slc['lower'],
+            slc['upper'],
+            min_sample=min_sample,
+            max_sample=max_sample,
+            height=histogram_height
+        ),
+        axis=1
+    )
+    print(hgrams)
+
     show(p)
 
 
@@ -193,6 +207,35 @@ def _create_slice_histogram(
         fill_color=backfillz.theme.bg_colour,
         line_color=backfillz.theme.fg_colour
     )
+
+
+def _slice_histogram(
+    backfillz: Backfillz,
+    chains: np.ndarray,
+    lower: float,
+    upper: float,
+    min_sample: float,
+    max_sample: float,
+    height: float
+) -> None:
+    p = figure(plot_width=int(max_sample - min_sample), plot_height=int(height), toolbar_location=None)
+    x_start = -min(min_sample, 0)
+    [_, n] = chains.shape
+    # first chain only for now; need to consider all?
+    hist, edges = np.histogram(
+        chains[0, floor(lower * n):floor(upper * n)],
+        bins=np.linspace(start=floor(min_sample), stop=ceil(max_sample), num=40)
+    )
+    y_max = max(hist)
+    p.quad(
+        bottom=0,
+        top=[y / y_max * height for y in hist],
+        left=[x_start + x for x in edges[:-1]],
+        right=[x_start + x for x in edges[1:]],
+        fill_color=backfillz.theme.bg_colour,
+        line_color=backfillz.theme.fg_colour
+    )
+    return p
 
 
 def _scale(factor: float, xs: List[float]) -> List[float]:
