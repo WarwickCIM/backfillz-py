@@ -141,7 +141,8 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         ),
         axis=1
     )
-    print(hgrams)
+    for _, hgram in hgrams.items():
+        show(hgram)
 
     show(p)
 
