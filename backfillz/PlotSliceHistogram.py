@@ -6,6 +6,7 @@ from bokeh.models import LinearAxis, Range1d  # type: ignore
 from bokeh.plotting import Figure, figure, output_file, show  # type: ignore
 import numpy as np
 import pandas as pd  # type: ignore
+import plotly.graph_objects as go  # type: ignore
 
 from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 
@@ -100,6 +101,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         x_range=(min_sample, max_sample + middle_width),
         y_range=(0, n_iter)
     )
+    fig: Figure = go.Figure()
 
     # p.title=f"Trace slice histogram of {param}",
     # p.title.text_color = backfillz.theme.text_col_title
@@ -113,6 +115,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             line_width=1,
             color=backfillz.theme.palette[n]
         )
+        fig.add_trace(go.Scatter(x=chains[n], y=list(range(0, chains[n].size))))
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
     slices.loc[param_col == param].apply(
@@ -146,6 +149,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     )
 
     show(row(p, column(hgrams.tolist())))
+    fig.show()
 
 
 def _create_slice(
