@@ -224,12 +224,10 @@ def _slice_histogram(
     p.min_border = 1  # else bottom edge of each bar is clipped
     p.x_range = Range1d(min_sample, max_sample)
     p.y_range = Range1d(0, height)
-#    p.xaxis.visible = False
-    p.xaxis.minor_tick_line_color = None
+    p.xaxis.visible = False
     p.yaxis.minor_tick_line_color = None
 #    p.yaxis.fixed_location = max_sample
     p.yaxis.bounds = (0, n)
-#    p.xaxis.fixed_location = 0
     p.grid.visible = False
 #    p.outline_line_color = None
 
