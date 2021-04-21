@@ -1,5 +1,5 @@
 from math import ceil, floor
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -62,7 +62,6 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     param_col2 = param_col.map(count_param)
     slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
 
-    plot_width: int = 800
     plot_height: int = 600
     middle_width: int = 30  # check against R version
     right_width: int = 300
@@ -70,7 +69,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     fig: go.Figure = go.Figure(
         layout=go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
     )
-    specs: List[List[Dict]] = \
+    specs: List[List[object]] = \
         [[{'rowspan': n_slices}, {'rowspan': n_slices}, {}]] + \
         [[None, None, {}] for _ in range(1, n_slices)]
     print(specs)
@@ -108,7 +107,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     )
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
-    hgrams = slices.loc[param_col == param].apply(
+    slices.loc[param_col == param].apply(
         lambda slc: _slice_histogram(
             backfillz,
             fig,
