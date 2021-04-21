@@ -79,6 +79,8 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         cols=3,
         figure=fig,
         specs=specs,
+        horizontal_spacing=0,
+        vertical_spacing=0,
         print_grid=True
     )
 
@@ -113,6 +115,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             chains,
             slc['lower'],
             slc['upper'],
+            slc['order'],
             min_sample=min_sample,
             max_sample=max_sample,
             width=right_width,
@@ -163,6 +166,7 @@ def _slice_histogram(
     chains: np.ndarray,
     lower: float,
     upper: float,
+    slice_index: int,
     min_sample: float,
     max_sample: float,
     width: float,
@@ -178,7 +182,7 @@ def _slice_histogram(
     y_max = max(hist)
     print(y_max)
 
-    fig.add_trace(go.Histogram(x=hist), row=1, col=3)
+    fig.add_trace(go.Histogram(x=hist), row=slice_index, col=3)
 
 
 def _scale(factor: float, xs: List[float]) -> List[float]:
