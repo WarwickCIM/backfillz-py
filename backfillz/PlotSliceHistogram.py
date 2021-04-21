@@ -1,12 +1,13 @@
 from math import ceil, floor
-from typing import Any, Dict, List
+from typing import List
 
 import numpy as np
 import pandas as pd  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
 
-from backfillz.Backfillz import Backfillz, BackfillzTheme, HistoryEntry, HistoryEvent
+from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
+from backfillz.BackfillzTheme import BackfillzTheme
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
