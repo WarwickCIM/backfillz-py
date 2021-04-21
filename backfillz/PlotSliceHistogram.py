@@ -1,37 +1,13 @@
 from math import ceil, floor
-from typing import List, Tuple
+from typing import List
 
-from bokeh.layouts import column, row  # type: ignore
-from bokeh.models import LinearAxis, Range1d  # type: ignore
-from bokeh.plotting import Figure, figure, output_file, show  # type: ignore
 import numpy as np
 import pandas as pd  # type: ignore
+import plotly.graph_objects as go  # type: ignore
+from plotly.subplots import make_subplots  # type: ignore
 
 from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
-
-
-def _blank_figure(
-    width: int,
-    height: int,
-    x_range: Tuple[float, float],
-    y_range: Tuple[float, float],
-    y_axis_location: str = 'left'
-) -> Figure:
-    p: Figure = figure(
-        plot_width=width,
-        plot_height=height,
-        toolbar_location=None,
-        y_axis_location=y_axis_location
-    )
-    p.min_border = 1
-    p.outline_line_color = None
-    p.x_range = Range1d(*x_range)
-    p.y_range = Range1d(*y_range)
-    p.yaxis.minor_tick_line_color = None
-    p.xaxis.visible = False
-    p.xgrid.visible = False
-    p.ygrid.visible = False
-    return p
+from backfillz.BackfillzTheme import BackfillzTheme
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
@@ -47,11 +23,11 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     for param in params:
         slices = pd.concat([
             slices,
-            pd.DataFrame({
-                'parameters': pd.Series([param] * upper.size),
-                'lower': lower,
-                'upper': upper
-            }),
+            pd.DataFrame(dict(
+                parameters=pd.Series([param] * upper.size),
+                lower=lower,
+                upper=upper
+            )),
         ], ignore_index=True)
 
     for param in params:
@@ -68,19 +44,19 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     print(f"iterations: {n_iter}, chains: {n_chains}, parameter: {param}")
     max_sample: float = np.amax(backfillz.mcmc_samples[param])
     min_sample: float = np.amin(backfillz.mcmc_samples[param])
-    plot = {'parameter': param, 'sample_min': min_sample, 'sample_max': max_sample}
+    plot = dict(parameter=param, sample_min=min_sample, sample_max=max_sample)
     print(plot)
 
     # Check, order and tag the slice
     param_col = slices['parameters']
-    max_order: int = 0
+    n_slices: int = 0
 
-    # TODO: ugh
+    # ugh -- do something about this
     def count_param(param2: str) -> int:
         if param == param2:
-            nonlocal max_order
-            max_order += 1
-            return max_order
+            nonlocal n_slices
+            n_slices += 1
+            return n_slices
         else:
             return 0  # R version puts NaN here, but maybe doesn't matter
 
@@ -89,37 +65,41 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
 
     plot_height: int = 600
     middle_width: int = 30  # check against R version
+    right_width: int = 300
 
-    output_file("temp.html")
-    p: Figure = _blank_figure(
-        width=800,
-        height=plot_height,
-        x_range=(min_sample, max_sample + middle_width),
-        y_range=(0, n_iter)
+    fig: go.Figure = go.Figure(
+        layout=go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
+    )
+    specs: List[List[object]] = \
+        [[dict(rowspan=n_slices), dict(rowspan=n_slices), dict()]] + \
+        [[None, None, dict()] for _ in range(1, n_slices)]
+    print(specs)
+    make_subplots(
+        rows=n_slices,
+        cols=3,
+        figure=fig,
+        specs=specs,
+        horizontal_spacing=0,
+        vertical_spacing=0,
+        print_grid=True
     )
 
     # p.title=f"Trace slice histogram of {param}",
     # p.title.text_color = backfillz.theme.text_col_title
-    p.title.text_font_size = f"{backfillz.theme.text_cex_title}em"
 
     # LEFT: TRACE PLOT ------------------------------------------
     for n in range(0, n_chains):
-        p.line(
-            chains[n],
-            range(0, chains[n].size),
-            line_width=1,
-            color=backfillz.theme.palette[n]
-        )
+        fig.add_trace(go.Scatter(x=chains[n], y=list(range(0, chains[n].size))), row=1, col=1)
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
     slices.loc[param_col == param].apply(
         lambda slc: _create_slice(
             backfillz,
-            p,
+            fig,
             slc['lower'],
             slc['upper'],
             slc['order'],
-            max_order=max_order,
+            max_order=n_slices,
             x_offset=max_sample,
             width=middle_width,
             y_scale=n_iter
@@ -128,30 +108,28 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     )
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
-    hgrams = slices.loc[param_col == param].apply(
+    slices.loc[param_col == param].apply(
         lambda slc: _slice_histogram(
-            backfillz,
+            backfillz.theme,
+            fig,
             chains,
             slc['lower'],
             slc['upper'],
+            slc['order'],
             min_sample=min_sample,
             max_sample=max_sample,
-            height=(1 / max_order) * plot_height
+            width=right_width,
+            height=(1 / n_slices) * plot_height
         ),
         axis=1
     )
 
-    xaxis = LinearAxis(bounds=(min_sample, max_sample))
-    xaxis.minor_tick_line_color = None
-    xaxis.fixed_location = 0
-    p.add_layout(xaxis, 'below')
-
-    show(row(p, column(hgrams.tolist())))
+    fig.show()
 
 
 def _create_slice(
     backfillz: Backfillz,
-    fig: Figure,
+    fig: go.Figure,
     lower: float,
     upper: float,
     order: int,
@@ -160,63 +138,51 @@ def _create_slice(
     width: int,
     y_scale: int
 ) -> None:
-    fig.patch(
-        _translate(x_offset, _scale(width, [0, 1, 1, 0])),
-        _scale(y_scale, [lower, (order - 1) / max_order, order / max_order, upper]),
-        color=backfillz.theme.bg_colour,
-        alpha=0.5,
-        line_width=1,
-        # border=NA           TO DO
-    )
-    fig.line(
-        _translate(x_offset, _scale(width, [0, 1])),
-        _scale(y_scale, [lower, (order - 1) / max_order]),
-        line_width=1,
-        color=backfillz.theme.fg_colour
-    )
-    fig.line(
-        _translate(x_offset, _scale(width, [0, 1])),
-        _scale(y_scale, [upper, order / max_order]),
-        line_width=1,
-        color=backfillz.theme.fg_colour
-    )
+    fig.add_trace(go.Scatter(
+        x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
+        y=_scale(y_scale, [lower, (order - 1) / max_order, order / max_order, upper]),
+        mode='lines',
+        line=dict(width=0),
+        fill='toself',
+        fillcolor='rgba(240,240,240,255)'
+    ), row=1, col=2)
+    fig.add_trace(go.Scatter(
+        x=_translate(x_offset, _scale(width, [0, 1])),
+        y=_scale(y_scale, [lower, (order - 1) / max_order]),
+        mode='lines',
+        line=dict(color=backfillz.theme.fg_colour, width=1)
+    ), row=1, col=2)
+    fig.add_trace(go.Scatter(
+        x=_translate(x_offset, _scale(width, [0, 1])),
+        y=_scale(y_scale, [upper, order / max_order]),
+        mode='lines',
+        line=dict(color=backfillz.theme.fg_colour, width=1)
+    ), row=1, col=2)
 
 
 def _slice_histogram(
-    backfillz: Backfillz,
+    theme: BackfillzTheme,
+    fig: go.Figure,
     chains: np.ndarray,
     lower: float,
     upper: float,
+    slice_index: int,
     min_sample: float,
     max_sample: float,
+    width: float,
     height: float
-) -> Figure:
+) -> None:
     [_, n] = chains.shape
-    x_start = -min(min_sample, 0)
-    # first chain only for now; need to consider all?
-    hist, edges = np.histogram(
-        chains[0, floor(lower * n):floor(upper * n)],
-        bins=np.linspace(start=floor(min_sample), stop=ceil(max_sample), num=40)
+    # chain 0 only for now; need to consider all?
+    fig.add_trace(
+        go.Histogram(
+            x=chains[0, floor(lower * n):floor(upper * n)],
+            xbins=dict(start=floor(min_sample), end=ceil(max_sample), size=1),
+            marker=dict(color=theme.bg_colour, line=dict(color=theme.fg_colour, width=1))
+        ),
+        row=slice_index,
+        col=3
     )
-    y_max = max(hist)
-    print(y_max)
-
-    p = _blank_figure(
-        width=200,
-        height=int(height),
-        x_range=(min_sample, max_sample),
-        y_range=(0, y_max),
-        y_axis_location='right'
-    )
-    p.quad(
-        bottom=0,
-        top=hist,
-        left=[x_start + x for x in edges[:-1]],
-        right=[x_start + x for x in edges[1:]],
-        fill_color=backfillz.theme.bg_colour,
-        line_color=backfillz.theme.fg_colour
-    )
-    return p
 
 
 def _scale(factor: float, xs: List[float]) -> List[float]:

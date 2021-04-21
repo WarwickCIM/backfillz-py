@@ -25,6 +25,7 @@ importlib_metadata = "3.4.0"
 pystan = "3.0.0"
 pandas = "1.2.3"
 bokeh = "^2.3.1"
+plotly = "^4.14.3"
 
 [tool.poetry.dev-dependencies]
 mkdocs-material = "^6.1.5"
