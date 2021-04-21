@@ -1,5 +1,5 @@
 from math import ceil, floor
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -48,14 +48,14 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
 
     # Check, order and tag the slice
     param_col = slices['parameters']
-    max_order: int = 0
+    n_slices: int = 0
 
     # ugh -- do something about this
     def count_param(param2: str) -> int:
         if param == param2:
-            nonlocal max_order
-            max_order += 1
-            return max_order
+            nonlocal n_slices
+            n_slices += 1
+            return n_slices
         else:
             return 0  # R version puts NaN here, but maybe doesn't matter
 
@@ -70,7 +70,17 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     fig: go.Figure = go.Figure(
         layout=go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
     )
-    make_subplots(rows=1, cols=3, figure=fig)
+    specs: List[List[Dict]] = \
+        [[{'rowspan': n_slices}, {'rowspan': n_slices}, {}]] + \
+        [[None, None, {}] for _ in range(1, n_slices)]
+    print(specs)
+    make_subplots(
+        rows=n_slices,
+        cols=3,
+        figure=fig,
+        specs=specs,
+        print_grid=True
+    )
 
     # p.title=f"Trace slice histogram of {param}",
     # p.title.text_color = backfillz.theme.text_col_title
@@ -87,7 +97,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             slc['lower'],
             slc['upper'],
             slc['order'],
-            max_order=max_order,
+            max_order=n_slices,
             x_offset=max_sample,
             width=middle_width,
             y_scale=n_iter
@@ -106,7 +116,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
             min_sample=min_sample,
             max_sample=max_sample,
             width=right_width,
-            height=(1 / max_order) * plot_height
+            height=(1 / n_slices) * plot_height
         ),
         axis=1
     )
