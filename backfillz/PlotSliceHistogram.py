@@ -173,16 +173,15 @@ def _slice_histogram(
     height: float
 ) -> None:
     [_, n] = chains.shape
-    x_start = -min(min_sample, 0)
-    # first chain only for now; need to consider all?
-    hist, edges = np.histogram(
-        chains[0, floor(lower * n):floor(upper * n)],
-        bins=np.linspace(start=floor(min_sample), stop=ceil(max_sample), num=40)
+    # chain 0 only for now; need to consider all?
+    fig.add_trace(
+        go.Histogram(
+            x=chains[0, floor(lower * n):floor(upper * n)],
+            xbins={'start': floor(min_sample), 'end': ceil(max_sample), 'size': 1}
+        ),
+        row=slice_index,
+        col=3
     )
-    y_max = max(hist)
-    print(y_max)
-
-    fig.add_trace(go.Histogram(x=hist), row=slice_index, col=3)
 
 
 def _scale(factor: float, xs: List[float]) -> List[float]:
