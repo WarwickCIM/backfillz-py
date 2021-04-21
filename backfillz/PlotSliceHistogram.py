@@ -6,7 +6,7 @@ import pandas as pd  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
 
-from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
+from backfillz.Backfillz import Backfillz, BackfillzTheme, HistoryEntry, HistoryEvent
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
@@ -109,7 +109,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
     slices.loc[param_col == param].apply(
         lambda slc: _slice_histogram(
-            backfillz,
+            backfillz.theme,
             fig,
             chains,
             slc['lower'],
@@ -160,7 +160,7 @@ def _create_slice(
 
 
 def _slice_histogram(
-    backfillz: Backfillz,
+    theme: BackfillzTheme,
     fig: go.Figure,
     chains: np.ndarray,
     lower: float,
@@ -177,7 +177,7 @@ def _slice_histogram(
         go.Histogram(
             x=chains[0, floor(lower * n):floor(upper * n)],
             xbins=dict(start=floor(min_sample), end=ceil(max_sample), size=1),
-            marker=dict(color='black')
+            marker=dict(color=theme.bg_colour, line=dict(color=theme.fg_colour, width=1))
         ),
         row=slice_index,
         col=3
