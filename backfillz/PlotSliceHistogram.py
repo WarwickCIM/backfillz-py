@@ -22,11 +22,11 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     for param in params:
         slices = pd.concat([
             slices,
-            pd.DataFrame({
-                'parameters': pd.Series([param] * upper.size),
-                'lower': lower,
-                'upper': upper
-            }),
+            pd.DataFrame(dict(
+                parameters=pd.Series([param] * upper.size),
+                lower=lower,
+                upper=upper
+            )),
         ], ignore_index=True)
 
     for param in params:
@@ -43,7 +43,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
     print(f"iterations: {n_iter}, chains: {n_chains}, parameter: {param}")
     max_sample: float = np.amax(backfillz.mcmc_samples[param])
     min_sample: float = np.amin(backfillz.mcmc_samples[param])
-    plot = {'parameter': param, 'sample_min': min_sample, 'sample_max': max_sample}
+    plot = dict(parameter=param, sample_min=min_sample, sample_max=max_sample)
     print(plot)
 
     # Check, order and tag the slice
@@ -70,8 +70,8 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         layout=go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
     )
     specs: List[List[object]] = \
-        [[{'rowspan': n_slices}, {'rowspan': n_slices}, {}]] + \
-        [[None, None, {}] for _ in range(1, n_slices)]
+        [[dict(rowspan=n_slices), dict(rowspan=n_slices), dict()]] + \
+        [[None, None, dict()] for _ in range(1, n_slices)]
     print(specs)
     make_subplots(
         rows=n_slices,
@@ -176,7 +176,8 @@ def _slice_histogram(
     fig.add_trace(
         go.Histogram(
             x=chains[0, floor(lower * n):floor(upper * n)],
-            xbins={'start': floor(min_sample), 'end': ceil(max_sample), 'size': 1}
+            xbins=dict(start=floor(min_sample), end=ceil(max_sample), size=1),
+            marker=dict(color='black')
         ),
         row=slice_index,
         col=3
