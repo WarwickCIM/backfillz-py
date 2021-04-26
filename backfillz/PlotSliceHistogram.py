@@ -73,14 +73,14 @@ def _create_single_plot(
     # p.title.text_color = backfillz.theme.text_col_title
 
     # LEFT: TRACE PLOT ------------------------------------------
-    trace_plots: Iterator[go.Scatter] = map(
-        lambda n: (go.Scatter(
+    trace_plots = [
+        go.Scatter(
             x=chains[n],
             y=list(range(0, chains[n].size)),
             line=dict(color=backfillz.theme.palette[n])
-        )),
-        range(0, n_chains)
-    )
+        )
+        for n in range(0, n_chains)
+    ]
     for trace_plot in trace_plots:
         fig.add_trace(trace_plot, row=1, col=1)
     fig.layout['yaxis'].update(range=[0, n_iter])
