@@ -25,10 +25,10 @@ Slices = Dict[str, List[Slice]]
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
     params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
-    slices2: Slices = {param: [Slice(0, 0.4), Slice(0.8, 1)] for param in params}
+    slices: Slices = {param: [Slice(0, 0.4), Slice(0.8, 1)] for param in params}
 
     for param in params:
-        _create_single_plot(backfillz, slices2[param], param)
+        _create_single_plot(backfillz, slices[param], param)
 
     # Update log
     backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
@@ -37,7 +37,7 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
 # Assume scalar parameter for now; what about vectors?
 def _create_single_plot(
     backfillz: Backfillz,
-    slices2: List[Slice],
+    slices: List[Slice],
     param: str
 ) -> None:
     chains = backfillz.iter_chains(param)
@@ -56,10 +56,10 @@ def _create_single_plot(
         layout=go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
     )
     specs: List[List[object]] = \
-        [[dict(rowspan=len(slices2)), dict(rowspan=len(slices2)), dict()]] + \
-        [[None, None, dict()] for _ in slices2[1:]]
+        [[dict(rowspan=len(slices)), dict(rowspan=len(slices)), dict()]] + \
+        [[None, None, dict()] for _ in slices[1:]]
     make_subplots(
-        rows=len(slices2),
+        rows=len(slices),
         cols=3,
         figure=fig,
         specs=specs,
@@ -76,20 +76,20 @@ def _create_single_plot(
         fig.add_trace(go.Scatter(x=chains[n], y=list(range(0, chains[n].size))), row=1, col=1)
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
-    for n, slc in enumerate(slices2, start=1):
+    for n, slc in enumerate(slices, start=1):
         _create_slice(
             backfillz,
             fig,
             slc,
             n,
-            max_order=len(slices2),
+            max_order=len(slices),
             x_offset=max_sample,
             width=middle_width,
             y_scale=n_iter
         )
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
-    for n, slc in enumerate(slices2, start=1):
+    for n, slc in enumerate(slices, start=1):
         _slice_histogram(
             backfillz.theme,
             fig,
@@ -99,7 +99,7 @@ def _create_single_plot(
             min_sample=min_sample,
             max_sample=max_sample,
             width=right_width,
-            height=(1 / len(slices2)) * plot_height
+            height=(1 / len(slices)) * plot_height
         )
 
     fig.show()
