@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import List
+from typing import Dict, List, Iterator, Tuple
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -13,11 +13,13 @@ from backfillz.BackfillzTheme import BackfillzTheme
 
 @dataclass
 class Slice:
+    """A slice of an MCMC trace."""
+
     lower: float
     upper: float
 
 
-Slices = dict[str, List[Slice]]
+Slices = Dict[str, List[Slice]]
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
@@ -49,7 +51,12 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
 
 
 # Assume scalar parameter for now; what about vectors?
-def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, slices2: List[Slice], param: str) -> None:
+def _create_single_plot(
+    backfillz: Backfillz,
+    slices: pd.DataFrame,
+    slices2: List[Slice],
+    param: str
+) -> None:
     chains = backfillz.iter_chains(param)
     [n_chains, n_iter] = chains.shape
     print(f"iterations: {n_iter}, chains: {n_chains}, parameter: {param}")
@@ -103,7 +110,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, slices2: Lis
         fig.add_trace(go.Scatter(x=chains[n], y=list(range(0, chains[n].size))), row=1, col=1)
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
-    slices2 = zip(slices2, range(0, len(slices2)))
+    slices3: Iterator[Tuple[Slice, int]] = zip(slices2, range(0, len(slices2)))
     map(
         lambda slc_n: _create_slice(
             backfillz,
@@ -115,10 +122,24 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, slices2: Lis
             width=middle_width,
             y_scale=n_iter
         ),
-        slices2
+        slices3
     )
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
+    map(
+        lambda slc_n: _slice_histogram(
+            backfillz.theme,
+            fig,
+            chains,
+            slc_n[0],
+            slc_n[1],
+            min_sample=min_sample,
+            max_sample=max_sample,
+            width=right_width,
+            height=(1 / n_slices) * plot_height
+        ),
+        slices3
+    )
     slices.loc[param_col == param].apply(
         lambda slc: _slice_histogram(
             backfillz.theme,
