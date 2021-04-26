@@ -117,19 +117,6 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, slices2: Lis
         ),
         slices2
     )
-    slices.loc[param_col == param].apply(
-        lambda slc: _create_slice(
-            backfillz,
-            fig,
-            Slice(slc['lower'], slc['upper']),
-            slc['order'],
-            max_order=n_slices,
-            x_offset=max_sample,
-            width=middle_width,
-            y_scale=n_iter
-        ),
-        axis=1
-    )
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
     slices.loc[param_col == param].apply(
@@ -137,8 +124,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, slices2: Lis
             backfillz.theme,
             fig,
             chains,
-            slc['lower'],
-            slc['upper'],
+            Slice(slc['lower'], slc['upper']),
             slc['order'],
             min_sample=min_sample,
             max_sample=max_sample,
@@ -154,7 +140,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, slices2: Lis
 def _create_slice(
     backfillz: Backfillz,
     fig: go.Figure,
-    slice: Slice,
+    slc: Slice,
     order: int,
     max_order: int,
     x_offset: float,
@@ -163,7 +149,7 @@ def _create_slice(
 ) -> None:
     fig.add_trace(go.Scatter(
         x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
-        y=_scale(y_scale, [slice.lower, (order - 1) / max_order, order / max_order, slice.upper]),
+        y=_scale(y_scale, [slc.lower, (order - 1) / max_order, order / max_order, slc.upper]),
         mode='lines',
         line=dict(width=0),
         fill='toself',
@@ -171,13 +157,13 @@ def _create_slice(
     ), row=1, col=2)
     fig.add_trace(go.Scatter(
         x=_translate(x_offset, _scale(width, [0, 1])),
-        y=_scale(y_scale, [slice.lower, (order - 1) / max_order]),
+        y=_scale(y_scale, [slc.lower, (order - 1) / max_order]),
         mode='lines',
         line=dict(color=backfillz.theme.fg_colour, width=1)
     ), row=1, col=2)
     fig.add_trace(go.Scatter(
         x=_translate(x_offset, _scale(width, [0, 1])),
-        y=_scale(y_scale, [slice.upper, order / max_order]),
+        y=_scale(y_scale, [slc.upper, order / max_order]),
         mode='lines',
         line=dict(color=backfillz.theme.fg_colour, width=1)
     ), row=1, col=2)
@@ -187,8 +173,7 @@ def _slice_histogram(
     theme: BackfillzTheme,
     fig: go.Figure,
     chains: np.ndarray,
-    lower: float,
-    upper: float,
+    slc: Slice,
     slice_index: int,
     min_sample: float,
     max_sample: float,
@@ -199,7 +184,7 @@ def _slice_histogram(
     # chain 0 only for now; need to consider all?
     fig.add_trace(
         go.Histogram(
-            x=chains[0, floor(lower * n):floor(upper * n)],
+            x=chains[0, floor(slc.lower * n):floor(slc.upper * n)],
             xbins=dict(start=floor(min_sample), end=ceil(max_sample), size=1),
             marker=dict(color=theme.bg_colour, line=dict(color=theme.fg_colour, width=1))
         ),
