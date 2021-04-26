@@ -99,17 +99,14 @@ def _create_single_plot(
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
     for n, slc in enumerate(slices):
-        _slice_histogram(
+        histo: go.Histogram = _slice_histogram(
             backfillz.theme,
-            fig,
             chains,
             slc,
-            len(slices) - n,
             min_sample=min_sample,
-            max_sample=max_sample,
-            width=right_width,
-            height=(1 / len(slices)) * plot_height
+            max_sample=max_sample
         )
+        fig.add_trace(histo, row=len(slices) - n, col=3)
 
     fig.show()
 
@@ -148,25 +145,17 @@ def _create_slice(
 
 def _slice_histogram(
     theme: BackfillzTheme,
-    fig: go.Figure,
     chains: np.ndarray,
     slc: Slice,
-    slice_index: int,
     min_sample: float,
-    max_sample: float,
-    width: float,
-    height: float
-) -> None:
+    max_sample: float
+) -> go.Histogram:
     [_, n] = chains.shape
     # chain 0 only for now; need to consider all?
-    fig.add_trace(
-        go.Histogram(
-            x=chains[0, floor(slc.lower * n):floor(slc.upper * n)],
-            xbins=dict(start=floor(min_sample), end=ceil(max_sample), size=1),
-            marker=dict(color=theme.bg_colour, line=dict(color=theme.fg_colour, width=1))
-        ),
-        row=slice_index,
-        col=3
+    return go.Histogram(
+        x=chains[0, floor(slc.lower * n):floor(slc.upper * n)],
+        xbins=dict(start=floor(min_sample), end=ceil(max_sample), size=1),
+        marker=dict(color=theme.bg_colour, line=dict(color=theme.fg_colour, width=1))
     )
 
 
