@@ -122,27 +122,33 @@ def _create_slice(
     x_offset: float,
     width: int,
     y_scale: int
-) -> None:
-    fig.add_trace(go.Scatter(
-        x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
-        y=_scale(y_scale, [slc.lower, (order - 1) / max_order, order / max_order, slc.upper]),
-        mode='lines',
-        line=dict(width=0),
-        fill='toself',
-        fillcolor='rgba(240,240,240,255)'
-    ), row=1, col=2)
-    fig.add_trace(go.Scatter(
-        x=_translate(x_offset, _scale(width, [0, 1])),
-        y=_scale(y_scale, [slc.lower, (order - 1) / max_order]),
-        mode='lines',
-        line=dict(color=backfillz.theme.fg_colour, width=1)
-    ), row=1, col=2)
-    fig.add_trace(go.Scatter(
-        x=_translate(x_offset, _scale(width, [0, 1])),
-        y=_scale(y_scale, [slc.upper, order / max_order]),
-        mode='lines',
-        line=dict(color=backfillz.theme.fg_colour, width=1)
-    ), row=1, col=2)
+) -> List[go.Scatter]:
+    traces: List[go.Scatter] = [
+        go.Scatter(
+            x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
+            y=_scale(y_scale, [slc.lower, (order - 1) / max_order, order / max_order, slc.upper]),
+            mode='lines',
+            line=dict(width=0),
+            fill='toself',
+            fillcolor='rgba(240,240,240,255)'
+        ),
+        go.Scatter(
+            x=_translate(x_offset, _scale(width, [0, 1])),
+            y=_scale(y_scale, [slc.lower, (order - 1) / max_order]),
+            mode='lines',
+            line=dict(color=backfillz.theme.fg_colour, width=1)
+        ),
+        go.Scatter(
+            x=_translate(x_offset, _scale(width, [0, 1])),
+            y=_scale(y_scale, [slc.upper, order / max_order]),
+            mode='lines',
+            line=dict(color=backfillz.theme.fg_colour, width=1)
+        ),
+    ]
+
+    for trace in traces:
+        fig.add_trace(trace, row=1, col=2)
+    return traces
 
 
 def _slice_histogram(
