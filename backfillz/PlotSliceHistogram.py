@@ -101,15 +101,29 @@ class SliceHistogram:
     def histos(self) -> List[go.Histogram]:
         """Get slice histogram and sample density."""
         return [
-            _slice_histogram(
-                self.backfillz.theme,
-                self.backfillz.iter_chains(self.param),
+            self._slice_histogram(
                 slc,
                 min_sample=self.min_sample,
                 max_sample=self.max_sample
             )
             for slc in self.slcs
         ]
+
+    def _slice_histogram(
+        self,
+        slc: Slice,
+        min_sample: float,
+        max_sample: float
+    ) -> go.Histogram:
+        # chain 0 only for now; need to consider all?
+        return go.Histogram(
+            x=self.chains[0, floor(slc.lower * self.n_iter):floor(slc.upper * self.n_iter)],
+            xbins=dict(start=floor(min_sample), end=ceil(max_sample), size=1),
+            marker=dict(
+                color=self.backfillz.theme.bg_colour,
+                line=dict(color=self.backfillz.theme.fg_colour, width=1)
+            )
+        )
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
@@ -162,22 +176,6 @@ def _create_single_plot(
     fig.layout['yaxis2'].update(range=[0, plot.n_iter])
 
     fig.show()
-
-
-def _slice_histogram(
-    theme: BackfillzTheme,
-    chains: np.ndarray,
-    slc: Slice,
-    min_sample: float,
-    max_sample: float
-) -> go.Histogram:
-    [_, n] = chains.shape
-    # chain 0 only for now; need to consider all?
-    return go.Histogram(
-        x=chains[0, floor(slc.lower * n):floor(slc.upper * n)],
-        xbins=dict(start=floor(min_sample), end=ceil(max_sample), size=1),
-        marker=dict(color=theme.bg_colour, line=dict(color=theme.fg_colour, width=1))
-    )
 
 
 def _scale(factor: float, xs: List[float]) -> List[float]:
