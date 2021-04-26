@@ -65,22 +65,6 @@ def _create_single_plot(
     plot = dict(parameter=param, sample_min=min_sample, sample_max=max_sample)
     print(plot)
 
-    # Check, order and tag the slice
-    param_col = slices['parameters']
-    n_slices: int = 0
-
-    # ugh -- do something about this
-    def count_param(param2: str) -> int:
-        if param == param2:
-            nonlocal n_slices
-            n_slices += 1
-            return n_slices
-        else:
-            return 0  # R version puts NaN here, but maybe doesn't matter
-
-    param_col2 = param_col.map(count_param)
-    slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
-
     plot_height: int = 600
     middle_width: int = 30  # check against R version
     right_width: int = 300
@@ -88,13 +72,11 @@ def _create_single_plot(
     fig: go.Figure = go.Figure(
         layout=go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
     )
-    print(f"n_slices: {n_slices}, len(slices2): {len(slices2)}, len(range(1, n_slices)): {len(range(1, n_slices))}")
     specs: List[List[object]] = \
         [[dict(rowspan=len(slices2)), dict(rowspan=len(slices2)), dict()]] + \
         [[None, None, dict()] for _ in slices2[1:]]
-    print(specs)
     make_subplots(
-        rows=n_slices,
+        rows=len(slices2),
         cols=3,
         figure=fig,
         specs=specs,
@@ -117,7 +99,7 @@ def _create_single_plot(
             fig,
             slc,
             n,
-            max_order=n_slices,
+            max_order=len(slices2),
             x_offset=max_sample,
             width=middle_width,
             y_scale=n_iter
@@ -134,7 +116,7 @@ def _create_single_plot(
             min_sample=min_sample,
             max_sample=max_sample,
             width=right_width,
-            height=(1 / n_slices) * plot_height
+            height=(1 / len(slices2)) * plot_height
         )
 
     fig.show()
