@@ -26,36 +26,33 @@ class SliceHistogram:
     """Top-level slice histogram plot for a given parameter."""
 
     backfillz: Backfillz
-    trace_plots: List[go.Scatter]
-    _joining_segments: List[go.Scatter]
-    histos: List[go.Histogram]
+    slcs: List[Slice]
+    param: str
+    chains: np.ndarray
+    n_chains: int
     n_iter: int
+    min_sample: float
+    max_sample: float
+    _joining_segments: List[go.Scatter]
 
     def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
         """Construct a Slice Histogram for a given parameter from a list of slices."""
         self.backfillz = backfillz
-        chains = backfillz.iter_chains(param)
-        [n_chains, self.n_iter] = chains.shape
-        print(f"iterations: {self.n_iter}, chains: {n_chains}, parameter: {param}")
-        max_sample: float = np.amax(backfillz.mcmc_samples[param])
-        min_sample: float = np.amin(backfillz.mcmc_samples[param])
-        plot = dict(parameter=param, sample_min=min_sample, sample_max=max_sample)
+        self.slcs = slcs
+        self.param = param
+        self.chains = backfillz.iter_chains(param)
+        [self.n_chains, self.n_iter] = self.chains.shape
+
+        print(f"iterations: {self.n_iter}, chains: {self.n_chains}, parameter: {param}")
+        self.max_sample = np.amax(backfillz.mcmc_samples[param])
+        self.min_sample = np.amin(backfillz.mcmc_samples[param])
+        plot = dict(parameter=param, sample_min=self.min_sample, sample_max=self.max_sample)
         print(plot)
 
         middle_width: int = 30  # check against R version
 
         # p.title=f"Trace slice histogram of {param}",
         # p.title.text_color = backfillz.theme.text_col_title
-
-        # LEFT: TRACE PLOT ------------------------------------------
-        self.trace_plots = [
-            go.Scatter(
-                x=chains[n],
-                y=list(range(0, chains[n].size)),
-                line=dict(color=backfillz.theme.palette[n])
-            )
-            for n in range(0, n_chains)
-        ]
 
         # MIDDLE: JOINING SEGMENTS--------------------------------------
         self.joining_segments = [
@@ -65,22 +62,36 @@ class SliceHistogram:
                 slc,
                 n_slice,
                 max_order=len(slcs),
-                x_offset=max_sample,
+                x_offset=self.max_sample,
                 width=middle_width,
                 y_scale=self.n_iter
             )
         ]
 
-        # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
-        self.histos: List[go.Histogram] = [
-            _slice_histogram(
-                backfillz.theme,
-                chains,
-                slc,
-                min_sample=min_sample,
-                max_sample=max_sample
+    @property
+    def trace_plots(self) -> List[go.Scatter]:
+        """Get trace plot."""
+        return [
+            go.Scatter(
+                x=self.chains[n],
+                y=list(range(0, self.chains[n].size)),
+                line=dict(color=self.backfillz.theme.palette[n])
             )
-            for slc in slcs
+            for n in range(0, self.n_chains)
+        ]
+
+    @property
+    def histos(self) -> List[go.Histogram]:
+        """Get slice histogram and sample density."""
+        return [
+            _slice_histogram(
+                self.backfillz.theme,
+                self.backfillz.iter_chains(self.param),
+                slc,
+                min_sample=self.min_sample,
+                max_sample=self.max_sample
+            )
+            for slc in self.slcs
         ]
 
     def joining_segment(
@@ -92,10 +103,14 @@ class SliceHistogram:
         width: int,
         y_scale: int
     ) -> List[go.Scatter]:
+        """Create joining segment as a quadrangle and two lines."""
         return [
             go.Scatter(
                 x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
-                y=_scale(y_scale, [slc.lower, (order - 1) / max_order, order / max_order, slc.upper]),
+                y=_scale(
+                    y_scale,
+                    [slc.lower, (order - 1) / max_order, order / max_order, slc.upper]
+                ),
                 mode='lines',
                 line=dict(width=0),
                 fill='toself',
