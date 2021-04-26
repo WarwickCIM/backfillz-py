@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import Dict, Iterator, List
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -53,6 +53,46 @@ def _create_single_plot(
 
     middle_width: int = 30  # check against R version
 
+    # p.title=f"Trace slice histogram of {param}",
+    # p.title.text_color = backfillz.theme.text_col_title
+
+    # LEFT: TRACE PLOT ------------------------------------------
+    trace_plots = [
+        go.Scatter(
+            x=chains[n],
+            y=list(range(0, chains[n].size)),
+            line=dict(color=backfillz.theme.palette[n])
+        )
+        for n in range(0, n_chains)
+    ]
+
+    # MIDDLE: JOINING SEGMENTS--------------------------------------
+    joining_segments = [
+        joining_segment
+        for n_slice, slc in enumerate(slices, start=1)
+        for joining_segment in _joining_segment(
+            backfillz,
+            slc,
+            n_slice,
+            max_order=len(slices),
+            x_offset=max_sample,
+            width=middle_width,
+            y_scale=n_iter
+        )
+    ]
+
+    # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
+    histos: List[go.Histogram] = [
+        _slice_histogram(
+            backfillz.theme,
+            chains,
+            slc,
+            min_sample=min_sample,
+            max_sample=max_sample
+        )
+        for slc in slices
+    ]
+
     layout: go.Layout = go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
 
     fig: go.Figure = go.Figure(layout=layout)
@@ -69,63 +109,21 @@ def _create_single_plot(
         print_grid=True
     )
 
-    # p.title=f"Trace slice histogram of {param}",
-    # p.title.text_color = backfillz.theme.text_col_title
-
-    # LEFT: TRACE PLOT ------------------------------------------
-    trace_plots = [
-        go.Scatter(
-            x=chains[n],
-            y=list(range(0, chains[n].size)),
-            line=dict(color=backfillz.theme.palette[n])
-        )
-        for n in range(0, n_chains)
-    ]
-    for trace_plot in trace_plots:
-        fig.add_trace(trace_plot, row=1, col=1)
-    fig.layout['yaxis'].update(range=[0, n_iter])
-
-    # MIDDLE: JOINING SEGMENTS--------------------------------------
-    joining_segments = [
-        trace
-        for n_slice, slc in enumerate(slices, start=1)
-        for trace in _create_slice(
-            backfillz,
-            fig,
-            slc,
-            n_slice,
-            max_order=len(slices),
-            x_offset=max_sample,
-            width=middle_width,
-            y_scale=n_iter
-        )
-    ]
-
+    for trace in trace_plots:
+        fig.add_trace(trace, row=1, col=1)
     for trace in joining_segments:
         fig.add_trace(trace, row=1, col=2)
-    fig.layout['yaxis2'].update(range=[0, n_iter])
-
-    # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
-    histos: List[go.Histogram] = [
-        _slice_histogram(
-            backfillz.theme,
-            chains,
-            slc,
-            min_sample=min_sample,
-            max_sample=max_sample
-        )
-        for slc in slices
-    ]
-
     for n_slice, trace in enumerate(histos[::-1]):
         fig.add_trace(trace, row=n_slice + 1, col=3)
+
+    fig.layout['yaxis'].update(range=[0, n_iter])
+    fig.layout['yaxis2'].update(range=[0, n_iter])
 
     fig.show()
 
 
-def _create_slice(
+def _joining_segment(
     backfillz: Backfillz,
-    fig: go.Figure,
     slc: Slice,
     order: int,
     max_order: int,
@@ -133,7 +131,7 @@ def _create_slice(
     width: int,
     y_scale: int
 ) -> List[go.Scatter]:
-    traces: List[go.Scatter] = [
+    return [
         go.Scatter(
             x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
             y=_scale(y_scale, [slc.lower, (order - 1) / max_order, order / max_order, slc.upper]),
@@ -155,8 +153,6 @@ def _create_slice(
             line=dict(color=backfillz.theme.fg_colour, width=1)
         ),
     ]
-
-    return traces
 
 
 def _slice_histogram(
