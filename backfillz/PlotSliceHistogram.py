@@ -31,6 +31,7 @@ class SliceHistogram:
     n_iter: int
 
     def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
+        """Construct a Slice Histogram for a given parameter from a list of slices."""
         chains = backfillz.iter_chains(param)
         [n_chains, self.n_iter] = chains.shape
         print(f"iterations: {self.n_iter}, chains: {n_chains}, parameter: {param}")
