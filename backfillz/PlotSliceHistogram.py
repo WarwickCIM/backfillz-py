@@ -76,7 +76,11 @@ def _create_single_plot(
 
     # LEFT: TRACE PLOT ------------------------------------------
     for n in range(0, n_chains):
-        fig.add_trace(go.Scatter(x=chains[n], y=list(range(0, chains[n].size))), row=1, col=1)
+        fig.add_trace(go.Scatter(
+            x=chains[n],
+            y=list(range(0, chains[n].size)),
+            line=dict(color=backfillz.theme.palette[n])
+        ), row=1, col=1)
     fig.layout['yaxis'].update(range=[0, n_iter])
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
@@ -94,13 +98,13 @@ def _create_single_plot(
     fig.layout['yaxis2'].update(range=[0, n_iter])
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
-    for n, slc in enumerate(slices, start=1):
+    for n, slc in enumerate(slices):
         _slice_histogram(
             backfillz.theme,
             fig,
             chains,
             slc,
-            n,
+            len(slices) - n,
             min_sample=min_sample,
             max_sample=max_sample,
             width=right_width,
