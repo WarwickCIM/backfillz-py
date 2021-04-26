@@ -71,7 +71,6 @@ class SliceHistogram:
             for joining_segment in self.joining_segment(
                 slc,
                 n_slice,
-                x_offset=self.max_sample,
                 width=middle_width,
                 y_scale=self.n_iter
             )
@@ -95,11 +94,11 @@ class SliceHistogram:
         self,
         slc: Slice,
         order: int,
-        x_offset: float,
         width: int,
         y_scale: int
     ) -> List[go.Scatter]:
         """Create joining segment as a quadrangle and two lines."""
+        x_offset: float = self.max_sample
         return [
             go.Scatter(
                 x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
