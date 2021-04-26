@@ -25,7 +25,10 @@ Slices = Dict[str, List[Slice]]
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
     params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
-    slices: Slices = {param: [Slice(0, 0.4), Slice(0.8, 1)] for param in params}
+    slice_list: List[Slice] = [
+        Slice(0, 0.004), Slice(0.004, 0.01), Slice(0.01, 0.02), Slice(0.02, 0.04), Slice(0.04, 1)
+    ]
+    slices: Slices = {param: slice_list for param in params}
 
     for param in params:
         _create_single_plot(backfillz, slices[param], param)
@@ -74,6 +77,7 @@ def _create_single_plot(
     # LEFT: TRACE PLOT ------------------------------------------
     for n in range(0, n_chains):
         fig.add_trace(go.Scatter(x=chains[n], y=list(range(0, chains[n].size))), row=1, col=1)
+    fig.layout['yaxis'].update(range=[0, n_iter])
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
     for n, slc in enumerate(slices, start=1):
@@ -87,6 +91,7 @@ def _create_single_plot(
             width=middle_width,
             y_scale=n_iter
         )
+    fig.layout['yaxis2'].update(range=[0, n_iter])
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
     for n, slc in enumerate(slices, start=1):
