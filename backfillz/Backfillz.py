@@ -50,7 +50,7 @@ class Backfillz:
     def __init__(self, fit: Fit) -> None:
         """Initialise a Backfillz session."""
         self.mcmc_samples = fit
-        self.set_theme("default", False)
+        self.set_theme(default, False)
         self.plot_history = [
             HistoryEntry(HistoryEvent.OBJECT_CREATION, False)
         ]
@@ -63,17 +63,8 @@ class Backfillz:
             xss[n] = self.mcmc_samples[param][index][n * num_samples: (n + 1) * num_samples]
         return xss
 
-    def set_theme(self, theme: str, verbose: bool = True) -> None:
+    def set_theme(self, theme: BackfillzTheme, verbose: bool = True) -> None:
         """Set Backfillz theme."""
         if verbose:
-            print("Setting backfillz object theme to " + theme)
-        if theme == "default":
-            self.theme = default
-        elif theme == "solarized_dark":
-            self.theme = solarized_dark
-        elif theme == "demo 1":
-            self.theme = demo_1
-        elif theme == "demo 2":
-            self.theme = demo_2
-        else:
-            raise Exception("Theme not recognised")
+            print("Setting backfillz object theme to " + theme.name)
+        self.theme = theme
