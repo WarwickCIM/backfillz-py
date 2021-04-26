@@ -26,25 +26,9 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
     params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
     slices2: Slices = {param: [Slice(0, 0.4), Slice(0.8, 1)] for param in params}
-    lower = pd.Series([0, 0.8])
-    upper = pd.Series([0.4, 1])
-    slices: pd.DataFrame = pd.DataFrame(columns=[
-        'parameters',  # character
-        'lower',  # numeric
-        'upper'  # numeric
-    ])
-    for param in params:
-        slices = pd.concat([
-            slices,
-            pd.DataFrame(dict(
-                parameters=pd.Series([param] * upper.size),
-                lower=lower,
-                upper=upper
-            )),
-        ], ignore_index=True)
 
     for param in params:
-        _create_single_plot(backfillz, slices, slices2[param], param)
+        _create_single_plot(backfillz, slices2[param], param)
 
     # Update log
     backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
@@ -53,7 +37,6 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
 # Assume scalar parameter for now; what about vectors?
 def _create_single_plot(
     backfillz: Backfillz,
-    slices: pd.DataFrame,
     slices2: List[Slice],
     param: str
 ) -> None:
