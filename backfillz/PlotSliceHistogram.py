@@ -51,13 +51,11 @@ def _create_single_plot(
     plot = dict(parameter=param, sample_min=min_sample, sample_max=max_sample)
     print(plot)
 
-    plot_height: int = 600
     middle_width: int = 30  # check against R version
-    right_width: int = 300
 
-    fig: go.Figure = go.Figure(
-        layout=go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
-    )
+    layout: go.Layout = go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
+
+    fig: go.Figure = go.Figure(layout=layout)
     specs: List[List[object]] = \
         [[dict(rowspan=len(slices)), dict(rowspan=len(slices)), dict()]] + \
         [[None, None, dict()] for _ in slices[1:]]
