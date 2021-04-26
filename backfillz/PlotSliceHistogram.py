@@ -87,7 +87,7 @@ def _create_single_plot(
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
     for n_slice, slc in enumerate(slices, start=1):
-        _create_slice(
+        traces: List[go.Scatter] = _create_slice(
             backfillz,
             fig,
             slc,
@@ -97,6 +97,8 @@ def _create_single_plot(
             width=middle_width,
             y_scale=n_iter
         )
+        for trace in traces:
+            fig.add_trace(trace, row=1, col=2)
     fig.layout['yaxis2'].update(range=[0, n_iter])
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
@@ -146,8 +148,6 @@ def _create_slice(
         ),
     ]
 
-    for trace in traces:
-        fig.add_trace(trace, row=1, col=2)
     return traces
 
 
