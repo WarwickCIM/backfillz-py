@@ -25,6 +25,7 @@ Slices = Dict[str, List[Slice]]
 class SliceHistogram:
     """Top-level slice histogram plot for a given parameter."""
 
+    backfillz: Backfillz
     trace_plots: List[go.Scatter]
     _joining_segments: List[go.Scatter]
     histos: List[go.Histogram]
@@ -32,6 +33,7 @@ class SliceHistogram:
 
     def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
         """Construct a Slice Histogram for a given parameter from a list of slices."""
+        self.backfillz = backfillz
         chains = backfillz.iter_chains(param)
         [n_chains, self.n_iter] = chains.shape
         print(f"iterations: {self.n_iter}, chains: {n_chains}, parameter: {param}")
@@ -59,8 +61,7 @@ class SliceHistogram:
         self.joining_segments = [
             joining_segment
             for n_slice, slc in enumerate(slcs, start=1)
-            for joining_segment in _joining_segment(
-                backfillz,
+            for joining_segment in self.joining_segment(
                 slc,
                 n_slice,
                 max_order=len(slcs),
@@ -80,6 +81,38 @@ class SliceHistogram:
                 max_sample=max_sample
             )
             for slc in slcs
+        ]
+
+    def joining_segment(
+        self,
+        slc: Slice,
+        order: int,
+        max_order: int,
+        x_offset: float,
+        width: int,
+        y_scale: int
+    ) -> List[go.Scatter]:
+        return [
+            go.Scatter(
+                x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
+                y=_scale(y_scale, [slc.lower, (order - 1) / max_order, order / max_order, slc.upper]),
+                mode='lines',
+                line=dict(width=0),
+                fill='toself',
+                fillcolor='rgba(240,240,240,255)'
+            ),
+            go.Scatter(
+                x=_translate(x_offset, _scale(width, [0, 1])),
+                y=_scale(y_scale, [slc.lower, (order - 1) / max_order]),
+                mode='lines',
+                line=dict(color=self.backfillz.theme.fg_colour, width=1)
+            ),
+            go.Scatter(
+                x=_translate(x_offset, _scale(width, [0, 1])),
+                y=_scale(y_scale, [slc.upper, order / max_order]),
+                mode='lines',
+                line=dict(color=self.backfillz.theme.fg_colour, width=1)
+            ),
         ]
 
 
@@ -133,39 +166,6 @@ def _create_single_plot(
     fig.layout['yaxis2'].update(range=[0, plot.n_iter])
 
     fig.show()
-
-
-def _joining_segment(
-    backfillz: Backfillz,
-    slc: Slice,
-    order: int,
-    max_order: int,
-    x_offset: float,
-    width: int,
-    y_scale: int
-) -> List[go.Scatter]:
-    return [
-        go.Scatter(
-            x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
-            y=_scale(y_scale, [slc.lower, (order - 1) / max_order, order / max_order, slc.upper]),
-            mode='lines',
-            line=dict(width=0),
-            fill='toself',
-            fillcolor='rgba(240,240,240,255)'
-        ),
-        go.Scatter(
-            x=_translate(x_offset, _scale(width, [0, 1])),
-            y=_scale(y_scale, [slc.lower, (order - 1) / max_order]),
-            mode='lines',
-            line=dict(color=backfillz.theme.fg_colour, width=1)
-        ),
-        go.Scatter(
-            x=_translate(x_offset, _scale(width, [0, 1])),
-            y=_scale(y_scale, [slc.upper, order / max_order]),
-            mode='lines',
-            line=dict(color=backfillz.theme.fg_colour, width=1)
-        ),
-    ]
 
 
 def _slice_histogram(
