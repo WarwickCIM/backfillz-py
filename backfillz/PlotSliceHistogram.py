@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from math import ceil, floor
 from typing import List
 
@@ -10,9 +11,19 @@ from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.BackfillzTheme import BackfillzTheme
 
 
+@dataclass
+class Slice:
+    lower: float
+    upper: float
+
+
+Slices = dict[str, List[Slice]]
+
+
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
     params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
+    slices2: Slices = {param: [Slice(0, 0.4), Slice(0.8, 1)] for param in params}
     lower = pd.Series([0, 0.8])
     upper = pd.Series([0.4, 1])
     slices: pd.DataFrame = pd.DataFrame(columns=[
@@ -31,14 +42,14 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
         ], ignore_index=True)
 
     for param in params:
-        _create_single_plot(backfillz, slices, param)
+        _create_single_plot(backfillz, slices, slices2[param], param)
 
     # Update log
     backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
 
 
 # Assume scalar parameter for now; what about vectors?
-def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) -> None:
+def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, slices2: List[Slice], param: str) -> None:
     chains = backfillz.iter_chains(param)
     [n_chains, n_iter] = chains.shape
     print(f"iterations: {n_iter}, chains: {n_chains}, parameter: {param}")
@@ -92,12 +103,25 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
         fig.add_trace(go.Scatter(x=chains[n], y=list(range(0, chains[n].size))), row=1, col=1)
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
+    slices2 = zip(slices2, range(0, len(slices2)))
+    map(
+        lambda slc_n: _create_slice(
+            backfillz,
+            fig,
+            slc_n[0],
+            slc_n[1],
+            max_order=n_slices,
+            x_offset=max_sample,
+            width=middle_width,
+            y_scale=n_iter
+        ),
+        slices2
+    )
     slices.loc[param_col == param].apply(
         lambda slc: _create_slice(
             backfillz,
             fig,
-            slc['lower'],
-            slc['upper'],
+            Slice(slc['lower'], slc['upper']),
             slc['order'],
             max_order=n_slices,
             x_offset=max_sample,
@@ -130,8 +154,7 @@ def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) 
 def _create_slice(
     backfillz: Backfillz,
     fig: go.Figure,
-    lower: float,
-    upper: float,
+    slice: Slice,
     order: int,
     max_order: int,
     x_offset: float,
@@ -140,7 +163,7 @@ def _create_slice(
 ) -> None:
     fig.add_trace(go.Scatter(
         x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
-        y=_scale(y_scale, [lower, (order - 1) / max_order, order / max_order, upper]),
+        y=_scale(y_scale, [slice.lower, (order - 1) / max_order, order / max_order, slice.upper]),
         mode='lines',
         line=dict(width=0),
         fill='toself',
@@ -148,13 +171,13 @@ def _create_slice(
     ), row=1, col=2)
     fig.add_trace(go.Scatter(
         x=_translate(x_offset, _scale(width, [0, 1])),
-        y=_scale(y_scale, [lower, (order - 1) / max_order]),
+        y=_scale(y_scale, [slice.lower, (order - 1) / max_order]),
         mode='lines',
         line=dict(color=backfillz.theme.fg_colour, width=1)
     ), row=1, col=2)
     fig.add_trace(go.Scatter(
         x=_translate(x_offset, _scale(width, [0, 1])),
-        y=_scale(y_scale, [upper, order / max_order]),
+        y=_scale(y_scale, [slice.upper, order / max_order]),
         mode='lines',
         line=dict(color=backfillz.theme.fg_colour, width=1)
     ), row=1, col=2)
