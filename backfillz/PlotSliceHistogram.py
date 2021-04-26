@@ -71,7 +71,6 @@ class SliceHistogram:
             for joining_segment in self.joining_segment(
                 slc,
                 n_slice,
-                max_order=len(self.slcs),
                 x_offset=self.max_sample,
                 width=middle_width,
                 y_scale=self.n_iter
@@ -96,7 +95,6 @@ class SliceHistogram:
         self,
         slc: Slice,
         order: int,
-        max_order: int,
         x_offset: float,
         width: int,
         y_scale: int
@@ -107,7 +105,7 @@ class SliceHistogram:
                 x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
                 y=_scale(
                     y_scale,
-                    [slc.lower, (order - 1) / max_order, order / max_order, slc.upper]
+                    [slc.lower, (order - 1) / len(self.slcs), order / len(self.slcs), slc.upper]
                 ),
                 mode='lines',
                 line=dict(width=0),
@@ -116,13 +114,13 @@ class SliceHistogram:
             ),
             go.Scatter(
                 x=_translate(x_offset, _scale(width, [0, 1])),
-                y=_scale(y_scale, [slc.lower, (order - 1) / max_order]),
+                y=_scale(y_scale, [slc.lower, (order - 1) / len(self.slcs)]),
                 mode='lines',
                 line=dict(color=self.backfillz.theme.fg_colour, width=1)
             ),
             go.Scatter(
                 x=_translate(x_offset, _scale(width, [0, 1])),
-                y=_scale(y_scale, [slc.upper, order / max_order]),
+                y=_scale(y_scale, [slc.upper, order / len(self.slcs)]),
                 mode='lines',
                 line=dict(color=self.backfillz.theme.fg_colour, width=1)
             ),
