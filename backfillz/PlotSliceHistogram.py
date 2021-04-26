@@ -42,35 +42,16 @@ class SliceHistogram:
         self.param = param
         self.chains = backfillz.iter_chains(param)
         [self.n_chains, self.n_iter] = self.chains.shape
-
-        print(f"iterations: {self.n_iter}, chains: {self.n_chains}, parameter: {param}")
         self.max_sample = np.amax(backfillz.mcmc_samples[param])
         self.min_sample = np.amin(backfillz.mcmc_samples[param])
         plot = dict(parameter=param, sample_min=self.min_sample, sample_max=self.max_sample)
-        print(plot)
-
-        middle_width: int = 30  # check against R version
 
         # p.title=f"Trace slice histogram of {param}",
         # p.title.text_color = backfillz.theme.text_col_title
 
-        # MIDDLE: JOINING SEGMENTS--------------------------------------
-        self.joining_segments = [
-            joining_segment
-            for n_slice, slc in enumerate(slcs, start=1)
-            for joining_segment in self.joining_segment(
-                slc,
-                n_slice,
-                max_order=len(slcs),
-                x_offset=self.max_sample,
-                width=middle_width,
-                y_scale=self.n_iter
-            )
-        ]
-
     @property
     def trace_plots(self) -> List[go.Scatter]:
-        """Get trace plot."""
+        """Get trace plot (leftmost part)."""
         return [
             go.Scatter(
                 x=self.chains[n],
@@ -78,6 +59,23 @@ class SliceHistogram:
                 line=dict(color=self.backfillz.theme.palette[n])
             )
             for n in range(0, self.n_chains)
+        ]
+
+    @property
+    def joining_segments(self) -> List[go.Scatter]:
+        """Get joining segments (middle part)."""
+        middle_width: int = 30  # check against R version
+        return [
+            joining_segment
+            for n_slice, slc in enumerate(self.slcs, start=1)
+            for joining_segment in self.joining_segment(
+                slc,
+                n_slice,
+                max_order=len(self.slcs),
+                x_offset=self.max_sample,
+                width=middle_width,
+                y_scale=self.n_iter
+            )
         ]
 
     @property
