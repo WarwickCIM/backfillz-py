@@ -110,50 +110,31 @@ def _create_single_plot(
         fig.add_trace(go.Scatter(x=chains[n], y=list(range(0, chains[n].size))), row=1, col=1)
 
     # MIDDLE: JOINING SEGMENTS--------------------------------------
-    slices3: Iterator[Tuple[Slice, int]] = zip(slices2, range(0, len(slices2)))
-    map(
-        lambda slc_n: _create_slice(
+    for n, slc in enumerate(slices2, start=1):
+        _create_slice(
             backfillz,
             fig,
-            slc_n[0],
-            slc_n[1],
+            slc,
+            n,
             max_order=n_slices,
             x_offset=max_sample,
             width=middle_width,
             y_scale=n_iter
-        ),
-        slices3
-    )
+        )
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
-    map(
-        lambda slc_n: _slice_histogram(
+    for n, slc in enumerate(slices2, start=1):
+        _slice_histogram(
             backfillz.theme,
             fig,
             chains,
-            slc_n[0],
-            slc_n[1],
+            slc,
+            n,
             min_sample=min_sample,
             max_sample=max_sample,
             width=right_width,
             height=(1 / n_slices) * plot_height
-        ),
-        slices3
-    )
-    slices.loc[param_col == param].apply(
-        lambda slc: _slice_histogram(
-            backfillz.theme,
-            fig,
-            chains,
-            Slice(slc['lower'], slc['upper']),
-            slc['order'],
-            min_sample=min_sample,
-            max_sample=max_sample,
-            width=right_width,
-            height=(1 / n_slices) * plot_height
-        ),
-        axis=1
-    )
+        )
 
     fig.show()
 
@@ -201,6 +182,7 @@ def _slice_histogram(
     width: float,
     height: float
 ) -> None:
+    print(slc)
     [_, n] = chains.shape
     # chain 0 only for now; need to consider all?
     fig.add_trace(
