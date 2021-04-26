@@ -106,15 +106,19 @@ def _create_single_plot(
     fig.layout['yaxis2'].update(range=[0, n_iter])
 
     # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
-    for n_slice, slc in enumerate(slices):
-        histo: go.Histogram = _slice_histogram(
+    histos: List[go.Histogram] = [
+        _slice_histogram(
             backfillz.theme,
             chains,
             slc,
             min_sample=min_sample,
             max_sample=max_sample
         )
-        fig.add_trace(histo, row=len(slices) - n_slice, col=3)
+        for slc in slices
+    ]
+
+    for n_slice, trace in enumerate(histos[::-1]):
+        fig.add_trace(trace, row=n_slice + 1, col=3)
 
     fig.show()
 
