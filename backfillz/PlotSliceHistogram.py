@@ -8,7 +8,6 @@ import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
 
 from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
-from backfillz.BackfillzTheme import BackfillzTheme
 
 
 @dataclass
@@ -44,8 +43,6 @@ class SliceHistogram:
         [self.n_chains, self.n_iter] = self.chains.shape
         self.max_sample = np.amax(backfillz.mcmc_samples[param])
         self.min_sample = np.amin(backfillz.mcmc_samples[param])
-        plot = dict(parameter=param, sample_min=self.min_sample, sample_max=self.max_sample)
-
         # p.title=f"Trace slice histogram of {param}",
         # p.title.text_color = backfillz.theme.text_col_title
 
@@ -99,7 +96,7 @@ class SliceHistogram:
 
     @property
     def histos(self) -> List[go.Histogram]:
-        """Get slice histogram and sample density."""
+        """Get slice histogram and sample density (rightmost part)."""
         return [
             # chain 0 only for now; need to consider all?
             go.Histogram(
@@ -112,6 +109,35 @@ class SliceHistogram:
             )
             for slc in self.slcs
         ]
+
+    @property
+    def figure(self) -> go.Figure:
+        """Derive Plotly figure from 3 parts."""
+        layout: go.Layout = go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
+        fig: go.Figure = go.Figure(layout=layout)
+        specs: List[List[object]] = \
+            [[dict(rowspan=len(self.slcs)), dict(rowspan=len(self.slcs)), dict()]] + \
+            [[None, None, dict()] for _ in self.slcs[1:]]
+        make_subplots(
+            rows=len(self.slcs),
+            cols=3,
+            figure=fig,
+            specs=specs,
+            horizontal_spacing=0,
+            vertical_spacing=0,
+            print_grid=True
+        )
+
+        for trace in self.trace_plots:
+            fig.add_trace(trace, row=1, col=1)
+        for trace in self.joining_segments:
+            fig.add_trace(trace, row=1, col=2)
+        for n_slice, trace in enumerate(self.histos[::-1]):
+            fig.add_trace(trace, row=n_slice + 1, col=3)
+
+        fig.layout['yaxis'].update(range=[0, self.n_iter])
+        fig.layout['yaxis2'].update(range=[0, self.n_iter])
+        return fig
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
@@ -136,33 +162,7 @@ def _create_single_plot(
     param: str
 ) -> None:
     plot = SliceHistogram(backfillz, slices, param)
-
-    layout: go.Layout = go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
-
-    fig: go.Figure = go.Figure(layout=layout)
-    specs: List[List[object]] = \
-        [[dict(rowspan=len(slices)), dict(rowspan=len(slices)), dict()]] + \
-        [[None, None, dict()] for _ in slices[1:]]
-    make_subplots(
-        rows=len(slices),
-        cols=3,
-        figure=fig,
-        specs=specs,
-        horizontal_spacing=0,
-        vertical_spacing=0,
-        print_grid=True
-    )
-
-    for trace in plot.trace_plots:
-        fig.add_trace(trace, row=1, col=1)
-    for trace in plot.joining_segments:
-        fig.add_trace(trace, row=1, col=2)
-    for n_slice, trace in enumerate(plot.histos[::-1]):
-        fig.add_trace(trace, row=n_slice + 1, col=3)
-
-    fig.layout['yaxis'].update(range=[0, plot.n_iter])
-    fig.layout['yaxis2'].update(range=[0, plot.n_iter])
-
+    fig = plot.figure
     fig.show()
 
 
