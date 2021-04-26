@@ -88,9 +88,10 @@ def _create_single_plot(
     fig: go.Figure = go.Figure(
         layout=go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
     )
+    print(f"n_slices: {n_slices}, len(slices2): {len(slices2)}, len(range(1, n_slices)): {len(range(1, n_slices))}")
     specs: List[List[object]] = \
-        [[dict(rowspan=n_slices), dict(rowspan=n_slices), dict()]] + \
-        [[None, None, dict()] for _ in range(1, n_slices)]
+        [[dict(rowspan=len(slices2)), dict(rowspan=len(slices2)), dict()]] + \
+        [[None, None, dict()] for _ in slices2[1:]]
     print(specs)
     make_subplots(
         rows=n_slices,
@@ -182,7 +183,6 @@ def _slice_histogram(
     width: float,
     height: float
 ) -> None:
-    print(slc)
     [_, n] = chains.shape
     # chain 0 only for now; need to consider all?
     fig.add_trace(
