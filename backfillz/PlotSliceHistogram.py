@@ -62,14 +62,13 @@ class SliceHistogram:
     def joining_segments(self) -> List[go.Scatter]:
         """Get joining segments (middle part)."""
         width: int = 30  # check against R version
-        x_offset: float = self.max_sample
         y_scale: int = self.n_iter
         return [
             joining_segment
             for n_slc, slc in enumerate(self.slcs, start=1)
             for joining_segment in [
                 go.Scatter(
-                    x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
+                    x=_scale(width, [0, 1, 1, 0]),
                     y=_scale(
                         y_scale,
                         [slc.lower, (n_slc - 1) / len(self.slcs), n_slc / len(self.slcs), slc.upper]
@@ -80,13 +79,13 @@ class SliceHistogram:
                     fillcolor='rgba(240,240,240,255)'
                 ),
                 go.Scatter(
-                    x=_translate(x_offset, _scale(width, [0, 1])),
+                    x=_scale(width, [0, 1]),
                     y=_scale(y_scale, [slc.lower, (n_slc - 1) / len(self.slcs)]),
                     mode='lines',
                     line=dict(color=self.backfillz.theme.fg_colour, width=1)
                 ),
                 go.Scatter(
-                    x=_translate(x_offset, _scale(width, [0, 1])),
+                    x=_scale(width, [0, 1]),
                     y=_scale(y_scale, [slc.upper, n_slc / len(self.slcs)]),
                     mode='lines',
                     line=dict(color=self.backfillz.theme.fg_colour, width=1)
@@ -167,7 +166,3 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
 
 def _scale(factor: float, xs: List[float]) -> List[float]:
     return [x * factor for x in xs]
-
-
-def _translate(offset: float, xs: List[float]) -> List[float]:
-    return [x + offset for x in xs]
