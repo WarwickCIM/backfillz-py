@@ -27,6 +27,16 @@ class _TracePlot:
     traces: List[go.Scatter]    # one per chain
     # boxes: List[go.Scatter]     # one per slice
 
+    def __init__(self, theme: BackfillzTheme, chains: np.ndarray, n_chains: int):
+        self.traces = [
+            go.Scatter(
+                x=chains[n],
+                y=list(range(0, chains[n].size)),
+                line=dict(color=theme.palette[n])
+            )
+            for n in range(0, n_chains)
+        ]
+
 
 @dataclass
 class _JoiningSegment:
@@ -100,14 +110,7 @@ class SliceHistogram:
     @property
     def trace_plots(self) -> _TracePlot:
         """For each chain, get trace plot (leftmost part)."""
-        return _TracePlot([
-            go.Scatter(
-                x=self.chains[n],
-                y=list(range(0, self.chains[n].size)),
-                line=dict(color=self.backfillz.theme.palette[n])
-            )
-            for n in range(0, self.n_chains)
-        ])
+        return _TracePlot(self.backfillz.theme, self.chains, self.n_chains)
 
     @property
     def joining_segments(self) -> List[_JoiningSegment]:
