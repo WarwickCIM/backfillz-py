@@ -181,15 +181,19 @@ class SliceHistogram:
             print_grid=True,
         )
 
+        for n_slc, _ in enumerate(self.slcs):
+            yaxis = 'yaxis' + str(3 + n_slc)  # ouch: 3
+            fig.layout[yaxis]['side'] = 'right'
+
         for trace in self.trace_plot.traces:
             fig.add_trace(trace, row=1, col=1)
+        for box in self.trace_plot.boxes:
+            fig.add_trace(box, row=1, col=1)
         for joining_segment in self.joining_segments:
             fig.add_trace(joining_segment.quadrangle, row=1, col=2)
             fig.add_trace(joining_segment.lower_line, row=1, col=2)
             fig.add_trace(joining_segment.upper_line, row=1, col=2)
         for n_slice, densityPlot in enumerate(self.density_plots):
-            yaxis = 'yaxis' + str(3 + n_slice)  # ouch: 3
-            fig.layout[yaxis]['side'] = 'right'
             fig.add_trace(densityPlot.histo, row=n_slice + 1, col=3)
 
         return fig
