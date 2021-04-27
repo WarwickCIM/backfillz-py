@@ -194,6 +194,7 @@ class SliceHistogram:
 
         for n_slc, _ in enumerate(self.chart.slcs):
             yaxis = 'yaxis' + str(3 + n_slc)  # ouch: 3
+            fig.layout[yaxis]['showgrid'] = False
             fig.layout[yaxis]['side'] = 'right'
             fig.layout[yaxis]['linecolor'] = fg_color
 
