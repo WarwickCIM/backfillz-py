@@ -39,14 +39,14 @@ class _TracePlot:
     traces: List[go.Scatter]    # one per chain
     boxes: List[go.Scatter]     # one per slice
 
-    def __init__(self, chart_data: _ChartData):
+    def __init__(self, chart: _ChartData):
         self.traces = [
             go.Scatter(
-                x=chart_data.chains[n],
-                y=list(range(0, chart_data.chains[n].size)),
-                line=dict(color=chart_data.theme.palette[n])
+                x=chart.chains[n],
+                y=list(range(0, chart.chains[n].size)),
+                line=dict(color=chart.theme.palette[n])
             )
-            for n in range(0, chart_data.n_chains)
+            for n in range(0, chart.n_chains)
         ]
         self.boxes = []
 
@@ -57,8 +57,8 @@ class _JoiningSegment:
     upper_line: go.Scatter
     lower_line: go.Scatter
 
-    def __init__(self, chart_data: _ChartData, width: int, y_scale: float, n_slc: int, slc: Slice):
-        lower, upper = (n_slc - 1) / len(chart_data.slcs), n_slc / len(chart_data.slcs)
+    def __init__(self, chart: _ChartData, width: int, y_scale: float, n_slc: int, slc: Slice):
+        lower, upper = (n_slc - 1) / len(chart.slcs), n_slc / len(chart.slcs)
         self.quadrangle = go.Scatter(
             x=_scale(width, [0, 1, 1, 0]),
             y=_scale(y_scale, [slc.lower, lower, upper, slc.upper]),
@@ -71,13 +71,13 @@ class _JoiningSegment:
             x=_scale(width, [0, 1]),
             y=_scale(y_scale, [slc.lower, lower]),
             mode='lines',
-            line=dict(color=chart_data.theme.fg_colour, width=1)
+            line=dict(color=chart.theme.fg_colour, width=1)
         )
         self.upper_line = go.Scatter(
             x=_scale(width, [0, 1]),
             y=_scale(y_scale, [slc.upper, upper]),
             mode='lines',
-            line=dict(color=chart_data.theme.fg_colour, width=1)
+            line=dict(color=chart.theme.fg_colour, width=1)
         )
 
 
@@ -88,14 +88,17 @@ class _DensityPlot:
 
     def __init__(
         self,
-        chart_data: _ChartData,
+        chart: _ChartData,
         slc: Slice,
     ):
         # chain 0 only for now; need to consider all?
         self.histo = go.Histogram(
-            x=chart_data.chains[0, floor(slc.lower * chart_data.n_iter):floor(slc.upper * chart_data.n_iter)],
-            xbins=dict(start=floor(chart_data.min_sample), end=ceil(chart_data.max_sample), size=1),
-            marker=dict(color=chart_data.theme.bg_colour, line=dict(color=chart_data.theme.fg_colour, width=1)),
+            x=chart.chains[0, floor(slc.lower * chart.n_iter):floor(slc.upper * chart.n_iter)],
+            xbins=dict(start=floor(chart.min_sample), end=ceil(chart.max_sample), size=1),
+            marker=dict(
+                color=chart.theme.bg_colour,
+                line=dict(color=chart.theme.fg_colour, width=1)
+            ),
             histnorm='probability'
         )
 
@@ -104,13 +107,13 @@ class SliceHistogram:
     """Top-level slice histogram plot for a given parameter."""
 
     backfillz: Backfillz
-    chart_data: _ChartData
+    chart: _ChartData
 
     def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
         """Construct a Slice Histogram for a given parameter from a list of slices."""
         self.backfillz = backfillz
         chains: np.ndarray = backfillz.iter_chains(param)
-        self.chart_data = _ChartData(
+        self.chart = _ChartData(
             theme=backfillz.theme,
             slcs=slcs,
             param=param,
@@ -127,24 +130,24 @@ class SliceHistogram:
     @property
     def trace_plot(self) -> _TracePlot:
         """For each chain, get trace plot (leftmost part)."""
-        return _TracePlot(self.chart_data)
+        return _TracePlot(self.chart)
 
     @property
     def joining_segments(self) -> List[_JoiningSegment]:
         """For each slice, get joining segments (middle part)."""
         width: int = 30  # check against R version
-        y_scale: int = self.chart_data.n_iter
+        y_scale: int = self.chart.n_iter
         return [
-            _JoiningSegment(self.chart_data, width, y_scale, n_slc, slc)
-            for n_slc, slc in enumerate(self.chart_data.slcs, start=1)
+            _JoiningSegment(self.chart, width, y_scale, n_slc, slc)
+            for n_slc, slc in enumerate(self.chart.slcs, start=1)
         ]
 
     @property
     def density_plots(self) -> List[_DensityPlot]:
         """For each slice, get histogram and sample density plot per chain."""
         return [
-            _DensityPlot(self.chart_data, slc)
-            for slc in self.chart_data.slcs[::-1]
+            _DensityPlot(self.chart, slc)
+            for slc in self.chart.slcs[::-1]
         ]
 
     @property
@@ -153,17 +156,17 @@ class SliceHistogram:
         layout: go.Layout = go.Layout(
             plot_bgcolor='rgba(0,0,0,0)',
             showlegend=False,
-            xaxis=dict(range=[self.chart_data.min_sample, self.chart_data.max_sample]),
+            xaxis=dict(range=[self.chart.min_sample, self.chart.max_sample]),
             xaxis2=dict(visible=False),
-            yaxis=dict(range=[0, self.chart_data.n_iter]),
-            yaxis2=dict(range=[0, self.chart_data.n_iter]),
+            yaxis=dict(range=[0, self.chart.n_iter]),
+            yaxis2=dict(range=[0, self.chart.n_iter]),
         )
         fig: go.Figure = go.Figure(layout=layout)
         specs: List[List[object]] = \
-            [[dict(rowspan=len(self.chart_data.slcs)), dict(rowspan=len(self.chart_data.slcs)), dict()]] + \
-            [[None, None, dict()] for _ in self.chart_data.slcs[1:]]
+            [[dict(rowspan=len(self.chart.slcs)), dict(rowspan=len(self.chart.slcs)), dict()]] + \
+            [[None, None, dict()] for _ in self.chart.slcs[1:]]
         make_subplots(
-            rows=len(self.chart_data.slcs),
+            rows=len(self.chart.slcs),
             cols=3,
             figure=fig,
             specs=specs,
@@ -173,7 +176,7 @@ class SliceHistogram:
             print_grid=True,
         )
 
-        for n_slc, _ in enumerate(self.chart_data.slcs):
+        for n_slc, _ in enumerate(self.chart.slcs):
             yaxis = 'yaxis' + str(3 + n_slc)  # ouch: 3
             fig.layout[yaxis]['side'] = 'right'
 
