@@ -208,6 +208,13 @@ class SliceHistogram:
         fig.update_xaxes(**axis_settings)
         fig.update_yaxes(**axis_settings)
 
+        # find more idiomatic way to do this
+        fig.layout['yaxis2']['tickmode'] = 'array'
+        fig.layout['yaxis2']['tickvals'] = _scale(
+            self.chart.n_iter,
+            list(dict.fromkeys([y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]))
+        )
+
         return fig
 
     def _render(self, fig: go.Figure) -> go.Figure:
