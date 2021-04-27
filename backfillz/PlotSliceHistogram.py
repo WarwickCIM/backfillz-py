@@ -22,6 +22,19 @@ Slices = Dict[str, List[Slice]]
 
 
 @dataclass
+class _TracePlot:
+    traces: List[go.Scatter]    # one per chain
+    # boxes: List[go.Scatter]     # one per slice
+
+
+@dataclass
+class _JoiningSegment:
+    quadrangle: go.Scatter
+    upper_line: go.Scatter
+    lower_line: go.Scatter
+
+
+@dataclass
 class _DensityPlot:
     histo: go.Histogram
     # box: go.Scatter
@@ -53,32 +66,29 @@ class SliceHistogram:
         # p.title.text_color = backfillz.theme.text_col_title
 
     @property
-    def trace_plots(self) -> List[go.Scatter]:
+    def trace_plots(self) -> _TracePlot:
         """For each chain, get trace plot (leftmost part)."""
-        return [
+        return _TracePlot([
             go.Scatter(
                 x=self.chains[n],
                 y=list(range(0, self.chains[n].size)),
                 line=dict(color=self.backfillz.theme.palette[n])
             )
             for n in range(0, self.n_chains)
-        ]
+        ])
 
     def _bounds(self, n_slc: int) -> Tuple[float, float]:
         n: int = len(self.slcs)
         return (n_slc - 1) / n, n_slc / n
 
     @property
-    def joining_segments(self) -> List[go.Scatter]:
+    def joining_segments(self) -> List[_JoiningSegment]:
         """For each slice, get joining segments (middle part)."""
         width: int = 30  # check against R version
         y_scale: int = self.n_iter
         return [
-            joining_segment
-            for n_slc, slc in enumerate(self.slcs, start=1)
-            for lower, upper in [self._bounds(n_slc)]
-            for joining_segment in [
-                go.Scatter(
+            _JoiningSegment(
+                quadrangle=go.Scatter(
                     x=_scale(width, [0, 1, 1, 0]),
                     y=_scale(y_scale, [slc.lower, lower, upper, slc.upper]),
                     mode='lines',
@@ -86,19 +96,21 @@ class SliceHistogram:
                     fill='toself',
                     fillcolor='rgba(240,240,240,255)'
                 ),
-                go.Scatter(
+                lower_line=go.Scatter(
                     x=_scale(width, [0, 1]),
                     y=_scale(y_scale, [slc.lower, lower]),
                     mode='lines',
                     line=dict(color=self.backfillz.theme.fg_colour, width=1)
                 ),
-                go.Scatter(
+                upper_line=go.Scatter(
                     x=_scale(width, [0, 1]),
                     y=_scale(y_scale, [slc.upper, upper]),
                     mode='lines',
                     line=dict(color=self.backfillz.theme.fg_colour, width=1)
-                ),
-            ]
+                )
+            )
+            for n_slc, slc in enumerate(self.slcs, start=1)
+            for lower, upper in [self._bounds(n_slc)]
         ]
 
     @property
@@ -146,10 +158,12 @@ class SliceHistogram:
             print_grid=True,
         )
 
-        for trace in self.trace_plots:
+        for trace in self.trace_plots.traces:
             fig.add_trace(trace, row=1, col=1)
-        for trace in self.joining_segments:
-            fig.add_trace(trace, row=1, col=2)
+        for joining_segment in self.joining_segments:
+            fig.add_trace(joining_segment.quadrangle, row=1, col=2)
+            fig.add_trace(joining_segment.lower_line, row=1, col=2)
+            fig.add_trace(joining_segment.upper_line, row=1, col=2)
         for n_slice, densityPlot in enumerate(self.histos):
             yaxis = 'yaxis' + str(3 + n_slice)  # ouch: 3
             fig.layout[yaxis]['side'] = 'right'
