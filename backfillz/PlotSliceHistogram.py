@@ -25,7 +25,7 @@ Slices = Dict[str, List[Slice]]
 @dataclass
 class _TracePlot:
     traces: List[go.Scatter]    # one per chain
-    # boxes: List[go.Scatter]     # one per slice
+    boxes: List[go.Scatter]     # one per slice
 
     def __init__(self, theme: BackfillzTheme, chains: np.ndarray, n_chains: int):
         self.traces = [
@@ -36,6 +36,7 @@ class _TracePlot:
             )
             for n in range(0, n_chains)
         ]
+        self.boxes = []
 
 
 @dataclass
@@ -80,6 +81,23 @@ class _JoiningSegment:
 class _DensityPlot:
     histo: go.Histogram
     # box: go.Scatter
+
+    def __init__(
+        self,
+        theme: BackfillzTheme,
+        slc: Slice,
+        chains: np.ndarray,
+        n_iter: int,
+        min_sample: float,
+        max_sample: float
+    ):
+        # chain 0 only for now; need to consider all?
+        self.histo = go.Histogram(
+            x=chains[0, floor(slc.lower * n_iter):floor(slc.upper * n_iter)],
+            xbins=dict(start=floor(min_sample), end=ceil(max_sample), size=1),
+            marker=dict(color=theme.bg_colour, line=dict(color=theme.fg_colour, width=1)),
+            histnorm='probability'
+        )
 
 
 class SliceHistogram:
@@ -127,16 +145,12 @@ class SliceHistogram:
         """For each slice, get histogram and sample density plot per chain."""
         return [
             _DensityPlot(
-                # chain 0 only for now; need to consider all?
-                go.Histogram(
-                    x=self.chains[0, floor(slc.lower * self.n_iter):floor(slc.upper * self.n_iter)],
-                    xbins=dict(start=floor(self.min_sample), end=ceil(self.max_sample), size=1),
-                    marker=dict(
-                        color=self.backfillz.theme.bg_colour,
-                        line=dict(color=self.backfillz.theme.fg_colour, width=1)
-                    ),
-                    histnorm='probability'
-                )
+                self.backfillz.theme,
+                slc,
+                self.chains,
+                self.n_iter,
+                self.min_sample,
+                self.max_sample
             )
             for slc in self.slcs[::-1]
         ]
