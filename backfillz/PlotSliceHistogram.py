@@ -59,7 +59,7 @@ class _TracePlot:
                 x=[chart.min_sample] * 2 + [chart.max_sample] * 2,
                 y=_scale(chart.n_iter, [slc.lower, slc.upper, slc.upper, slc.lower]),
                 mode='lines',
-                line=dict(width=1),
+                line=dict(width=2, color=chart.theme.fg_colour),
             )
             for slc in chart.slcs
         ]
