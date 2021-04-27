@@ -168,7 +168,10 @@ class SliceHistogram:
         layout: go.Layout = go.Layout(
             plot_bgcolor='rgba(0,0,0,0)',
             showlegend=False,
-            xaxis=dict(range=[self.chart.min_sample, self.chart.max_sample]),
+            xaxis=dict(
+                range=[self.chart.min_sample, self.chart.max_sample],
+                linecolor=self.chart.theme.fg_colour
+            ),
             xaxis2=dict(visible=False),
             yaxis=dict(range=[0, self.chart.n_iter]),
             yaxis2=dict(range=[0, self.chart.n_iter]),
