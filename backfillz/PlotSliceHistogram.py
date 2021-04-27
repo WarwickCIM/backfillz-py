@@ -133,8 +133,8 @@ class SliceHistogram:
             specs=specs,
             horizontal_spacing=0,
             vertical_spacing=0,
+            shared_xaxes=True,
             print_grid=True,
-            shared_xaxes=True
         )
 
         for trace in self.trace_plots:
@@ -142,7 +142,7 @@ class SliceHistogram:
         for trace in self.joining_segments:
             fig.add_trace(trace, row=1, col=2)
         for n_slice, trace in enumerate(self.histos[::-1]):
-            yaxis = 'yaxis' + str(3 + n_slice)
+            yaxis = 'yaxis' + str(3 + n_slice)  # ouch: 3
             fig.layout[yaxis]['side'] = 'right'
             fig.add_trace(trace, row=n_slice + 1, col=3)
 
