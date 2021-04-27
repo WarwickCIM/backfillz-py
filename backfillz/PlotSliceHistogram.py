@@ -117,7 +117,7 @@ class SliceHistogram:
                     histnorm='probability'
                 )
             )
-            for slc in self.slcs
+            for slc in self.slcs[::-1]
         ]
 
     @property
@@ -150,7 +150,7 @@ class SliceHistogram:
             fig.add_trace(trace, row=1, col=1)
         for trace in self.joining_segments:
             fig.add_trace(trace, row=1, col=2)
-        for n_slice, densityPlot in enumerate(self.histos[::-1]):
+        for n_slice, densityPlot in enumerate(self.histos):
             yaxis = 'yaxis' + str(3 + n_slice)  # ouch: 3
             fig.layout[yaxis]['side'] = 'right'
             fig.add_trace(densityPlot.histo, row=n_slice + 1, col=3)
