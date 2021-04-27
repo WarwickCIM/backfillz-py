@@ -162,20 +162,17 @@ class SliceHistogram:
             for slc in self.chart.slcs[::-1]
         ]
 
-    def axis(self, range: Tuple[float, float]):
-        return dict(range=range, linecolor=self.chart.theme.fg_colour, showgrid=False, zeroline=False)
-
     @property
     def figure(self) -> go.Figure:
         """Derive Plotly figure from 3 parts."""
         fg_color: str = self.chart.theme.fg_colour
         layout: go.Layout = go.Layout(
-            plot_bgcolor='gray',  # self.chart.theme.bg_colour
+            plot_bgcolor=self.chart.theme.bg_colour,
             showlegend=False,
-            xaxis=self.axis((self.chart.min_sample, self.chart.max_sample)),
+            xaxis=dict(range=[self.chart.min_sample, self.chart.max_sample]),
             xaxis2=dict(visible=False),
-            yaxis=self.axis((0, self.chart.n_iter)),
-            yaxis2=self.axis((0, self.chart.n_iter)),
+            yaxis=dict(range=[0, self.chart.n_iter]),
+            yaxis2=dict(range=[0, self.chart.n_iter]),
         )
         fig: go.Figure = go.Figure(layout=layout)
         specs: List[List[object]] = \
@@ -193,10 +190,11 @@ class SliceHistogram:
         )
 
         for n_slc, _ in enumerate(self.chart.slcs):
-            yaxis = 'yaxis' + str(3 + n_slc)  # ouch: 3
-            fig.layout[yaxis]['showgrid'] = False
+            yaxis = 'yaxis' + str(3 + n_slc)  # yuk: magic number 3
             fig.layout[yaxis]['side'] = 'right'
-            fig.layout[yaxis]['linecolor'] = fg_color
+
+        fig.update_xaxes(showgrid=False, zeroline=False, linecolor=self.chart.theme.fg_colour)
+        fig.update_yaxes(showgrid=False, zeroline=False, linecolor=self.chart.theme.fg_colour)
 
         for trace in self.trace_plot.traces:
             fig.add_trace(trace, row=1, col=1)
