@@ -126,7 +126,7 @@ class SliceHistogram:
         # p.title.text_color = backfillz.theme.text_col_title
 
     @property
-    def trace_plots(self) -> _TracePlot:
+    def trace_plot(self) -> _TracePlot:
         """For each chain, get trace plot (leftmost part)."""
         return _TracePlot(self.backfillz.theme, self.chains, self.n_chains)
 
@@ -141,7 +141,7 @@ class SliceHistogram:
         ]
 
     @property
-    def histos(self) -> List[_DensityPlot]:
+    def density_plots(self) -> List[_DensityPlot]:
         """For each slice, get histogram and sample density plot per chain."""
         return [
             _DensityPlot(
@@ -181,13 +181,13 @@ class SliceHistogram:
             print_grid=True,
         )
 
-        for trace in self.trace_plots.traces:
+        for trace in self.trace_plot.traces:
             fig.add_trace(trace, row=1, col=1)
         for joining_segment in self.joining_segments:
             fig.add_trace(joining_segment.quadrangle, row=1, col=2)
             fig.add_trace(joining_segment.lower_line, row=1, col=2)
             fig.add_trace(joining_segment.upper_line, row=1, col=2)
-        for n_slice, densityPlot in enumerate(self.histos):
+        for n_slice, densityPlot in enumerate(self.density_plots):
             yaxis = 'yaxis' + str(3 + n_slice)  # ouch: 3
             fig.layout[yaxis]['side'] = 'right'
             fig.add_trace(densityPlot.histo, row=n_slice + 1, col=3)
