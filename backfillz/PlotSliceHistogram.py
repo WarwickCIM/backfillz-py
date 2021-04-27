@@ -210,7 +210,7 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
     params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
     slice_list: List[Slice] = [
-        Slice(0, 0.004), Slice(0.004, 0.01), Slice(0.01, 0.02), Slice(0.02, 0.04), Slice(0.04, 1)
+        Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)
     ]
     slices: Slices = {param: slice_list for param in params}
 
