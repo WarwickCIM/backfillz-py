@@ -48,7 +48,7 @@ class SliceHistogram:
 
     @property
     def trace_plots(self) -> List[go.Scatter]:
-        """Get trace plot (leftmost part)."""
+        """For each chain, get trace plot (leftmost part)."""
         return [
             go.Scatter(
                 x=self.chains[n],
@@ -64,7 +64,7 @@ class SliceHistogram:
 
     @property
     def joining_segments(self) -> List[go.Scatter]:
-        """Get joining segments (middle part)."""
+        """For each slice, get joining segments (middle part)."""
         width: int = 30  # check against R version
         y_scale: int = self.n_iter
         return [
@@ -96,8 +96,8 @@ class SliceHistogram:
         ]
 
     @property
-    def histos(self) -> List[go.Histogram]:
-        """Get slice histogram and sample density (rightmost part)."""
+    def histos(self) -> List[go.BaseFigure]:
+        """For each slice, get histogram and sample density plot per chain."""
         return [
             # chain 0 only for now; need to consider all?
             go.Histogram(
