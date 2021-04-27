@@ -56,8 +56,8 @@ class _TracePlot:
         ]
         self.boxes = [
             go.Scatter(
-                x=[chart.min_sample, chart.max_sample] * 2,
-                y=_scale(chart.n_iter, [slc.lower] * 2 + [slc.upper] * 2),
+                x=[chart.min_sample] * 2 + [chart.max_sample] * 2,
+                y=_scale(chart.n_iter, [slc.lower, slc.upper, slc.upper, slc.lower]),
                 mode='lines',
                 line=dict(width=1),
             )
