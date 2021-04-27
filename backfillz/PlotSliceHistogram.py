@@ -165,15 +165,14 @@ class SliceHistogram:
     @property
     def figure(self) -> go.Figure:
         """Derive Plotly figure from 3 parts."""
+        fg_color: str = self.chart.theme.fg_colour
+        bg_color: str = self.chart.theme.bg_colour
         layout: go.Layout = go.Layout(
-            plot_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='gray',
             showlegend=False,
-            xaxis=dict(
-                range=[self.chart.min_sample, self.chart.max_sample],
-                linecolor=self.chart.theme.fg_colour
-            ),
+            xaxis=dict(range=[self.chart.min_sample, self.chart.max_sample], linecolor=fg_color),
             xaxis2=dict(visible=False),
-            yaxis=dict(range=[0, self.chart.n_iter]),
+            yaxis=dict(range=[0, self.chart.n_iter], linecolor=fg_color),
             yaxis2=dict(range=[0, self.chart.n_iter]),
         )
         fig: go.Figure = go.Figure(layout=layout)
@@ -194,6 +193,7 @@ class SliceHistogram:
         for n_slc, _ in enumerate(self.chart.slcs):
             yaxis = 'yaxis' + str(3 + n_slc)  # ouch: 3
             fig.layout[yaxis]['side'] = 'right'
+            fig.layout[yaxis]['linecolor'] = fg_color
 
         for trace in self.trace_plot.traces:
             fig.add_trace(trace, row=1, col=1)
