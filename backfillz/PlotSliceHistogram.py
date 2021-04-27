@@ -21,6 +21,12 @@ class Slice:
 Slices = Dict[str, List[Slice]]
 
 
+@dataclass
+class _DensityPlot:
+    histo: go.Histogram
+    # box: go.Scatter
+
+
 class SliceHistogram:
     """Top-level slice histogram plot for a given parameter."""
 
@@ -96,18 +102,20 @@ class SliceHistogram:
         ]
 
     @property
-    def histos(self) -> List[go.BaseFigure]:
+    def histos(self) -> List[_DensityPlot]:
         """For each slice, get histogram and sample density plot per chain."""
         return [
-            # chain 0 only for now; need to consider all?
-            go.Histogram(
-                x=self.chains[0, floor(slc.lower * self.n_iter):floor(slc.upper * self.n_iter)],
-                xbins=dict(start=floor(self.min_sample), end=ceil(self.max_sample), size=1),
-                marker=dict(
-                    color=self.backfillz.theme.bg_colour,
-                    line=dict(color=self.backfillz.theme.fg_colour, width=1)
-                ),
-                histnorm='probability'
+            _DensityPlot(
+                # chain 0 only for now; need to consider all?
+                go.Histogram(
+                    x=self.chains[0, floor(slc.lower * self.n_iter):floor(slc.upper * self.n_iter)],
+                    xbins=dict(start=floor(self.min_sample), end=ceil(self.max_sample), size=1),
+                    marker=dict(
+                        color=self.backfillz.theme.bg_colour,
+                        line=dict(color=self.backfillz.theme.fg_colour, width=1)
+                    ),
+                    histnorm='probability'
+                )
             )
             for slc in self.slcs
         ]
@@ -142,10 +150,10 @@ class SliceHistogram:
             fig.add_trace(trace, row=1, col=1)
         for trace in self.joining_segments:
             fig.add_trace(trace, row=1, col=2)
-        for n_slice, trace in enumerate(self.histos[::-1]):
+        for n_slice, densityPlot in enumerate(self.histos[::-1]):
             yaxis = 'yaxis' + str(3 + n_slice)  # ouch: 3
             fig.layout[yaxis]['side'] = 'right'
-            fig.add_trace(trace, row=n_slice + 1, col=3)
+            fig.add_trace(densityPlot.histo, row=n_slice + 1, col=3)
 
         return fig
 
