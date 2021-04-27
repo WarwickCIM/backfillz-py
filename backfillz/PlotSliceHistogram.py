@@ -118,7 +118,7 @@ class SliceHistogram:
             plot_bgcolor='rgba(0,0,0,0)',
             showlegend=False,
             yaxis=dict(range=[0, self.n_iter]),
-            yaxis2=dict(range=[0, self.n_iter])
+            yaxis2=dict(range=[0, self.n_iter]),
         )
         fig: go.Figure = go.Figure(layout=layout)
         specs: List[List[object]] = \
@@ -139,6 +139,8 @@ class SliceHistogram:
         for trace in self.joining_segments:
             fig.add_trace(trace, row=1, col=2)
         for n_slice, trace in enumerate(self.histos[::-1]):
+            xaxis = 'xaxis' + str(3 + n_slice)  # lose magic number
+            fig.layout[xaxis]['range'] = [self.min_sample, self.max_sample]
             fig.add_trace(trace, row=n_slice + 1, col=3)
 
         return fig
