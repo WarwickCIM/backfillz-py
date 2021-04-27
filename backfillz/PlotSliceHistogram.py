@@ -28,10 +28,16 @@ class _ChartData:
     slcs: List[Slice]
     param: str
     chains: np.ndarray
-    n_chains: int
-    n_iter: int
     max_sample: float
     min_sample: float
+
+    @property
+    def n_chains(self):
+        return self.chains.shape[0]
+
+    @property
+    def n_iter(self):
+        return self.chains.shape[1]
 
 
 @dataclass
@@ -48,7 +54,15 @@ class _TracePlot:
             )
             for n in range(0, chart.n_chains)
         ]
-        self.boxes = []
+        self.boxes = [
+            go.Scatter(
+                x=[chart.min_sample, chart.max_sample] * 2,
+                y=_scale(chart.n_iter, [slc.lower] * 2 + [slc.upper] * 2),
+                mode='lines',
+                line=dict(width=1),
+            )
+            for slc in chart.slcs
+        ]
 
 
 @dataclass
@@ -118,8 +132,6 @@ class SliceHistogram:
             slcs=slcs,
             param=param,
             chains=chains,
-            n_chains=chains.shape[0],
-            n_iter=chains.shape[1],
             max_sample=np.amax(backfillz.mcmc_samples[param]),
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
