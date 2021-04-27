@@ -105,7 +105,8 @@ class SliceHistogram:
                 marker=dict(
                     color=self.backfillz.theme.bg_colour,
                     line=dict(color=self.backfillz.theme.fg_colour, width=1)
-                )
+                ),
+                histnorm='probability'
             )
             for slc in self.slcs
         ]
