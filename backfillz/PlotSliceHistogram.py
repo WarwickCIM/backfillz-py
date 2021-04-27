@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -58,6 +58,10 @@ class SliceHistogram:
             for n in range(0, self.n_chains)
         ]
 
+    def _bounds(self, n_slc: int) -> Tuple[float, float]:
+        n: int = len(self.slcs)
+        return (n_slc - 1) / n, n_slc / n
+
     @property
     def joining_segments(self) -> List[go.Scatter]:
         """Get joining segments (middle part)."""
@@ -66,13 +70,11 @@ class SliceHistogram:
         return [
             joining_segment
             for n_slc, slc in enumerate(self.slcs, start=1)
+            for lower, upper in [self._bounds(n_slc)]
             for joining_segment in [
                 go.Scatter(
                     x=_scale(width, [0, 1, 1, 0]),
-                    y=_scale(
-                        y_scale,
-                        [slc.lower, (n_slc - 1) / len(self.slcs), n_slc / len(self.slcs), slc.upper]
-                    ),
+                    y=_scale(y_scale, [slc.lower, lower, upper, slc.upper]),
                     mode='lines',
                     line=dict(width=0),
                     fill='toself',
@@ -80,13 +82,13 @@ class SliceHistogram:
                 ),
                 go.Scatter(
                     x=_scale(width, [0, 1]),
-                    y=_scale(y_scale, [slc.lower, (n_slc - 1) / len(self.slcs)]),
+                    y=_scale(y_scale, [slc.lower, lower]),
                     mode='lines',
                     line=dict(color=self.backfillz.theme.fg_colour, width=1)
                 ),
                 go.Scatter(
                     x=_scale(width, [0, 1]),
-                    y=_scale(y_scale, [slc.upper, n_slc / len(self.slcs)]),
+                    y=_scale(y_scale, [slc.upper, upper]),
                     mode='lines',
                     line=dict(color=self.backfillz.theme.fg_colour, width=1)
                 ),
