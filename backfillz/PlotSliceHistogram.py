@@ -1,5 +1,6 @@
+from dataclasses import dataclass
 from math import ceil, floor
-from typing import List
+from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -10,184 +11,242 @@ from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.BackfillzTheme import BackfillzTheme
 
 
+@dataclass
+class Slice:
+    """A slice of an MCMC trace."""
+
+    lower: float
+    upper: float
+
+
+Slices = Dict[str, List[Slice]]
+
+
+@dataclass
+class _ChartData:
+    theme: BackfillzTheme
+    slcs: List[Slice]
+    param: str
+    chains: np.ndarray
+    max_sample: float
+    min_sample: float
+
+    @property
+    def n_chains(self) -> int:
+        return int(self.chains.shape[0])  # shape is of type tuple[int, ...] but mypy fails
+
+    @property
+    def n_iter(self) -> int:
+        return int(self.chains.shape[1])
+
+
+@dataclass
+class _TracePlot:
+    traces: List[go.Scatter]    # one per chain
+    boxes: List[go.Scatter]     # one per slice
+
+    def __init__(self, chart: _ChartData):
+        self.traces = [
+            go.Scatter(
+                x=chart.chains[n],
+                y=list(range(0, chart.chains[n].size)),
+                line=dict(color=chart.theme.palette[n])
+            )
+            for n in range(0, chart.n_chains)
+        ]
+        self.boxes = [
+            go.Scatter(
+                x=[chart.min_sample] * 2 + [chart.max_sample] * 2 + [chart.min_sample],
+                y=_scale(chart.n_iter, [slc.lower, slc.upper, slc.upper, slc.lower, slc.lower]),
+                mode='lines',
+                line=dict(width=2, color=chart.theme.fg_colour),
+            )
+            for slc in chart.slcs
+        ]
+
+
+@dataclass
+class _JoiningSegment:
+    quadrangle: go.Scatter
+    upper_line: go.Scatter
+    lower_line: go.Scatter
+
+    def __init__(self, chart: _ChartData, width: int, y_scale: float, n_slc: int, slc: Slice):
+        lower, upper = (n_slc - 1) / len(chart.slcs), n_slc / len(chart.slcs)
+        self.quadrangle = go.Scatter(
+            x=_scale(width, [0, 1, 1, 0]),
+            y=_scale(y_scale, [slc.lower, lower, upper, slc.upper]),
+            mode='lines',
+            line=dict(width=0),
+            fill='toself',
+            fillcolor='rgba(240,240,240,255)'
+        )
+        self.lower_line = go.Scatter(
+            x=_scale(width, [0, 1]),
+            y=_scale(y_scale, [slc.lower, lower]),
+            mode='lines',
+            line=dict(color=chart.theme.fg_colour, width=1)
+        )
+        self.upper_line = go.Scatter(
+            x=_scale(width, [0, 1]),
+            y=_scale(y_scale, [slc.upper, upper]),
+            mode='lines',
+            line=dict(color=chart.theme.fg_colour, width=1)
+        )
+
+
+@dataclass
+class _DensityPlot:
+    histo: go.Histogram
+    # box: go.Scatter
+
+    def __init__(
+        self,
+        chart: _ChartData,
+        slc: Slice,
+    ):
+        # chain 0 only for now; need to consider all?
+        self.histo = go.Histogram(
+            x=chart.chains[0, floor(slc.lower * chart.n_iter):floor(slc.upper * chart.n_iter)],
+            xbins=dict(start=floor(chart.min_sample), end=ceil(chart.max_sample), size=1),
+            marker=dict(
+                color=chart.theme.bg_colour,
+                line=dict(color=chart.theme.fg_colour, width=1)
+            ),
+            histnorm='probability'
+        )
+
+
+class SliceHistogram:
+    """Top-level slice histogram plot for a given parameter."""
+
+    backfillz: Backfillz
+    chart: _ChartData
+
+    def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
+        """Construct a Slice Histogram for a given parameter from a list of slices."""
+        self.backfillz = backfillz
+        chains: np.ndarray = backfillz.iter_chains(param)
+        self.chart = _ChartData(
+            theme=backfillz.theme,
+            slcs=slcs,
+            param=param,
+            chains=chains,
+            max_sample=np.amax(backfillz.mcmc_samples[param]),
+            min_sample=np.amin(backfillz.mcmc_samples[param]),
+        )
+
+        # p.title=f"Trace slice histogram of {param}",
+        # p.title.text_color = backfillz.theme.text_col_title
+
+    @property
+    def trace_plot(self) -> _TracePlot:
+        """For each chain, get trace plot (leftmost part)."""
+        return _TracePlot(self.chart)
+
+    @property
+    def joining_segments(self) -> List[_JoiningSegment]:
+        """For each slice, get joining segments (middle part)."""
+        width: int = 30  # check against R version
+        y_scale: int = self.chart.n_iter
+        return [
+            _JoiningSegment(self.chart, width, y_scale, n_slc, slc)
+            for n_slc, slc in enumerate(self.chart.slcs, start=1)
+        ]
+
+    @property
+    def density_plots(self) -> List[_DensityPlot]:
+        """For each slice, get histogram and sample density plot per chain."""
+        return [
+            _DensityPlot(self.chart, slc)
+            for slc in self.chart.slcs[::-1]
+        ]
+
+    @property
+    def figure(self) -> go.Figure:
+        """Derive Plotly figure from 3 parts."""
+        return self._render(self._layout())
+
+    def _layout(self) -> go.Figure:
+        layout: go.Layout = go.Layout(
+            plot_bgcolor=self.chart.theme.bg_colour,
+            showlegend=False,
+            xaxis=dict(range=[self.chart.min_sample, self.chart.max_sample]),
+            xaxis2=dict(visible=False),
+            yaxis=dict(range=[0, self.chart.n_iter]),
+            yaxis2=dict(range=[0, self.chart.n_iter]),
+        )
+        fig: go.Figure = go.Figure(layout=layout)
+        specs: List[List[object]] = \
+            [[dict(rowspan=len(self.chart.slcs)), dict(rowspan=len(self.chart.slcs)), dict()]] + \
+            [[None, None, dict()] for _ in self.chart.slcs[1:]]
+        make_subplots(
+            rows=len(self.chart.slcs),
+            cols=3,
+            figure=fig,
+            specs=specs,
+            horizontal_spacing=0,
+            vertical_spacing=0,
+            shared_xaxes=True,
+            print_grid=True,
+        )
+
+        for n_slc, _ in enumerate(self.chart.slcs):
+            yaxis = 'yaxis' + str(3 + n_slc)  # yuk: magic number 3
+            fig.layout[yaxis]['side'] = 'right'
+
+        axis_settings: Dict[str, Any] = dict(
+            showgrid=False,
+            zeroline=False,
+            linecolor=self.chart.theme.fg_colour,
+            ticks='outside',
+            tickwidth=1,
+            ticklen=5,
+            tickcolor=self.chart.theme.fg_colour,
+        )
+
+        fig.update_xaxes(**axis_settings)
+        fig.update_yaxes(**axis_settings)
+
+        # find more idiomatic way to do this
+        fig.layout['yaxis2']['tickmode'] = 'array'
+        fig.layout['yaxis2']['tickvals'] = _scale(
+            self.chart.n_iter,
+            list(dict.fromkeys([y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]))
+        )
+
+        return fig
+
+    def _render(self, fig: go.Figure) -> go.Figure:
+        for trace in self.trace_plot.traces:
+            fig.add_trace(trace, row=1, col=1)
+        for box in self.trace_plot.boxes:
+            fig.add_trace(box, row=1, col=1)
+        for joining_segment in self.joining_segments:
+            fig.add_trace(joining_segment.quadrangle, row=1, col=2)
+            fig.add_trace(joining_segment.lower_line, row=1, col=2)
+            fig.add_trace(joining_segment.upper_line, row=1, col=2)
+        for n_slice, densityPlot in enumerate(self.density_plots):
+            fig.add_trace(densityPlot.histo, row=n_slice + 1, col=3)
+
+        return fig
+
+
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
     params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
-    lower = pd.Series([0, 0.8])
-    upper = pd.Series([0.4, 1])
-    slices: pd.DataFrame = pd.DataFrame(columns=[
-        'parameters',  # character
-        'lower',  # numeric
-        'upper'  # numeric
-    ])
-    for param in params:
-        slices = pd.concat([
-            slices,
-            pd.DataFrame(dict(
-                parameters=pd.Series([param] * upper.size),
-                lower=lower,
-                upper=upper
-            )),
-        ], ignore_index=True)
+    slice_list: List[Slice] = [
+        Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)
+    ]
+    slices: Slices = {param: slice_list for param in params}
 
     for param in params:
-        _create_single_plot(backfillz, slices, param)
+        # Assume scalar parameter for now; what about vectors?
+        SliceHistogram(backfillz, slices[param], param).figure.show()
 
     # Update log
     backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
 
 
-# Assume scalar parameter for now; what about vectors?
-def _create_single_plot(backfillz: Backfillz, slices: pd.DataFrame, param: str) -> None:
-    chains = backfillz.iter_chains(param)
-    [n_chains, n_iter] = chains.shape
-    print(f"iterations: {n_iter}, chains: {n_chains}, parameter: {param}")
-    max_sample: float = np.amax(backfillz.mcmc_samples[param])
-    min_sample: float = np.amin(backfillz.mcmc_samples[param])
-    plot = dict(parameter=param, sample_min=min_sample, sample_max=max_sample)
-    print(plot)
-
-    # Check, order and tag the slice
-    param_col = slices['parameters']
-    n_slices: int = 0
-
-    # ugh -- do something about this
-    def count_param(param2: str) -> int:
-        if param == param2:
-            nonlocal n_slices
-            n_slices += 1
-            return n_slices
-        else:
-            return 0  # R version puts NaN here, but maybe doesn't matter
-
-    param_col2 = param_col.map(count_param)
-    slices = pd.concat([slices, param_col2.to_frame('order')], axis=1)
-
-    plot_height: int = 600
-    middle_width: int = 30  # check against R version
-    right_width: int = 300
-
-    fig: go.Figure = go.Figure(
-        layout=go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
-    )
-    specs: List[List[object]] = \
-        [[dict(rowspan=n_slices), dict(rowspan=n_slices), dict()]] + \
-        [[None, None, dict()] for _ in range(1, n_slices)]
-    print(specs)
-    make_subplots(
-        rows=n_slices,
-        cols=3,
-        figure=fig,
-        specs=specs,
-        horizontal_spacing=0,
-        vertical_spacing=0,
-        print_grid=True
-    )
-
-    # p.title=f"Trace slice histogram of {param}",
-    # p.title.text_color = backfillz.theme.text_col_title
-
-    # LEFT: TRACE PLOT ------------------------------------------
-    for n in range(0, n_chains):
-        fig.add_trace(go.Scatter(x=chains[n], y=list(range(0, chains[n].size))), row=1, col=1)
-
-    # MIDDLE: JOINING SEGMENTS--------------------------------------
-    slices.loc[param_col == param].apply(
-        lambda slc: _create_slice(
-            backfillz,
-            fig,
-            slc['lower'],
-            slc['upper'],
-            slc['order'],
-            max_order=n_slices,
-            x_offset=max_sample,
-            width=middle_width,
-            y_scale=n_iter
-        ),
-        axis=1
-    )
-
-    # RIGHT: SLICE HISTOGRAM AND SAMPLE DENSITY ----------------------
-    slices.loc[param_col == param].apply(
-        lambda slc: _slice_histogram(
-            backfillz.theme,
-            fig,
-            chains,
-            slc['lower'],
-            slc['upper'],
-            slc['order'],
-            min_sample=min_sample,
-            max_sample=max_sample,
-            width=right_width,
-            height=(1 / n_slices) * plot_height
-        ),
-        axis=1
-    )
-
-    fig.show()
-
-
-def _create_slice(
-    backfillz: Backfillz,
-    fig: go.Figure,
-    lower: float,
-    upper: float,
-    order: int,
-    max_order: int,
-    x_offset: float,
-    width: int,
-    y_scale: int
-) -> None:
-    fig.add_trace(go.Scatter(
-        x=_translate(x_offset, _scale(width, [0, 1, 1, 0])),
-        y=_scale(y_scale, [lower, (order - 1) / max_order, order / max_order, upper]),
-        mode='lines',
-        line=dict(width=0),
-        fill='toself',
-        fillcolor='rgba(240,240,240,255)'
-    ), row=1, col=2)
-    fig.add_trace(go.Scatter(
-        x=_translate(x_offset, _scale(width, [0, 1])),
-        y=_scale(y_scale, [lower, (order - 1) / max_order]),
-        mode='lines',
-        line=dict(color=backfillz.theme.fg_colour, width=1)
-    ), row=1, col=2)
-    fig.add_trace(go.Scatter(
-        x=_translate(x_offset, _scale(width, [0, 1])),
-        y=_scale(y_scale, [upper, order / max_order]),
-        mode='lines',
-        line=dict(color=backfillz.theme.fg_colour, width=1)
-    ), row=1, col=2)
-
-
-def _slice_histogram(
-    theme: BackfillzTheme,
-    fig: go.Figure,
-    chains: np.ndarray,
-    lower: float,
-    upper: float,
-    slice_index: int,
-    min_sample: float,
-    max_sample: float,
-    width: float,
-    height: float
-) -> None:
-    [_, n] = chains.shape
-    # chain 0 only for now; need to consider all?
-    fig.add_trace(
-        go.Histogram(
-            x=chains[0, floor(lower * n):floor(upper * n)],
-            xbins=dict(start=floor(min_sample), end=ceil(max_sample), size=1),
-            marker=dict(color=theme.bg_colour, line=dict(color=theme.fg_colour, width=1))
-        ),
-        row=slice_index,
-        col=3
-    )
-
-
 def _scale(factor: float, xs: List[float]) -> List[float]:
     return [x * factor for x in xs]
-
-
-def _translate(offset: float, xs: List[float]) -> List[float]:
-    return [x + offset for x in xs]

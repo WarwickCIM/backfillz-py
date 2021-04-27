@@ -3,6 +3,7 @@
 from tests.generate_sample_fit import generate_fit, Stan
 
 from backfillz.Backfillz import Backfillz
+from backfillz.BackfillzTheme import demo_1
 from backfillz.PlotSliceHistogram import plot_slice_histogram
 
 
@@ -22,6 +23,7 @@ def test_plot_slice_histogram() -> None:
     """Slice histogram plot is correctly generated."""
     stan = generate_fit()
     backfillz = Backfillz(stan.fit)
+    backfillz.set_theme(demo_1, False)
     plot_slice_histogram(backfillz)
 
 
