@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -162,18 +162,20 @@ class SliceHistogram:
             for slc in self.chart.slcs[::-1]
         ]
 
+    def axis(self, range: Tuple[float, float]):
+        return dict(range=range, linecolor=self.chart.theme.fg_colour, showgrid=False, zeroline=False)
+
     @property
     def figure(self) -> go.Figure:
         """Derive Plotly figure from 3 parts."""
         fg_color: str = self.chart.theme.fg_colour
-        bg_color: str = self.chart.theme.bg_colour
         layout: go.Layout = go.Layout(
-            plot_bgcolor='gray',
+            plot_bgcolor='gray',  # self.chart.theme.bg_colour
             showlegend=False,
-            xaxis=dict(range=[self.chart.min_sample, self.chart.max_sample], linecolor=fg_color),
+            xaxis=self.axis((self.chart.min_sample, self.chart.max_sample)),
             xaxis2=dict(visible=False),
-            yaxis=dict(range=[0, self.chart.n_iter], linecolor=fg_color),
-            yaxis2=dict(range=[0, self.chart.n_iter]),
+            yaxis=self.axis((0, self.chart.n_iter)),
+            yaxis2=self.axis((0, self.chart.n_iter)),
         )
         fig: go.Figure = go.Figure(layout=layout)
         specs: List[List[object]] = \
