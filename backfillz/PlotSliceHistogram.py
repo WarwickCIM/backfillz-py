@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -8,6 +8,7 @@ import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
 
 from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
+from backfillz.BackfillzTheme import BackfillzTheme
 
 
 @dataclass
@@ -32,6 +33,37 @@ class _JoiningSegment:
     quadrangle: go.Scatter
     upper_line: go.Scatter
     lower_line: go.Scatter
+
+    def __init__(
+        self,
+        theme: BackfillzTheme,
+        width: int,
+        y_scale: float,
+        n_slc: int,
+        n_slcs: int,
+        slc: Slice
+    ):
+        lower, upper = (n_slc - 1) / n_slcs, n_slc / n_slcs
+        self.quadrangle = go.Scatter(
+            x=_scale(width, [0, 1, 1, 0]),
+            y=_scale(y_scale, [slc.lower, lower, upper, slc.upper]),
+            mode='lines',
+            line=dict(width=0),
+            fill='toself',
+            fillcolor='rgba(240,240,240,255)'
+        )
+        self.lower_line = go.Scatter(
+            x=_scale(width, [0, 1]),
+            y=_scale(y_scale, [slc.lower, lower]),
+            mode='lines',
+            line=dict(color=theme.fg_colour, width=1)
+        )
+        self.upper_line = go.Scatter(
+            x=_scale(width, [0, 1]),
+            y=_scale(y_scale, [slc.upper, upper]),
+            mode='lines',
+            line=dict(color=theme.fg_colour, width=1)
+        )
 
 
 @dataclass
@@ -77,40 +109,14 @@ class SliceHistogram:
             for n in range(0, self.n_chains)
         ])
 
-    def _bounds(self, n_slc: int) -> Tuple[float, float]:
-        n: int = len(self.slcs)
-        return (n_slc - 1) / n, n_slc / n
-
     @property
     def joining_segments(self) -> List[_JoiningSegment]:
         """For each slice, get joining segments (middle part)."""
         width: int = 30  # check against R version
         y_scale: int = self.n_iter
         return [
-            _JoiningSegment(
-                quadrangle=go.Scatter(
-                    x=_scale(width, [0, 1, 1, 0]),
-                    y=_scale(y_scale, [slc.lower, lower, upper, slc.upper]),
-                    mode='lines',
-                    line=dict(width=0),
-                    fill='toself',
-                    fillcolor='rgba(240,240,240,255)'
-                ),
-                lower_line=go.Scatter(
-                    x=_scale(width, [0, 1]),
-                    y=_scale(y_scale, [slc.lower, lower]),
-                    mode='lines',
-                    line=dict(color=self.backfillz.theme.fg_colour, width=1)
-                ),
-                upper_line=go.Scatter(
-                    x=_scale(width, [0, 1]),
-                    y=_scale(y_scale, [slc.upper, upper]),
-                    mode='lines',
-                    line=dict(color=self.backfillz.theme.fg_colour, width=1)
-                )
-            )
+            _JoiningSegment(self.backfillz.theme, width, y_scale, n_slc, len(self.slcs), slc)
             for n_slc, slc in enumerate(self.slcs, start=1)
-            for lower, upper in [self._bounds(n_slc)]
         ]
 
     @property
