@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -32,12 +32,12 @@ class _ChartData:
     min_sample: float
 
     @property
-    def n_chains(self):
-        return self.chains.shape[0]
+    def n_chains(self) -> int:
+        return int(self.chains.shape[0])  # shape is of type tuple[int, ...] but mypy fails
 
     @property
-    def n_iter(self):
-        return self.chains.shape[1]
+    def n_iter(self) -> int:
+        return int(self.chains.shape[1])
 
 
 @dataclass
@@ -165,7 +165,9 @@ class SliceHistogram:
     @property
     def figure(self) -> go.Figure:
         """Derive Plotly figure from 3 parts."""
-        fg_color: str = self.chart.theme.fg_colour
+        return self._render(self._layout())
+
+    def _layout(self) -> go.Figure:
         layout: go.Layout = go.Layout(
             plot_bgcolor=self.chart.theme.bg_colour,
             showlegend=False,
@@ -193,7 +195,7 @@ class SliceHistogram:
             yaxis = 'yaxis' + str(3 + n_slc)  # yuk: magic number 3
             fig.layout[yaxis]['side'] = 'right'
 
-        axis_settings: dict = dict(
+        axis_settings: Dict[str, Any] = dict(
             showgrid=False,
             zeroline=False,
             linecolor=self.chart.theme.fg_colour,
@@ -206,6 +208,9 @@ class SliceHistogram:
         fig.update_xaxes(**axis_settings)
         fig.update_yaxes(**axis_settings)
 
+        return fig
+
+    def _render(self, fig: go.Figure) -> go.Figure:
         for trace in self.trace_plot.traces:
             fig.add_trace(trace, row=1, col=1)
         for box in self.trace_plot.boxes:
