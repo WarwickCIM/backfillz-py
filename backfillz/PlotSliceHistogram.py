@@ -149,21 +149,11 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     slices: Slices = {param: slice_list for param in params}
 
     for param in params:
-        _create_single_plot(backfillz, slices[param], param)
+        # Assume scalar parameter for now; what about vectors?
+        SliceHistogram(backfillz, slices[param], param).figure.show()
 
     # Update log
     backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
-
-
-# Assume scalar parameter for now; what about vectors?
-def _create_single_plot(
-    backfillz: Backfillz,
-    slices: List[Slice],
-    param: str
-) -> None:
-    plot = SliceHistogram(backfillz, slices, param)
-    fig = plot.figure
-    fig.show()
 
 
 def _scale(factor: float, xs: List[float]) -> List[float]:
