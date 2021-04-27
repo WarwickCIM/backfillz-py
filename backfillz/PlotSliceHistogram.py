@@ -114,7 +114,12 @@ class SliceHistogram:
     @property
     def figure(self) -> go.Figure:
         """Derive Plotly figure from 3 parts."""
-        layout: go.Layout = go.Layout(plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
+        layout: go.Layout = go.Layout(
+            plot_bgcolor='rgba(0,0,0,0)',
+            showlegend=False,
+            yaxis=dict(range=[0, self.n_iter]),
+            yaxis2=dict(range=[0, self.n_iter])
+        )
         fig: go.Figure = go.Figure(layout=layout)
         specs: List[List[object]] = \
             [[dict(rowspan=len(self.slcs)), dict(rowspan=len(self.slcs)), dict()]] + \
@@ -136,8 +141,6 @@ class SliceHistogram:
         for n_slice, trace in enumerate(self.histos[::-1]):
             fig.add_trace(trace, row=n_slice + 1, col=3)
 
-        fig.layout['yaxis'].update(range=[0, self.n_iter])
-        fig.layout['yaxis2'].update(range=[0, self.n_iter])
         return fig
 
 
