@@ -193,8 +193,18 @@ class SliceHistogram:
             yaxis = 'yaxis' + str(3 + n_slc)  # yuk: magic number 3
             fig.layout[yaxis]['side'] = 'right'
 
-        fig.update_xaxes(showgrid=False, zeroline=False, linecolor=self.chart.theme.fg_colour)
-        fig.update_yaxes(showgrid=False, zeroline=False, linecolor=self.chart.theme.fg_colour)
+        axis_settings: dict = dict(
+            showgrid=False,
+            zeroline=False,
+            linecolor=self.chart.theme.fg_colour,
+            ticks='outside',
+            tickwidth=1,
+            ticklen=5,
+            tickcolor=self.chart.theme.fg_colour,
+        )
+
+        fig.update_xaxes(**axis_settings)
+        fig.update_yaxes(**axis_settings)
 
         for trace in self.trace_plot.traces:
             fig.add_trace(trace, row=1, col=1)
