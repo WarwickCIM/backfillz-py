@@ -189,6 +189,7 @@ class SliceHistogram:
             vertical_spacing=0,
             shared_xaxes=True,
             print_grid=True,
+            subplot_titles=("Trace Plot with Slices",)
         )
 
         for n_slc, _ in enumerate(self.chart.slcs):
@@ -215,6 +216,9 @@ class SliceHistogram:
             list(dict.fromkeys([y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]))
         )
 
+        # need to set x relative to domain of appropriate axis
+        fig.layout.annotations[0].update(xanchor='left', x=0)
+        print(fig.layout)
         return fig
 
     def _render(self, fig: go.Figure) -> go.Figure:
