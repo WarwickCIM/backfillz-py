@@ -169,6 +169,8 @@ class SliceHistogram:
 
     def _layout(self) -> go.Figure:
         layout: go.Layout = go.Layout(
+            title=f"Trace slice histogram of {self.chart.param}",
+            titlefont=dict(size=32),
             plot_bgcolor=self.chart.theme.bg_colour,
             showlegend=False,
             xaxis=dict(range=[self.chart.min_sample, self.chart.max_sample]),
@@ -181,11 +183,7 @@ class SliceHistogram:
             [[dict(rowspan=len(self.chart.slcs)), dict(rowspan=len(self.chart.slcs)), dict()]] + \
             [[None, None, dict()] for _ in self.chart.slcs[1:]]
 
-        # Need a more structured way to configure subplot titles
-        subplot_titles: List[Union[None, str]] = ["Trace Plot with Slices", "Hello"]
-        subplot_titles += ["Hello2"] * (len(self.chart.slcs) - 1)
-        subplot_titles += "Density Plots for Slices"
-
+        # Need a structured way to configure subplot titles
         make_subplots(
             rows=len(self.chart.slcs),
             cols=3,
@@ -195,7 +193,7 @@ class SliceHistogram:
             vertical_spacing=0,
             shared_xaxes=True,
             print_grid=True,
-            subplot_titles=subplot_titles
+            subplot_titles=["Trace Plot with Slices", None, "Density Plots for Slices"]
         )
 
         for n_slc, _ in enumerate(self.chart.slcs):
