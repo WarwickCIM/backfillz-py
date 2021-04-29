@@ -1,6 +1,24 @@
 # Meeting notes
 
-# 27 April 2021
+# 29 April 2021
+
+## Progress on trace slice histogram plot
+- 
+
+## Design topics to mention
+- Class-oriented design to make various things explicit/self-documenting:
+  - particular "view" of the MCMC data taken by this visualisation
+  - overall organisation of top-plot into subplots
+- Plotly vs. Bokeh w.r.t. "compositionality"
+  - neither allow arbitrary nesting of figures but only top-level organisation
+    - in Bokeh, gridplots and row/column plots (which aren't themselves "plots")
+    - in Plotly, single flexible subplot grid with cell merging
+  - Bokeh: difficult to precisely place subplots because decorations affect size of core plot region
+  - Plotly places subplots relative to parent and then attaches decorations independently 
+
+## Still to do:
+- Raftery-Lewis diagnostic
+- make a pass over R code to check for things I've missed
 
 # 13 Apr 2021
 
@@ -10,16 +28,3 @@
 - first pass over slice histogram plot:
   - LEFT: line plot of all draws (no per-chain colouring yet)
   - MIDDLE: initial stab at "joining segments"
-
-## Questions for James
-
-### plot_slice_histogram
-
-- What are "inbetween slices"?
-- `segments` argument to `create_single_plot`?
-- [8 Schools example] -- μ and τ are scalars where as η and θ are vectors indexed by number of schools, not sure how 
-  these are dealt with
-- `line_plot`  -- y axis is iteration, color codes for iteration?
-- in `fig = c(0.08 + 1 / 3, 2 / 3 - 0.08, 0.25, 0.85)`, are the 1/3 and 2/3 partitioning a virtual viewport and 0.08 
-  is acting as a margin?
-- in the trace plot, what does the scaling of the x and y axis into this virtual viewport?

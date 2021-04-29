@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -180,6 +180,12 @@ class SliceHistogram:
         specs: List[List[object]] = \
             [[dict(rowspan=len(self.chart.slcs)), dict(rowspan=len(self.chart.slcs)), dict()]] + \
             [[None, None, dict()] for _ in self.chart.slcs[1:]]
+
+        # Need a more structured way to configure subplot titles
+        subplot_titles: List[Union[None, str]] = ["Trace Plot with Slices", "Hello"]
+        subplot_titles += ["Hello2"] * (len(self.chart.slcs) - 1)
+        subplot_titles += "Density Plots for Slices"
+
         make_subplots(
             rows=len(self.chart.slcs),
             cols=3,
@@ -189,11 +195,11 @@ class SliceHistogram:
             vertical_spacing=0,
             shared_xaxes=True,
             print_grid=True,
-            subplot_titles=("Trace Plot with Slices",)
+            subplot_titles=subplot_titles
         )
 
         for n_slc, _ in enumerate(self.chart.slcs):
-            yaxis = 'yaxis' + str(3 + n_slc)  # yuk: magic number 3
+            yaxis = 'yaxis' + str(3 + n_slc)  # TODO: magic number 3
             fig.layout[yaxis]['side'] = 'right'
 
         axis_settings: Dict[str, Any] = dict(
@@ -216,9 +222,9 @@ class SliceHistogram:
             list(dict.fromkeys([y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]))
         )
 
-        # need to set x relative to domain of appropriate axis
-        fig.layout.annotations[0].update(xanchor='left', x=0)
-        print(fig.layout)
+        # TODO: eliminate magic indices 0, 1 and magic use of xaxis3
+        fig.layout.annotations[0].update(xanchor='left', x=fig.layout.xaxis.domain[0])
+        fig.layout.annotations[1].update(xanchor='left', x=fig.layout.xaxis3.domain[0])
         return fig
 
     def _render(self, fig: go.Figure) -> go.Figure:
