@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -19,11 +19,14 @@ class Slice:
     upper: float
 
 
-Slices = Dict[str, List[Slice]]
+Param = str
+Slices = Dict[Param, List[Slice]]
 
 
 @dataclass
-class _ChartData:
+class ChartData:
+    """The MCMC data being presented."""
+
     theme: BackfillzTheme
     slcs: List[Slice]
     param: str
@@ -33,19 +36,24 @@ class _ChartData:
 
     @property
     def n_chains(self) -> int:
-        return int(self.chains.shape[0])  # shape is of type tuple[int, ...] but mypy fails
+        """Return number of chains."""
+        return int(self.chains.shape[0])
 
     @property
     def n_iter(self) -> int:
+        """Return number of MCMC iterations per chain."""
         return int(self.chains.shape[1])
 
 
 @dataclass
-class _TracePlot:
+class TracePlot:
+    """Left-hand component."""
+
     traces: List[go.Scatter]    # one per chain
     boxes: List[go.Scatter]     # one per slice
 
-    def __init__(self, chart: _ChartData):
+    def __init__(self, chart: ChartData):
+        """Make a trace plot."""
         self.traces = [
             go.Scatter(
                 x=chart.chains[n],
@@ -66,12 +74,15 @@ class _TracePlot:
 
 
 @dataclass
-class _JoiningSegment:
+class JoiningSegment:
+    """Middle component; one of these per slice."""
+
     quadrangle: go.Scatter
     upper_line: go.Scatter
     lower_line: go.Scatter
 
-    def __init__(self, chart: _ChartData, width: int, y_scale: float, n_slc: int, slc: Slice):
+    def __init__(self, chart: ChartData, width: int, y_scale: float, n_slc: int, slc: Slice):
+        """Make a joining segment."""
         lower, upper = (n_slc - 1) / len(chart.slcs), n_slc / len(chart.slcs)
         self.quadrangle = go.Scatter(
             x=_scale(width, [0, 1, 1, 0]),
@@ -96,15 +107,13 @@ class _JoiningSegment:
 
 
 @dataclass
-class _DensityPlot:
-    histo: go.Histogram
-    # box: go.Scatter
+class DensityPlot:
+    """Right-hand component; one of these per slice."""
 
-    def __init__(
-        self,
-        chart: _ChartData,
-        slc: Slice,
-    ):
+    histo: go.Histogram
+
+    def __init__(self, chart: ChartData, slc: Slice):
+        """Make a density plot."""
         # chain 0 only for now; need to consider all?
         self.histo = go.Histogram(
             x=chart.chains[0, floor(slc.lower * chart.n_iter):floor(slc.upper * chart.n_iter)],
@@ -118,16 +127,16 @@ class _DensityPlot:
 
 
 class SliceHistogram:
-    """Top-level slice histogram plot for a given parameter."""
+    """Top-level plot, for a given parameter."""
 
     backfillz: Backfillz
-    chart: _ChartData
+    chart: ChartData
 
     def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
         """Construct a Slice Histogram for a given parameter from a list of slices."""
         self.backfillz = backfillz
         chains: np.ndarray = backfillz.iter_chains(param)
-        self.chart = _ChartData(
+        self.chart = ChartData(
             theme=backfillz.theme,
             slcs=slcs,
             param=param,
@@ -140,25 +149,25 @@ class SliceHistogram:
         # p.title.text_color = backfillz.theme.text_col_title
 
     @property
-    def trace_plot(self) -> _TracePlot:
+    def trace_plot(self) -> TracePlot:
         """For each chain, get trace plot (leftmost part)."""
-        return _TracePlot(self.chart)
+        return TracePlot(self.chart)
 
     @property
-    def joining_segments(self) -> List[_JoiningSegment]:
+    def joining_segments(self) -> List[JoiningSegment]:
         """For each slice, get joining segments (middle part)."""
         width: int = 30  # check against R version
         y_scale: int = self.chart.n_iter
         return [
-            _JoiningSegment(self.chart, width, y_scale, n_slc, slc)
+            JoiningSegment(self.chart, width, y_scale, n_slc, slc)
             for n_slc, slc in enumerate(self.chart.slcs, start=1)
         ]
 
     @property
-    def density_plots(self) -> List[_DensityPlot]:
+    def density_plots(self) -> List[DensityPlot]:
         """For each slice, get histogram and sample density plot per chain."""
         return [
-            _DensityPlot(self.chart, slc)
+            DensityPlot(self.chart, slc)
             for slc in self.chart.slcs[::-1]
         ]
 

@@ -9,6 +9,7 @@
 - rectangle drawn around in slice in trace plot
 
 ## Still to do:
+- add density function plot to histogram (one per chain) 
 - Raftery-Lewis diagnostic
 - histograms to aggregate all chains?
 - labels on "joining segments" to be to right of y-axis 
