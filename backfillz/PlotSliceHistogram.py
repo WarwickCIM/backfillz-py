@@ -217,6 +217,7 @@ class SliceHistogram:
             tickwidth=1,
             ticklen=5,
             tickcolor=self.chart.theme.fg_colour,
+            fixedrange=True,  # disable selection zoom
         )
 
         fig.update_xaxes(**axis_settings)
@@ -257,7 +258,7 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     ]
     slices: Slices = {param: slice_list for param in params}
 
-    config = dict(displayModeBar=False)
+    config = dict(displayModeBar=False, showAxisDragHandles=False)
     for param in params:
         # Assume scalar parameter for now; what about vectors?
         SliceHistogram(backfillz, slices[param], param).figure.show(config=config)
