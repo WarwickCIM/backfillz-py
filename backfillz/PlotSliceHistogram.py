@@ -117,9 +117,14 @@ class DensityPlot:
     chain_plots: List[go.Scatter]  # one per chain
 
     def __init__(self, chart: ChartData, slc: Slice):
-        """Make a histogram for a single slice, plus a density plot for each chain."""
+        """Make a histogram for a single slice (aggregating over all chains), plus a density plot
+        for each chain."""
+        chain_slices = np.array([
+            chart.chains[n, floor(slc.lower * chart.n_iter):floor(slc.upper * chart.n_iter)]
+            for n in range(0, chart.n_chains)
+        ])
         self.histo = go.Histogram(
-            x=chart.chains[0, floor(slc.lower * chart.n_iter):floor(slc.upper * chart.n_iter)],
+            x=[x for n in range(0, chart.n_chains) for x in chain_slices[n]],
             xbins=dict(start=floor(chart.min_sample), end=ceil(chart.max_sample), size=1),
             marker=dict(
                 color=chart.theme.bg_colour,
@@ -130,7 +135,7 @@ class DensityPlot:
         self.chain_plots = []
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
-        """Render a histogram/density plot into fig."""
+        """Render density plot into fig at row and column."""
         fig.add_trace(self.histo, row=row, col=col)
         for chain_plot in self.chain_plots:
             fig.add_trace(chain_plot, row=row, col=col)
