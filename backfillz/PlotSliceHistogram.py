@@ -72,49 +72,52 @@ class TracePlot:
             for slc in chart.slcs
         ]
 
+    def render(self, fig: go.Figure) -> None:
+        """Render a trace plot into fig."""
+        for trace in self.traces:
+            fig.add_trace(trace, row=1, col=1)
+        for box in self.boxes:
+            fig.add_trace(box, row=1, col=1)
+
 
 @dataclass
-class JoiningSegment:
-    """Middle component; one of these per slice."""
+class JoiningSegments:
+    """Middle component."""
 
-    quadrangle: go.Scatter
-    upper_line: go.Scatter
-    lower_line: go.Scatter
+    segments: List[go.Scatter]  # one per slice
 
-    def __init__(self, chart: ChartData, width: int, y_scale: float, n_slc: int, slc: Slice):
+    def __init__(self, chart: ChartData):
         """Make a joining segment."""
-        lower, upper = (n_slc - 1) / len(chart.slcs), n_slc / len(chart.slcs)
-        self.quadrangle = go.Scatter(
-            x=_scale(width, [0, 1, 1, 0]),
-            y=_scale(y_scale, [slc.lower, lower, upper, slc.upper]),
-            mode='lines',
-            line=dict(width=0),
-            fill='toself',
-            fillcolor='rgba(240,240,240,255)'
-        )
-        self.lower_line = go.Scatter(
-            x=_scale(width, [0, 1]),
-            y=_scale(y_scale, [slc.lower, lower]),
-            mode='lines',
-            line=dict(color=chart.theme.fg_colour, width=1)
-        )
-        self.upper_line = go.Scatter(
-            x=_scale(width, [0, 1]),
-            y=_scale(y_scale, [slc.upper, upper]),
-            mode='lines',
-            line=dict(color=chart.theme.fg_colour, width=1)
-        )
+        width: int = 30  # check against R version
+        y_scale: int = chart.n_iter
+        self.segments = [
+            go.Scatter(
+                x=_scale(width, [0, 1, 1, 0]),
+                y=_scale(y_scale, [slc.lower, lower, upper, slc.upper]),
+                mode='lines',
+                line=dict(color=chart.theme.fg_colour, width=1),
+                fill='toself',
+                fillcolor='rgba(240,240,240,255)'
+            )
+            for n_slc, slc in enumerate(chart.slcs, start=1)
+            for lower, upper in [((n_slc - 1) / len(chart.slcs), n_slc / len(chart.slcs))]
+        ]
+
+    def render(self, fig: go.Figure) -> None:
+        """Render the joining segments into fig."""
+        for segment in self.segments:
+            fig.add_trace(segment, row=1, col=2)
 
 
 @dataclass
 class DensityPlot:
-    """Right-hand component; one of these per slice."""
+    """Histogram and density plots for a single slice."""
 
     histo: go.Histogram
+    chain_plots: List[go.Scatter]  # one per chain
 
     def __init__(self, chart: ChartData, slc: Slice):
-        """Make a density plot."""
-        # chain 0 only for now; need to consider all?
+        """Make a histogram for a single slice, plus a density plot for each chain."""
         self.histo = go.Histogram(
             x=chart.chains[0, floor(slc.lower * chart.n_iter):floor(slc.upper * chart.n_iter)],
             xbins=dict(start=floor(chart.min_sample), end=ceil(chart.max_sample), size=1),
@@ -124,6 +127,29 @@ class DensityPlot:
             ),
             histnorm='probability'
         )
+        self.chain_plots = []
+
+    def render(self, fig: go.Figure, row: int, col: int) -> None:
+        """Render a histogram/density plot into fig."""
+        fig.add_trace(self.histo, row=row, col=col)
+        for chain_plot in self.chain_plots:
+            fig.add_trace(chain_plot, row=row, col=col)
+
+
+@dataclass
+class DensityPlots:
+    """Right-hand component."""
+
+    density_plots: List[DensityPlot]  # one per slice
+
+    def __init__(self, chart: ChartData):
+        """Make a density plot per slice."""
+        self.density_plots = [DensityPlot(chart, slc) for slc in chart.slcs[::-1]]
+
+    def render(self, fig: go.Figure) -> None:
+        """Render the density plots into fig."""
+        for n_slice, density_plot in enumerate(self.density_plots):
+            density_plot.render(fig, row=n_slice + 1, col=3)
 
 
 class SliceHistogram:
@@ -149,32 +175,11 @@ class SliceHistogram:
         # p.title.text_color = backfillz.theme.text_col_title
 
     @property
-    def trace_plot(self) -> TracePlot:
-        """For each chain, get trace plot (leftmost part)."""
-        return TracePlot(self.chart)
-
-    @property
-    def joining_segments(self) -> List[JoiningSegment]:
-        """For each slice, get joining segments (middle part)."""
-        width: int = 30  # check against R version
-        y_scale: int = self.chart.n_iter
-        return [
-            JoiningSegment(self.chart, width, y_scale, n_slc, slc)
-            for n_slc, slc in enumerate(self.chart.slcs, start=1)
-        ]
-
-    @property
-    def density_plots(self) -> List[DensityPlot]:
-        """For each slice, get histogram and sample density plot per chain."""
-        return [
-            DensityPlot(self.chart, slc)
-            for slc in self.chart.slcs[::-1]
-        ]
-
-    @property
     def figure(self) -> go.Figure:
         """Derive Plotly figure from 3 parts."""
-        return self._render(self._layout())
+        fig: go.Figure = self._layout()
+        self.render(fig)
+        return fig
 
     def _layout(self) -> go.Figure:
         layout: go.Layout = go.Layout(
@@ -205,9 +210,11 @@ class SliceHistogram:
             subplot_titles=["Trace Plot with Slices", None, "Density Plots for Slices"]
         )
 
+        # TODO: magic number 3 occurs twice here
         for n_slc, _ in enumerate(self.chart.slcs):
-            yaxis = 'yaxis' + str(3 + n_slc)  # TODO: magic number 3
+            yaxis = 'yaxis' + str(3 + n_slc)
             fig.layout[yaxis]['side'] = 'right'
+        fig.layout['xaxis3'].update(mirror='allticks', side='top', showticklabels=True)
 
         axis_settings: Dict[str, Any] = dict(
             showgrid=False,
@@ -230,24 +237,18 @@ class SliceHistogram:
             list(dict.fromkeys([y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]))
         )
 
+        print(fig.layout)
+
         # TODO: eliminate magic indices 0, 1 and magic use of xaxis3
         fig.layout.annotations[0].update(xanchor='left', x=fig.layout.xaxis.domain[0])
         fig.layout.annotations[1].update(xanchor='left', x=fig.layout.xaxis3.domain[0])
         return fig
 
-    def _render(self, fig: go.Figure) -> go.Figure:
-        for trace in self.trace_plot.traces:
-            fig.add_trace(trace, row=1, col=1)
-        for box in self.trace_plot.boxes:
-            fig.add_trace(box, row=1, col=1)
-        for joining_segment in self.joining_segments:
-            fig.add_trace(joining_segment.quadrangle, row=1, col=2)
-            fig.add_trace(joining_segment.lower_line, row=1, col=2)
-            fig.add_trace(joining_segment.upper_line, row=1, col=2)
-        for n_slice, densityPlot in enumerate(self.density_plots):
-            fig.add_trace(densityPlot.histo, row=n_slice + 1, col=3)
-
-        return fig
+    def render(self, fig: go.Figure) -> None:
+        """Render the plot into fig."""
+        TracePlot(self.chart).render(fig)
+        JoiningSegments(self.chart).render(fig)
+        DensityPlots(self.chart).render(fig)
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
