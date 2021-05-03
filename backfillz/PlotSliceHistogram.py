@@ -117,8 +117,7 @@ class DensityPlot:
     chain_plots: List[go.Scatter]  # one per chain
 
     def __init__(self, chart: ChartData, slc: Slice):
-        """Make a histogram for a single slice (aggregating over all chains), plus a density plot
-        for each chain."""
+        """Make histogram for a slice (aggregating all chains) plus density plot for each chain."""
         chain_slices: List[np.ndarray] = [
             chart.chains[n, floor(slc.lower * chart.n_iter):floor(slc.upper * chart.n_iter)]
             for n in range(0, chart.n_chains)
