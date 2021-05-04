@@ -86,6 +86,7 @@ class JoiningSegments:
     """Middle component."""
 
     segments: List[go.Scatter]  # one per slice
+    y_labels: go.Scatter  # one point per unique slice start/end point
 
     def __init__(self, chart: ChartData):
         """Make a joining segment."""
@@ -103,11 +104,20 @@ class JoiningSegments:
             for n_slc, slc in enumerate(chart.slcs, start=1)
             for lower, upper in [((n_slc - 1) / len(chart.slcs), n_slc / len(chart.slcs))]
         ]
+        y = _scale(chart.n_iter, [*{*[y for slc in chart.slcs for y in [slc.lower, slc.upper]]}])
+        self.y_labels = go.Scatter(
+            x=[0] * len(y),
+            y=y,
+            mode='text',
+            text=[int(y) for y in y],
+            textposition='middle right'
+        )
 
     def render(self, fig: go.Figure) -> None:
         """Render the joining segments into fig."""
         for segment in self.segments:
             fig.add_trace(segment, row=1, col=2)
+        fig.add_trace(self.y_labels)
 
 
 @dataclass
