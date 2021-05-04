@@ -163,24 +163,29 @@ class DensityPlot:
 
 @dataclass
 class DensityPlots:
-    """Right-hand component."""
+    """Right-hand component: one density plot per slice."""
 
-    density_plots: List[DensityPlot]  # one per slice
+    density_plots: List[DensityPlot]
 
     def __init__(self, chart: ChartData):
-        """Make a density plot per slice."""
+        """Make an instance."""
         self.density_plots = [DensityPlot(chart, slc) for slc in chart.slcs[::-1]]
 
     def render(self, fig: go.Figure) -> None:
-        """Render the density plots into fig."""
+        """Render density plots into fig."""
         for n_slice, density_plot in enumerate(self.density_plots):
             density_plot.render(fig, row=n_slice + 1, col=3)
 
 
 @dataclass
 class RafteryLewisPlots:
-    """Bottom component."""
-    plots: List[go.Scatter]  # one per chain
+    """Bottom component: one Raftery-Lewis plot per chain."""
+    plots: List[go.Scatter]
+
+    def __init__(self, chart: ChartData):
+        """Make an instance."""
+        raftery_lewis(x, q=0.025, r=0.005)  # same as defaults used in R version
+
 
 class SliceHistogram:
     """Top-level plot, for a given parameter."""
@@ -280,6 +285,7 @@ class SliceHistogram:
         TracePlot(self.chart).render(fig)
         JoiningSegments(self.chart).render(fig, 1, 2)
         DensityPlots(self.chart).render(fig)
+        RafteryLewisPlots(self.chart).render(fig)
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
