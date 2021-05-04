@@ -184,7 +184,7 @@ class RafteryLewisPlots:
 
     def __init__(self, chart: ChartData):
         """Make an instance."""
-        raftery_lewis(x, q=0.025, r=0.005)  # same as defaults used in R version
+        # raftery_lewis(x, q=0.025, r=0.005)  # same as defaults used in R version
 
 
 class SliceHistogram:
