@@ -253,11 +253,9 @@ class SliceHistogram:
             fig.add_annotation(
                 xref='x2',
                 yref='y2 domain',
-                x=0.5,
+                x=0,
                 y=y,
                 text=y * self.chart.n_iter,
-                showarrow=True,
-                arrowhead=7
             )
 
         print(fig.layout)
