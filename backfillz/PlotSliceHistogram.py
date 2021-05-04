@@ -112,13 +112,13 @@ class JoiningSegments:
 
 @dataclass
 class DensityPlot:
-    """Histogram and density plots for a single slice."""
+    """Histogram for a slice (aggregating all chains) plus density plot for each chain."""
 
     histo: go.Histogram
     chain_plots: List[go.Scatter]  # one per chain
 
     def __init__(self, chart: ChartData, slc: Slice):
-        """Make histogram for a slice (aggregating all chains) plus density plot for each chain."""
+        """Make an instance."""
         chain_slices: List[np.ndarray] = [
             chart.chains[n, floor(slc.lower * chart.n_iter):floor(slc.upper * chart.n_iter)]
             for n in range(0, chart.n_chains)
@@ -228,7 +228,7 @@ class SliceHistogram:
         # TODO: magic number 3 occurs twice here
         for n_slc, _ in enumerate(self.chart.slcs):
             yaxis = 'yaxis' + str(3 + n_slc)
-            fig.layout[yaxis]['side'] = 'right'
+            fig.layout[yaxis].update(side='right', rangemode='nonnegative')
         fig.layout['xaxis3'].update(mirror='allticks', side='top', showticklabels=True)
 
         axis_settings: Dict[str, Any] = dict(
