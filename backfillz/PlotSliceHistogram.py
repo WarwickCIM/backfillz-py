@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
-import scipy.stats as stats
+import scipy.stats as stats  # type: ignore
 
 from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.BackfillzTheme import BackfillzTheme
