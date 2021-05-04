@@ -113,11 +113,11 @@ class JoiningSegments:
             textposition='middle right'
         )
 
-    def render(self, fig: go.Figure) -> None:
-        """Render the joining segments into fig."""
+    def render(self, fig: go.Figure, row: int, col: int) -> None:
+        """Render the joining segments into fig at row and column."""
         for segment in self.segments:
-            fig.add_trace(segment, row=1, col=2)
-        fig.add_trace(self.y_labels)
+            fig.add_trace(segment, row, col)
+        fig.add_trace(self.y_labels, row, col)
 
 
 @dataclass
@@ -156,9 +156,9 @@ class DensityPlot:
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         """Render density plot into fig at row and column."""
-        fig.add_trace(self.histo, row=row, col=col)
+        fig.add_trace(self.histo, row, col)
         for chain_plot in self.chain_plots:
-            fig.add_trace(chain_plot, row=row, col=col)
+            fig.add_trace(chain_plot, row, col)
 
 
 @dataclass
@@ -253,22 +253,17 @@ class SliceHistogram:
         fig.update_xaxes(**axis_settings)
         fig.update_yaxes(**axis_settings)
 
-        # find more idiomatic way to do this
-        fig.layout['yaxis2']['tickmode'] = 'array'
-        fig.layout['yaxis2']['tickvals'] = _scale(
-            self.chart.n_iter,
-            [*{*[y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]}]
+        fig.layout['yaxis2'].update(
+            tickmode='array',
+            tickvals=_scale(
+                self.chart.n_iter,
+                [*{*[y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]}]
+            )
         )
-#        for y in {*[y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]}:
-#            fig.add_annotation(
-#                xref='x2',
-#                yref='y2 domain',
-#                x=0,
-#                y=y,
-#                text=y * self.chart.n_iter,
-#            )
 
         print(fig.layout)
+        print(fig.layout['xaxis2'])
+        fig.layout['xaxis2'].update(rangemode='nonnegative')
 
         # TODO: eliminate magic indices 0, 1 and magic use of xaxis3
         fig.layout.annotations[0].update(xanchor='left', x=fig.layout.xaxis.domain[0])
@@ -278,7 +273,7 @@ class SliceHistogram:
     def render(self, fig: go.Figure) -> None:
         """Render the plot into fig."""
         TracePlot(self.chart).render(fig)
-        JoiningSegments(self.chart).render(fig)
+        JoiningSegments(self.chart).render(fig, 1, 2)
         DensityPlots(self.chart).render(fig)
 
 
