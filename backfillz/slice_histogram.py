@@ -263,6 +263,8 @@ class SliceHistogram:
             showticklabels=False  # JoiningSegments will take care of these
         )
 
+        fig.layout.annotations[1].update(y=1.03)  # oof
+
         # TODO: eliminate magic indices 0, 1 and magic use of xaxis3
         fig.layout.annotations[0].update(xanchor='left', x=fig.layout.xaxis.domain[0])
         fig.layout.annotations[1].update(xanchor='left', x=fig.layout.xaxis3.domain[0])
