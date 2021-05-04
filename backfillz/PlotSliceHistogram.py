@@ -133,15 +133,15 @@ class DensityPlot:
             histnorm='probability'
         )
         # non-parametric KDE, smoothed with a Gaussian kernel
-        smoothed_y = stats.kde.gaussian_kde(chain_slices[0])
         x = np.linspace(chart.min_sample, chart.max_sample, 200)
         self.chain_plots = [
             go.Scatter(
                 x=x,
-                y=smoothed_y(x),
+                y=stats.kde.gaussian_kde(chain_slices[n])(x),
                 mode='lines',
-                line=dict(width=2, color=chart.theme.palette[0]),
+                line=dict(width=2, color=chart.theme.palette[n]),
             )
+            for n in range(0, chart.n_chains)
         ]
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
