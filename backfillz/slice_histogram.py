@@ -249,15 +249,16 @@ class SliceHistogram:
             self.chart.n_iter,
             [*{*[y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]}]
         )
-        fig.add_annotation(
-            xref='x2',
-            yref='y2 domain',
-            x=0.5,
-            y=0.5,
-            text="Some text",
-            showarrow=True,
-            arrowhead=7
-        )
+        for y in {*[y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]}:
+            fig.add_annotation(
+                xref='x2',
+                yref='y2 domain',
+                x=0.5,
+                y=y,
+                text=y * self.chart.n_iter,
+                showarrow=True,
+                arrowhead=7
+            )
 
         print(fig.layout)
 
