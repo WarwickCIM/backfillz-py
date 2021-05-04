@@ -1,5 +1,12 @@
 # Meeting notes
 
+# 13 May 2021
+
+## Progress on trace slice histogram plot
+- add density function plot to histogram (one per chain) 
+- histograms to aggregate all chains
+- performance experiment with 1,000,000 iterations
+
 # 29 April 2021
 
 ## Progress on trace slice histogram plot
@@ -9,9 +16,7 @@
 - rectangle drawn around in slice in trace plot
 
 ## Still to do:
-- add density function plot to histogram (one per chain) 
 - Raftery-Lewis diagnostic
-- histograms to aggregate all chains?
 - labels on "joining segments" to be to right of y-axis 
 - additional x-axis above density plots
 - make a pass over R code to check for other details, plot settings

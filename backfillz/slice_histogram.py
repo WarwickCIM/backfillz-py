@@ -203,8 +203,8 @@ class SliceHistogram:
             plot_bgcolor=self.chart.theme.bg_colour,
             showlegend=False,
             xaxis=dict(range=[self.chart.min_sample, self.chart.max_sample]),
-            xaxis2=dict(visible=False),
             yaxis=dict(range=[0, self.chart.n_iter]),
+            xaxis2=dict(visible=False),
             yaxis2=dict(range=[0, self.chart.n_iter]),
         )
         fig: go.Figure = go.Figure(layout=layout)
@@ -249,7 +249,7 @@ class SliceHistogram:
         fig.layout['yaxis2']['tickmode'] = 'array'
         fig.layout['yaxis2']['tickvals'] = _scale(
             self.chart.n_iter,
-            list(dict.fromkeys([y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]))
+            list(set([y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]))
         )
 
         print(fig.layout)
