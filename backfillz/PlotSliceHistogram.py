@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
+import scipy.stats as stats
 
 from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.BackfillzTheme import BackfillzTheme
@@ -131,7 +132,17 @@ class DensityPlot:
             ),
             histnorm='probability'
         )
-        self.chain_plots = []
+        # non-parametric KDE, smoothed with a Gaussian kernel
+        smoothed_y = stats.kde.gaussian_kde(chain_slices[0])
+        x = np.linspace(chart.min_sample, chart.max_sample, 200)
+        self.chain_plots = [
+            go.Scatter(
+                x=x,
+                y=smoothed_y(x),
+                mode='lines',
+                line=dict(width=2, color=chart.theme.palette[0]),
+            )
+        ]
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         """Render density plot into fig at row and column."""
