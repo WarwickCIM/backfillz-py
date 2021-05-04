@@ -177,6 +177,11 @@ class DensityPlots:
             density_plot.render(fig, row=n_slice + 1, col=3)
 
 
+@dataclass
+class RafteryLewisPlots:
+    """Bottom component."""
+    plots: List[go.Scatter]  # one per chain
+
 class SliceHistogram:
     """Top-level plot, for a given parameter."""
 
