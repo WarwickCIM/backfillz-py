@@ -249,7 +249,7 @@ class SliceHistogram:
         fig.layout['yaxis2']['tickmode'] = 'array'
         fig.layout['yaxis2']['tickvals'] = _scale(
             self.chart.n_iter,
-            list(set([y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]))
+            [*{*[y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]}]
         )
 
         print(fig.layout)
