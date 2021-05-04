@@ -253,17 +253,15 @@ class SliceHistogram:
         fig.update_xaxes(**axis_settings)
         fig.update_yaxes(**axis_settings)
 
+        fig.layout['xaxis2'].update(rangemode='nonnegative')
         fig.layout['yaxis2'].update(
             tickmode='array',
             tickvals=_scale(
                 self.chart.n_iter,
                 [*{*[y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]}]
-            )
+            ),
+            showticklabels=False  # JoiningSegments will take care of these
         )
-
-        print(fig.layout)
-        print(fig.layout['xaxis2'])
-        fig.layout['xaxis2'].update(rangemode='nonnegative')
 
         # TODO: eliminate magic indices 0, 1 and magic use of xaxis3
         fig.layout.annotations[0].update(xanchor='left', x=fig.layout.xaxis.domain[0])
