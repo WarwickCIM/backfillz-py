@@ -5,9 +5,9 @@ name = "backfillz"
 version = "0.0.0"
 homepage = "https://github.com/rolyp/backfillz"
 description = "MCMC visualisations package developed at the University of Warwick and supported by the Turing Institute."
-authors = ["Roly Perera <rperera@turing.ac.uk>"]
+authors = ["James Tripp <james.tripp@warwick.ac.uk>", "Greg McInerny <g.mcinerny@warwick.ac.uk>", "Roly Perera <rperera@turing.ac.uk>"]
 readme = "README.md"
-license =  "GPL-3.0-only"
+license =  "MIT"
 classifiers=[
     'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
     'Natural Language :: English',
@@ -20,8 +20,13 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
-importlib_metadata = "^3.4.0"
+python = "3.9.4"
+importlib_metadata = "3.4.0"
+pystan = "3.0.0"
+pandas = "1.2.3"
+bokeh = "^2.3.1"
+plotly = "^4.14.3"
+scipy = "^1.6.3"
 
 [tool.poetry.dev-dependencies]
 mkdocs-material = "^6.1.5"
