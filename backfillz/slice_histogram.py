@@ -194,6 +194,7 @@ class SliceHistogram:
         return fig
 
     def _layout(self) -> go.Figure:
+        n_slcs: int = len(self.chart.slcs)
         layout: go.Layout = go.Layout(
             title=f"Trace slice histogram of {self.chart.param}",
             titlefont=dict(size=32),
@@ -206,12 +207,12 @@ class SliceHistogram:
         )
         fig: go.Figure = go.Figure(layout=layout)
         specs: List[List[object]] = \
-            [[dict(rowspan=len(self.chart.slcs)), dict(rowspan=len(self.chart.slcs)), dict()]] + \
+            [[dict(rowspan=n_slcs), dict(rowspan=n_slcs), dict()]] + \
             [[None, None, dict()] for _ in self.chart.slcs[1:]]
 
         # Need a structured way to configure subplot titles
         make_subplots(
-            rows=len(self.chart.slcs),
+            rows=n_slcs,
             cols=3,
             figure=fig,
             specs=specs,
