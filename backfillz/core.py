@@ -6,7 +6,7 @@ from typing import List
 import numpy as np
 from stan.fit import Fit  # type: ignore
 
-from backfillz.BackfillzTheme import BackfillzTheme, default
+from backfillz.theme import BackfillzTheme, default
 
 
 class HistoryEvent(Enum):

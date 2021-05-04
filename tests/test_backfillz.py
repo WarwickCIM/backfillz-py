@@ -2,9 +2,9 @@
 
 from tests.generate_sample_fit import generate_fit, Stan
 
-from backfillz.Backfillz import Backfillz
-from backfillz.BackfillzTheme import demo_1
-from backfillz.PlotSliceHistogram import plot_slice_histogram
+from backfillz.core import Backfillz
+from backfillz.theme import demo_1
+from backfillz.slice_histogram import plot_slice_histogram
 
 
 def test_sample_fit() -> None:

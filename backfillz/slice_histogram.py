@@ -8,8 +8,8 @@ import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
 import scipy.stats as stats  # type: ignore
 
-from backfillz.Backfillz import Backfillz, HistoryEntry, HistoryEvent
-from backfillz.BackfillzTheme import BackfillzTheme
+from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
+from backfillz.theme import BackfillzTheme
 
 
 @dataclass
