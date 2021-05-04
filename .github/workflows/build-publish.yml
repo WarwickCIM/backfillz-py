@@ -51,7 +51,7 @@ jobs:
       - name: Install poetry
         run: pip install poetry
       - name: Bump version number
-        run: poetry version ${{ github.event.release.tag_name }}
+        run: poetry version patch
       - name: Build package
         run: poetry build
       - name: Publish package
