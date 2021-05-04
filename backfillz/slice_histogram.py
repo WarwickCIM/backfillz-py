@@ -186,9 +186,6 @@ class SliceHistogram:
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
 
-        # p.title=f"Trace slice histogram of {param}",
-        # p.title.text_color = backfillz.theme.text_col_title
-
     @property
     def figure(self) -> go.Figure:
         """Derive Plotly figure from 3 parts."""
