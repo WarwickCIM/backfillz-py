@@ -257,27 +257,47 @@ class DensityPlots(Subplot):
 
 
 @dataclass
+class RafteryLewisPlot(Subplot):
+    plot: go.Scatter
+
+    def __init__(self, chart: ChartData, axis_ids: AxisIds, n_chain: int):
+        """Make an instance."""
+        super().__init__(chart, axis_ids)
+        self.plot = go.Scatter(
+            x=list(range(0, chart.n_iter)),
+            y=chart.chains[n_chain],
+            line=dict(color=chart.theme.palette[n_chain])
+        )
+
+    def xaxis_props(self):
+        return dict(visible=False)
+
+    def yaxis_props(self):
+        return dict(visible=False)
+
+    def render(self, fig: go.Figure, row: int, col: int) -> None:
+        """Render plot into fig."""
+        fig.add_trace(self.plot, row, col)
+
+
+@dataclass
 class RafteryLewisPlots(Subplot):
     """Bottom component: one Raftery-Lewis plot per chain."""
 
-    plots: List[go.Scatter]
+    plots: List[RafteryLewisPlot]
 
     def __init__(self, chart: ChartData, axis_ids: AxisIds):
         """Make an instance."""
         super().__init__(chart, axis_ids)
         self.plots = [
-            go.Scatter(
-                x=list(range(0, chart.n_iter)),
-                y=chain,
-                line=dict(color=chart.theme.palette[n])
-            )
-            for n, chain in enumerate(chart.chains)
+            RafteryLewisPlot(chart, axis_ids, n)
+            for n, _ in enumerate(chart.chains)
         ]
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
-        """Render Raftery-Lewis plots into fig."""
+        """Render plots into fig."""
         for plot in self.plots:
-            fig.add_trace(plot, row, col)
+            plot.render(fig, row, col)
 
     def _required_sample_size(self, chain: np.ndarray) -> float:
         """Return N component of resmatrix component of result of raftery.diag R function."""
@@ -341,7 +361,6 @@ class SliceHistogram:
             specs=specs,
             horizontal_spacing=0,
             vertical_spacing=0,
-#            shared_xaxes=True,
             print_grid=True,
             subplot_titles=["Trace Plot with Slices", None, "Density Plots for Slices"]
         )
@@ -374,7 +393,7 @@ class SliceHistogram:
     def render(self, fig: go.Figure) -> None:
         """Render plot into fig."""
         self.tracePlot.render(fig, 1, 1)
-#       self.rafteryLewisPlots.render(fig, len(self.chart.slcs) + 1, 1)
+        self.rafteryLewisPlots.render(fig, len(self.chart.slcs) + 1, 1)
         self.joiningSegments.render(fig, 1, 2)
         self.densityPlots.render(fig, 3)
 
