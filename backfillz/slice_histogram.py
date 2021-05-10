@@ -6,10 +6,15 @@ import numpy as np
 import pandas as pd  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
+from rpy2.robjects.packages import importr
+from rpy2.robjects import numpy2ri
 import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.theme import BackfillzTheme
+
+
+numpy2ri.activate()
 
 
 @dataclass
@@ -184,7 +189,8 @@ class RafteryLewisPlots:
 
     def __init__(self, chart: ChartData):
         """Make an instance."""
-        # raftery_lewis(x, q=0.025, r=0.005)  # same as defaults used in R version
+        coda = importr("coda")
+        coda.raftery_diag(chart.chains[0], q=0.025, r=0.005)  # same as defaults used in R version
 
 
 class SliceHistogram:
