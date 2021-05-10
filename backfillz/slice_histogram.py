@@ -230,7 +230,7 @@ class DensityPlot(Subplot):
 
 
 @dataclass
-class DensityPlots:
+class DensityPlots(Subplot):
     """Right-hand component: one density plot per slice."""
 
     chart: ChartData
@@ -239,10 +239,16 @@ class DensityPlots:
 
     def __init__(self, chart: ChartData, axis_ids: AxisIds):
         """Make an instance."""
+        super().__init__(chart, axis_ids)
         self.density_plots = [
             DensityPlot(chart, (axis_ids[0], axis_ids[1] + n), slc)
             for n, slc in enumerate(chart.slcs[::-1])
         ]
+
+    # override to recurse into sub-subplots -- use a new subplot base class?
+    def layout_axes(self, fig: go.Figure) -> None:
+        for density_plot in self.density_plots:
+            density_plot.layout_axes(fig)
 
     def render(self, fig: go.Figure, col: int) -> None:
         """Render density plots into fig."""
@@ -354,16 +360,13 @@ class SliceHistogram:
         fig.update_yaxes(**axis_settings)
 
         self.tracePlot.layout_axes(fig)
-
-        for density_plot in self.densityPlots.density_plots:
-            density_plot.layout_axes(fig)
-
+        self.densityPlots.layout_axes(fig)
         self.joiningSegments.layout_axes(fig)
 
         fig.layout.annotations[1].update(y=1.03)  # oof -- adjust title subgraph
 
         # TODO: eliminate magic indices 0, 1 and magic use of xaxis3
-        fig.layout.annotations[0].update(xanchor='left', x=fig.layout['xaxis'].domain[0])
+        fig.layout.annotations[0].update(xanchor='left', x=fig.layout[self.tracePlot.xaxis_id].domain[0])
         fig.layout.annotations[1].update(xanchor='left', x=fig.layout['xaxis3'].domain[0])
 
         return fig
