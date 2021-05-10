@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -56,12 +56,14 @@ class TracePlot:
     """Left-hand component."""
 
     chart: ChartData
+    axes: Tuple[str, str]
     traces: List[go.Scatter]    # one per chain
     boxes: List[go.Scatter]     # one per slice
 
-    def __init__(self, chart: ChartData):
+    def __init__(self, chart: ChartData, axes: Tuple[str, str]):
         """Make a trace plot."""
         self.chart = chart
+        self.axes = axes
         self.traces = [
             go.Scatter(
                 x=chain,
@@ -101,12 +103,14 @@ class JoiningSegments:
     """Middle component."""
 
     chart: ChartData
+    axes: Tuple[str, str]
     segments: List[go.Scatter]  # one per slice
     y_labels: go.Scatter  # one point per unique slice start/end point
 
-    def __init__(self, chart: ChartData):
+    def __init__(self, chart: ChartData, axes: Tuple[str, str]):
         """Make a joining segment."""
         self.chart = chart
+        self.axes = axes
         width: int = 30  # check against R version
         self.segments = [
             go.Scatter(
@@ -197,10 +201,14 @@ class DensityPlot:
 class DensityPlots:
     """Right-hand component: one density plot per slice."""
 
+    chart: ChartData
+    axes: Tuple[str, str]
     density_plots: List[DensityPlot]
 
-    def __init__(self, chart: ChartData):
+    def __init__(self, chart: ChartData, axes: Tuple[str, str]):
         """Make an instance."""
+        self.chart = chart
+        self.axes = axes
         self.density_plots = [DensityPlot(chart, slc) for slc in chart.slcs[::-1]]
 
     @property
@@ -264,10 +272,10 @@ class SliceHistogram:
             max_sample=np.amax(backfillz.mcmc_samples[param]),
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
-        self.tracePlot = TracePlot(self.chart)
+        self.tracePlot = TracePlot(self.chart, ('xaxis', 'yaxis'))
         self.rafteryLewisPlots = RafteryLewisPlots(self.chart)
-        self.joiningSegments = JoiningSegments(self.chart)
-        self.densityPlots = DensityPlots(self.chart)
+        self.joiningSegments = JoiningSegments(self.chart, ('xaxis2', 'yaxis2'))
+        self.densityPlots = DensityPlots(self.chart, ('xaxis3', 'yaxis3'))
 
     @property
     def figure(self) -> go.Figure:
@@ -316,8 +324,8 @@ class SliceHistogram:
         fig.update_xaxes(**axis_settings)
         fig.update_yaxes(**axis_settings)
 
-        fig.layout['xaxis'].update(**self.tracePlot.xaxis_props),
-        fig.layout['yaxis'].update(**self.tracePlot.yaxis_props),
+        fig.layout[self.tracePlot.axes[0]].update(**self.tracePlot.xaxis_props),
+        fig.layout[self.tracePlot.axes[1]].update(**self.tracePlot.yaxis_props),
 
         # TODO: magic number 3 occurs twice here
         for n_slc, _ in enumerate(self.chart.slcs):
