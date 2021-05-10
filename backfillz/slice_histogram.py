@@ -246,8 +246,6 @@ class SliceHistogram:
             showlegend=False,
             xaxis=dict(range=[self.chart.min_sample, self.chart.max_sample]),
             yaxis=dict(range=[0, self.chart.n_iter]),
-            xaxis2=dict(visible=False),
-            yaxis2=dict(range=[0, self.chart.n_iter]),
         )
         fig: go.Figure = go.Figure(layout=layout)
         specs: List[List[object]] = \
@@ -287,8 +285,9 @@ class SliceHistogram:
         fig.update_xaxes(**axis_settings)
         fig.update_yaxes(**axis_settings)
 
-        fig.layout['xaxis2'].update(rangemode='nonnegative')
+        fig.layout['xaxis2'].update(rangemode='nonnegative', visible=False)
         fig.layout['yaxis2'].update(
+            range=[0, self.chart.n_iter],
             tickmode='array',
             tickvals=_scale(
                 self.chart.n_iter,
@@ -297,7 +296,7 @@ class SliceHistogram:
             showticklabels=False  # JoiningSegments will take care of these
         )
 
-        fig.layout.annotations[1].update(y=1.03)  # oof
+        fig.layout.annotations[1].update(y=1.03)  # oof -- adjust title subgraph
 
         # TODO: eliminate magic indices 0, 1 and magic use of xaxis3
         fig.layout.annotations[0].update(xanchor='left', x=fig.layout.xaxis.domain[0])
