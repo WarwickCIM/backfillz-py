@@ -78,12 +78,12 @@ class TracePlot:
             for slc in chart.slcs
         ]
 
-    def render(self, fig: go.Figure, col: int) -> None:
+    def render(self, fig: go.Figure, row, col: int) -> None:
         """Render a trace plot into fig."""
         for trace in self.traces:
-            fig.add_trace(trace, 1, col)
+            fig.add_trace(trace, row, col)
         for box in self.boxes:
-            fig.add_trace(box, 1, col)
+            fig.add_trace(box, row, col)
 
 
 @dataclass
@@ -179,7 +179,7 @@ class DensityPlots:
     def render(self, fig: go.Figure, col: int) -> None:
         """Render density plots into fig."""
         for n_slice, density_plot in enumerate(self.density_plots):
-            density_plot.render(fig, n_slice + 1, col)
+            density_plot.render(fig, row=n_slice + 1, col=col)
 
 
 @dataclass
@@ -252,11 +252,10 @@ class SliceHistogram:
         fig: go.Figure = go.Figure(layout=layout)
         specs: List[List[object]] = \
             [[dict(rowspan=n_slcs), dict(rowspan=n_slcs), dict()]] + \
-            [[None, None, dict()] for _ in self.chart.slcs[1:]] + \
-            [[dict(), None, None]]
+            [[None, None, dict()] for _ in self.chart.slcs[1:]]
 
         make_subplots(
-            rows=n_slcs + 1,  # extra row for Raftery-Lewis
+            rows=n_slcs + 0,  # extra row for Raftery-Lewis
             cols=3,
             figure=fig,
             specs=specs,
@@ -306,8 +305,8 @@ class SliceHistogram:
 
     def render(self, fig: go.Figure) -> None:
         """Render the plot into fig."""
-        TracePlot(self.chart).render(fig, 1)
-        RafteryLewisPlots(self.chart).render(fig, len(self.chart.slcs) + 1, 1)
+        TracePlot(self.chart).render(fig, 1, 1)
+#        RafteryLewisPlots(self.chart).render(fig, len(self.chart.slcs) + 1, 1)
         JoiningSegments(self.chart).render(fig, 1, 2)
         DensityPlots(self.chart).render(fig, 3)
 
