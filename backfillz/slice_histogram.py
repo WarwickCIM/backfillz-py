@@ -215,6 +215,10 @@ class DensityPlot(Subplot):
         ]
 
     @property
+    def xaxis_props(self):
+        return dict(mirror='allticks', side='top', showticklabels=True)
+
+    @property
     def yaxis_props(self):
         return dict(side='right', rangemode='nonnegative')
 
@@ -239,10 +243,6 @@ class DensityPlots:
             DensityPlot(chart, (axis_ids[0], axis_ids[1] + n), slc)
             for n, slc in enumerate(chart.slcs[::-1])
         ]
-
-    @property
-    def xaxis_props(self):
-        return dict(mirror='allticks', side='top', showticklabels=True)
 
     def render(self, fig: go.Figure, col: int) -> None:
         """Render density plots into fig."""
@@ -358,15 +358,13 @@ class SliceHistogram:
         for density_plot in self.densityPlots.density_plots:
             density_plot.layout_axes(fig)
 
-        fig.layout['xaxis3'].update(**self.densityPlots.xaxis_props)
-
         self.joiningSegments.layout_axes(fig)
 
         fig.layout.annotations[1].update(y=1.03)  # oof -- adjust title subgraph
 
         # TODO: eliminate magic indices 0, 1 and magic use of xaxis3
-        fig.layout.annotations[0].update(xanchor='left', x=fig.layout.xaxis.domain[0])
-        fig.layout.annotations[1].update(xanchor='left', x=fig.layout.xaxis3.domain[0])
+        fig.layout.annotations[0].update(xanchor='left', x=fig.layout['xaxis'].domain[0])
+        fig.layout.annotations[1].update(xanchor='left', x=fig.layout['xaxis3'].domain[0])
 
         return fig
 
