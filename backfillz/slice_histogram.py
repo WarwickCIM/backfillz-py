@@ -55,11 +55,13 @@ class ChartData:
 class TracePlot:
     """Left-hand component."""
 
+    chart: ChartData
     traces: List[go.Scatter]    # one per chain
     boxes: List[go.Scatter]     # one per slice
 
     def __init__(self, chart: ChartData):
         """Make a trace plot."""
+        self.chart = chart
         self.traces = [
             go.Scatter(
                 x=chain,
@@ -77,6 +79,14 @@ class TracePlot:
             )
             for slc in chart.slcs
         ]
+
+    @property
+    def xaxis_props(self):
+        return dict(range=[self.chart.min_sample, self.chart.max_sample])
+
+    @property
+    def yaxis_props(self):
+        return dict(range=[0, self.chart.n_iter])
 
     def render(self, fig: go.Figure, row, col: int) -> None:
         """Render a trace plot into fig."""
@@ -306,8 +316,8 @@ class SliceHistogram:
         fig.update_xaxes(**axis_settings)
         fig.update_yaxes(**axis_settings)
 
-        fig.layout['xaxis'].update(range=[self.chart.min_sample, self.chart.max_sample]),
-        fig.layout['yaxis'].update(range=[0, self.chart.n_iter]),
+        fig.layout['xaxis'].update(**self.tracePlot.xaxis_props),
+        fig.layout['yaxis'].update(**self.tracePlot.yaxis_props),
 
         # TODO: magic number 3 occurs twice here
         for n_slc, _ in enumerate(self.chart.slcs):
