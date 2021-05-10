@@ -363,10 +363,9 @@ class SliceHistogram:
         self.densityPlots.layout_axes(fig)
         self.joiningSegments.layout_axes(fig)
 
-        fig.layout.annotations[1].update(y=1.03)  # oof -- adjust title subgraph
-
         # TODO: eliminate magic indices 0, 1
         fig.layout.annotations[0].update(xanchor='left', x=fig.layout[self.tracePlot.xaxis_id].domain[0])
+        fig.layout.annotations[1].update(y=1.03)  # oof -- adjust title subgraph
         fig.layout.annotations[1].update(xanchor='left', x=fig.layout[self.densityPlots.xaxis_id].domain[0])
 
         return fig
