@@ -214,6 +214,10 @@ class DensityPlot(Subplot):
             for n in range(0, chart.n_chains)
         ]
 
+    @property
+    def yaxis_props(self):
+        return dict(side='right', rangemode='nonnegative')
+
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         """Render density plot into fig at row and column."""
         fig.add_trace(self.histo, row, col)
@@ -351,10 +355,8 @@ class SliceHistogram:
 
         self.tracePlot.layout_axes(fig)
 
-        # TODO: magic number 3 occurs twice here
-        for n_slc, _ in enumerate(self.chart.slcs):
-            yaxis = 'yaxis' + str(3 + n_slc)
-            fig.layout[yaxis].update(side='right', rangemode='nonnegative')
+        for density_plot in self.densityPlots.density_plots:
+            density_plot.layout_axes(fig)
 
         fig.layout['xaxis3'].update(**self.densityPlots.xaxis_props)
 
