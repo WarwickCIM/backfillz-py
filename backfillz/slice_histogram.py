@@ -257,13 +257,14 @@ class DensityPlots(Subplot):
 
 
 @dataclass
-class RafteryLewisPlots:
+class RafteryLewisPlots(Subplot):
     """Bottom component: one Raftery-Lewis plot per chain."""
 
     plots: List[go.Scatter]
 
-    def __init__(self, chart: ChartData):
+    def __init__(self, chart: ChartData, axis_ids: AxisIds):
         """Make an instance."""
+        super().__init__(chart, axis_ids)
         self.plots = [
             go.Scatter(
                 x=list(range(0, chart.n_iter)),
@@ -308,7 +309,7 @@ class SliceHistogram:
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
         self.tracePlot = TracePlot(self.chart, (None, None))
-        self.rafteryLewisPlots = RafteryLewisPlots(self.chart)
+        self.rafteryLewisPlots = RafteryLewisPlots(self.chart, (6, 6))
         self.joiningSegments = JoiningSegments(self.chart, (2, 2))
         self.densityPlots = DensityPlots(self.chart, (3, 3))
 
