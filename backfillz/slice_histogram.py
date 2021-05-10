@@ -193,6 +193,10 @@ class DensityPlots:
         """Make an instance."""
         self.density_plots = [DensityPlot(chart, slc) for slc in chart.slcs[::-1]]
 
+    @property
+    def xaxis_props(self):
+        return dict(mirror='allticks', side='top', showticklabels=True)
+
     def render(self, fig: go.Figure, col: int) -> None:
         """Render density plots into fig."""
         for n_slice, density_plot in enumerate(self.density_plots):
@@ -269,8 +273,6 @@ class SliceHistogram:
             titlefont=dict(size=32),
             plot_bgcolor=self.chart.theme.bg_colour,
             showlegend=False,
-            xaxis=dict(range=[self.chart.min_sample, self.chart.max_sample]),
-            yaxis=dict(range=[0, self.chart.n_iter]),
         )
         fig: go.Figure = go.Figure(layout=layout)
         specs: List[List[object]] = \
@@ -304,11 +306,15 @@ class SliceHistogram:
         fig.update_xaxes(**axis_settings)
         fig.update_yaxes(**axis_settings)
 
+        fig.layout['xaxis'].update(range=[self.chart.min_sample, self.chart.max_sample]),
+        fig.layout['yaxis'].update(range=[0, self.chart.n_iter]),
+
         # TODO: magic number 3 occurs twice here
         for n_slc, _ in enumerate(self.chart.slcs):
             yaxis = 'yaxis' + str(3 + n_slc)
             fig.layout[yaxis].update(side='right', rangemode='nonnegative')
-        fig.layout['xaxis3'].update(mirror='allticks', side='top', showticklabels=True)
+
+        fig.layout['xaxis3'].update(**self.densityPlots.xaxis_props)
 
         fig.layout['xaxis2'].update(**self.joiningSegments.xaxis_props)
         fig.layout['yaxis2'].update(**self.joiningSegments.yaxis_props)
