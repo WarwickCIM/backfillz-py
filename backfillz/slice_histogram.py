@@ -87,9 +87,9 @@ class TracePlot(Subplot):
     traces: List[go.Scatter]    # one per chain
     boxes: List[go.Scatter]     # one per slice
 
-    def __init__(self, chart: ChartData, axis_id: AxisIds):
+    def __init__(self, chart: ChartData, axis_ids: AxisIds):
         """Make a trace plot."""
-        super().__init__(chart, axis_id)
+        super().__init__(chart, axis_ids)
         self.traces = [
             go.Scatter(
                 x=chain,
@@ -131,9 +131,9 @@ class JoiningSegments(Subplot):
     segments: List[go.Scatter]  # one per slice
     y_labels: go.Scatter  # one point per unique slice start/end point
 
-    def __init__(self, chart: ChartData, axis_id: AxisIds):
+    def __init__(self, chart: ChartData, axis_ids: AxisIds):
         """Make a joining segment."""
-        super().__init__(chart, axis_id)
+        super().__init__(chart, axis_ids)
         width: int = 30  # check against R version
         self.segments = [
             go.Scatter(
@@ -180,14 +180,15 @@ class JoiningSegments(Subplot):
 
 
 @dataclass
-class DensityPlot:
+class DensityPlot(Subplot):
     """Histogram for a slice (aggregating all chains) plus density plot for each chain."""
 
     histo: go.Histogram
     chain_plots: List[go.Scatter]  # one per chain
 
-    def __init__(self, chart: ChartData, slc: Slice):
+    def __init__(self, chart: ChartData, axis_ids: AxisIds, slc: Slice):
         """Make an instance."""
+        super().__init__(chart, axis_ids)
         chain_slices: List[np.ndarray] = [
             chart.chains[n, floor(slc.lower * chart.n_iter):floor(slc.upper * chart.n_iter)]
             for n in range(0, chart.n_chains)
@@ -221,17 +222,19 @@ class DensityPlot:
 
 
 @dataclass
-class DensityPlots(Subplot):
+class DensityPlots:
     """Right-hand component: one density plot per slice."""
 
     chart: ChartData
     axes: Tuple[str, str]
     density_plots: List[DensityPlot]
 
-    def __init__(self, chart: ChartData, axis_id: AxisIds):
+    def __init__(self, chart: ChartData, axis_ids: AxisIds):
         """Make an instance."""
-        super().__init__(chart, axis_id)
-        self.density_plots = [DensityPlot(chart, slc) for slc in chart.slcs[::-1]]
+        self.density_plots = [
+            DensityPlot(chart, (axis_ids[0], axis_ids[1] + n), slc)
+            for n, slc in enumerate(chart.slcs[::-1])
+        ]
 
     @property
     def xaxis_props(self):
