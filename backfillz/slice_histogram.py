@@ -252,10 +252,11 @@ class SliceHistogram:
         fig: go.Figure = go.Figure(layout=layout)
         specs: List[List[object]] = \
             [[dict(rowspan=n_slcs), dict(rowspan=n_slcs), dict()]] + \
-            [[None, None, dict()] for _ in self.chart.slcs[1:]]
+            [[None, None, dict()] for _ in self.chart.slcs[1:]] + \
+            [[None, None, None]]
 
         make_subplots(
-            rows=n_slcs + 0,  # extra row for Raftery-Lewis
+            rows=n_slcs + 1,  # extra row for Raftery-Lewis
             cols=3,
             figure=fig,
             specs=specs,
