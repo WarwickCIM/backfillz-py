@@ -332,7 +332,7 @@ class SliceHistogram:
         specs: List[List[object]] = \
             [[dict(rowspan=n_slcs), dict(rowspan=n_slcs), dict()]] + \
             [[None, None, dict()] for _ in self.chart.slcs[1:]] + \
-            [[None, None, None]]
+            [[dict(), None, None]]
 
         make_subplots(
             rows=n_slcs + 1,  # extra row for Raftery-Lewis
@@ -341,7 +341,7 @@ class SliceHistogram:
             specs=specs,
             horizontal_spacing=0,
             vertical_spacing=0,
-            shared_xaxes=True,
+#            shared_xaxes=True,
             print_grid=True,
             subplot_titles=["Trace Plot with Slices", None, "Density Plots for Slices"]
         )
