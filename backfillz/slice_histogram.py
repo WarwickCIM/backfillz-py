@@ -90,17 +90,18 @@ class TracePlot:
 class JoiningSegments:
     """Middle component."""
 
+    chart: ChartData
     segments: List[go.Scatter]  # one per slice
     y_labels: go.Scatter  # one point per unique slice start/end point
 
     def __init__(self, chart: ChartData):
         """Make a joining segment."""
+        self.chart = chart
         width: int = 30  # check against R version
-        y_scale: int = chart.n_iter
         self.segments = [
             go.Scatter(
                 x=_scale(width, [0, 1, 1, 0]),
-                y=_scale(y_scale, [slc.lower, lower, upper, slc.upper]),
+                y=_scale(chart.n_iter, [slc.lower, lower, upper, slc.upper]),
                 mode='lines',
                 line=dict(color=chart.theme.fg_colour, width=1),
                 fill='toself',
@@ -116,6 +117,22 @@ class JoiningSegments:
             mode='text',
             text=[int(y) for y in y],
             textposition='middle right'
+        )
+
+    @property
+    def xaxis_props(self):
+        return dict(rangemode='nonnegative', visible=False)
+
+    @property
+    def yaxis_props(self):
+        return dict(
+            range=[0, self.chart.n_iter],
+            tickmode='array',
+            tickvals=_scale(
+                self.chart.n_iter,
+                [*{*[y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]}]
+            ),
+            showticklabels=False  # JoiningSegments will take care of these
         )
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
@@ -293,16 +310,8 @@ class SliceHistogram:
         fig.update_xaxes(**axis_settings)
         fig.update_yaxes(**axis_settings)
 
-        fig.layout['xaxis2'].update(rangemode='nonnegative', visible=False)
-        fig.layout['yaxis2'].update(
-            range=[0, self.chart.n_iter],
-            tickmode='array',
-            tickvals=_scale(
-                self.chart.n_iter,
-                [*{*[y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]}]
-            ),
-            showticklabels=False  # JoiningSegments will take care of these
-        )
+        fig.layout['xaxis2'].update(**self.joiningSegments.xaxis_props)
+        fig.layout['yaxis2'].update(**self.joiningSegments.yaxis_props)
 
         fig.layout.annotations[1].update(y=1.03)  # oof -- adjust title subgraph
 
