@@ -290,12 +290,6 @@ class SliceHistogram:
             subplot_titles=["Trace Plot with Slices", None, "Density Plots for Slices"]
         )
 
-        # TODO: magic number 3 occurs twice here
-        for n_slc, _ in enumerate(self.chart.slcs):
-            yaxis = 'yaxis' + str(3 + n_slc)
-            fig.layout[yaxis].update(side='right', rangemode='nonnegative')
-        fig.layout['xaxis3'].update(mirror='allticks', side='top', showticklabels=True)
-
         axis_settings: Dict[str, Any] = dict(
             showgrid=False,
             zeroline=False,
@@ -309,6 +303,12 @@ class SliceHistogram:
 
         fig.update_xaxes(**axis_settings)
         fig.update_yaxes(**axis_settings)
+
+        # TODO: magic number 3 occurs twice here
+        for n_slc, _ in enumerate(self.chart.slcs):
+            yaxis = 'yaxis' + str(3 + n_slc)
+            fig.layout[yaxis].update(side='right', rangemode='nonnegative')
+        fig.layout['xaxis3'].update(mirror='allticks', side='top', showticklabels=True)
 
         fig.layout['xaxis2'].update(**self.joiningSegments.xaxis_props)
         fig.layout['yaxis2'].update(**self.joiningSegments.yaxis_props)
