@@ -52,18 +52,33 @@ class ChartData:
 
 
 @dataclass
-class TracePlot:
-    """Left-hand component."""
-
+class Subplot:
     chart: ChartData
     axes: Tuple[str, str]
+
+    def layout_axes(self, fig: go.Figure) -> None:
+        fig.layout[self.axes[0]].update(**self.xaxis_props)
+        fig.layout[self.axes[1]].update(**self.yaxis_props)
+
+    @property
+    def xaxis_props(self):
+        return dict()
+
+    @property
+    def yaxis_props(self):
+        return dict()
+
+
+@dataclass
+class TracePlot(Subplot):
+    """Left-hand component."""
+
     traces: List[go.Scatter]    # one per chain
     boxes: List[go.Scatter]     # one per slice
 
     def __init__(self, chart: ChartData, axes: Tuple[str, str]):
         """Make a trace plot."""
-        self.chart = chart
-        self.axes = axes
+        super().__init__(chart, axes)
         self.traces = [
             go.Scatter(
                 x=chain,
@@ -324,8 +339,7 @@ class SliceHistogram:
         fig.update_xaxes(**axis_settings)
         fig.update_yaxes(**axis_settings)
 
-        fig.layout[self.tracePlot.axes[0]].update(**self.tracePlot.xaxis_props),
-        fig.layout[self.tracePlot.axes[1]].update(**self.tracePlot.yaxis_props),
+        self.tracePlot.layout_axes(fig)
 
         # TODO: magic number 3 occurs twice here
         for n_slc, _ in enumerate(self.chart.slcs):
