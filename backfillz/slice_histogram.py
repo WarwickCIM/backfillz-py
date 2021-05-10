@@ -28,6 +28,9 @@ class Slice:
 Param = str
 Slices = Dict[Param, List[Slice]]
 
+# ids assigned as axis suffices by Plotly; omitted for first subplot
+AxisIds = Tuple[Optional[int], Optional[int]]
+
 
 @dataclass
 class ChartData:
@@ -54,7 +57,7 @@ class ChartData:
 @dataclass
 class Subplot:
     chart: ChartData
-    axis_id: Optional[int]  # numerical id assigned as axis suffix by Plotly; omitted for first subplot
+    axis_ids: AxisIds
 
     def layout_axes(self, fig: go.Figure) -> None:
         fig.layout[self.xaxis_id].update(**self.xaxis_props)
@@ -62,11 +65,11 @@ class Subplot:
 
     @property
     def xaxis_id(self):
-        return 'xaxis' + ('' if self.axis_id is None else str(self.axis_id))
+        return 'xaxis' + ('' if self.axis_ids[0] is None else str(self.axis_ids[0]))
 
     @property
     def yaxis_id(self):
-        return 'yaxis' + ('' if self.axis_id is None else str(self.axis_id))
+        return 'yaxis' + ('' if self.axis_ids[1] is None else str(self.axis_ids[1]))
 
     @property
     def xaxis_props(self):
@@ -84,7 +87,7 @@ class TracePlot(Subplot):
     traces: List[go.Scatter]    # one per chain
     boxes: List[go.Scatter]     # one per slice
 
-    def __init__(self, chart: ChartData, axis_id: Optional[int]):
+    def __init__(self, chart: ChartData, axis_id: AxisIds):
         """Make a trace plot."""
         super().__init__(chart, axis_id)
         self.traces = [
@@ -128,7 +131,7 @@ class JoiningSegments(Subplot):
     segments: List[go.Scatter]  # one per slice
     y_labels: go.Scatter  # one point per unique slice start/end point
 
-    def __init__(self, chart: ChartData, axis_id: Optional[int]):
+    def __init__(self, chart: ChartData, axis_id: AxisIds):
         """Make a joining segment."""
         super().__init__(chart, axis_id)
         width: int = 30  # check against R version
@@ -225,7 +228,7 @@ class DensityPlots(Subplot):
     axes: Tuple[str, str]
     density_plots: List[DensityPlot]
 
-    def __init__(self, chart: ChartData, axis_id: Optional[int]):
+    def __init__(self, chart: ChartData, axis_id: AxisIds):
         """Make an instance."""
         super().__init__(chart, axis_id)
         self.density_plots = [DensityPlot(chart, slc) for slc in chart.slcs[::-1]]
@@ -291,10 +294,10 @@ class SliceHistogram:
             max_sample=np.amax(backfillz.mcmc_samples[param]),
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
-        self.tracePlot = TracePlot(self.chart, None)
+        self.tracePlot = TracePlot(self.chart, (None, None))
         self.rafteryLewisPlots = RafteryLewisPlots(self.chart)
-        self.joiningSegments = JoiningSegments(self.chart, 2)
-        self.densityPlots = DensityPlots(self.chart, 3)
+        self.joiningSegments = JoiningSegments(self.chart, (2, 2))
+        self.densityPlots = DensityPlots(self.chart, (3, 3))
 
     @property
     def figure(self) -> go.Figure:
