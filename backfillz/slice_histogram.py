@@ -114,18 +114,15 @@ class TracePlot(Subplot):
 
 
 @dataclass
-class JoiningSegments:
+class JoiningSegments(Subplot):
     """Middle component."""
 
-    chart: ChartData
-    axes: Tuple[str, str]
     segments: List[go.Scatter]  # one per slice
     y_labels: go.Scatter  # one point per unique slice start/end point
 
     def __init__(self, chart: ChartData, axes: Tuple[str, str]):
         """Make a joining segment."""
-        self.chart = chart
-        self.axes = axes
+        super().__init__(chart, axes)
         width: int = 30  # check against R version
         self.segments = [
             go.Scatter(
@@ -348,8 +345,7 @@ class SliceHistogram:
 
         fig.layout['xaxis3'].update(**self.densityPlots.xaxis_props)
 
-        fig.layout['xaxis2'].update(**self.joiningSegments.xaxis_props)
-        fig.layout['yaxis2'].update(**self.joiningSegments.yaxis_props)
+        self.joiningSegments.layout_axes(fig)
 
         fig.layout.annotations[1].update(y=1.03)  # oof -- adjust title subgraph
 
