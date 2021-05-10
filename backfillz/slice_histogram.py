@@ -6,14 +6,14 @@ import numpy as np
 import pandas as pd  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
-from rpy2.robjects.packages import importr
-from rpy2.robjects import numpy2ri
+from rpy2.robjects import numpy2ri  # type: ignore
+from rpy2.robjects.packages import importr  # type: ignore
 import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.theme import BackfillzTheme
 
-
+coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
 numpy2ri.activate()
 
 
@@ -62,11 +62,11 @@ class TracePlot:
         """Make a trace plot."""
         self.traces = [
             go.Scatter(
-                x=chart.chains[n],
-                y=list(range(0, chart.chains[n].size)),
+                x=chain,
+                y=list(range(0, chart.n_iter)),
                 line=dict(color=chart.theme.palette[n])
             )
-            for n in range(0, chart.n_chains)
+            for n, chain in enumerate(chart.chains)
         ]
         self.boxes = [
             go.Scatter(
@@ -185,12 +185,30 @@ class DensityPlots:
 @dataclass
 class RafteryLewisPlots:
     """Bottom component: one Raftery-Lewis plot per chain."""
+
     plots: List[go.Scatter]
 
     def __init__(self, chart: ChartData):
         """Make an instance."""
-        coda = importr("coda")
-        coda.raftery_diag(chart.chains[0], q=0.025, r=0.005)  # same as defaults used in R version
+        self.plots = [
+            go.Scatter(
+                x=list(range(0, chart.n_iter)),
+                y=chain,
+                line=dict(color=chart.theme.palette[n])
+            )
+            for n, chain in enumerate(chart.chains)
+        ]
+
+    def render(self, fig: go.Figure) -> None:
+        """Render Raftery-Lewis plots into fig."""
+        for plot in self.plots:
+            fig.add_trace(plot)
+
+    def _required_sample_size(self, chain: np.ndarray) -> float:
+        """Return N component of resmatrix component of result of raftery.diag R function."""
+        result = coda.raftery_diag(chain, q=0.025, r=0.005)  # same as defaults used in R version
+        resmatrix = result[1][0]
+        return float(resmatrix[1])
 
 
 class SliceHistogram:
