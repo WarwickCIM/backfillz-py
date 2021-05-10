@@ -7,6 +7,9 @@
 - histograms to aggregate all chains
 - performance experiment with 1,000,000 iterations
 
+## To discuss
+- Is Raftery-Lewis the right diagnostic, given no longer supported by PyMC3? Is an R dependency ok?
+
 # 29 April 2021
 
 ## Progress on trace slice histogram plot
