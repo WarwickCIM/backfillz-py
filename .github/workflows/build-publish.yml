@@ -22,6 +22,9 @@ jobs:
         run: poetry run flake8 backfillz/ tests/
       - name: Check type hinting with mypy
         run: poetry run mypy --strict --config-file=mypy.ini backfillz/
+      - name: Install coda
+        run: |
+          - echo "install.packages(\"coda\", repos=\"https://cran.rstudio.com\")" | R --no-save
       - name: Unit & coverage test with pytest
         run: cd tests && poetry run pytest --no-cov # disable coverage for now
 
