@@ -216,6 +216,10 @@ class SliceHistogram:
 
     backfillz: Backfillz
     chart: ChartData
+    tracePlot: TracePlot
+    rafteryLewisPlots: RafteryLewisPlots
+    joiningSegments: JoiningSegments
+    densityPlots: DensityPlots
 
     def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
         """Construct a Slice Histogram for a given parameter from a list of slices."""
@@ -229,6 +233,10 @@ class SliceHistogram:
             max_sample=np.amax(backfillz.mcmc_samples[param]),
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
+        self.tracePlot = TracePlot(self.chart)
+        self.rafteryLewisPlots = RafteryLewisPlots(self.chart)
+        self.joiningSegments = JoiningSegments(self.chart)
+        self.densityPlots = DensityPlots(self.chart)
 
     @property
     def figure(self) -> go.Figure:
@@ -301,14 +309,15 @@ class SliceHistogram:
         # TODO: eliminate magic indices 0, 1 and magic use of xaxis3
         fig.layout.annotations[0].update(xanchor='left', x=fig.layout.xaxis.domain[0])
         fig.layout.annotations[1].update(xanchor='left', x=fig.layout.xaxis3.domain[0])
+
         return fig
 
     def render(self, fig: go.Figure) -> None:
-        """Render the plot into fig."""
-        TracePlot(self.chart).render(fig, 1, 1)
-#        RafteryLewisPlots(self.chart).render(fig, len(self.chart.slcs) + 1, 1)
-        JoiningSegments(self.chart).render(fig, 1, 2)
-        DensityPlots(self.chart).render(fig, 3)
+        """Render plot into fig."""
+        self.tracePlot.render(fig, 1, 1)
+#       self.rafteryLewisPlots.render(fig, len(self.chart.slcs) + 1, 1)
+        self.joiningSegments.render(fig, 1, 2)
+        self.densityPlots.render(fig, 3)
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
