@@ -52,7 +52,6 @@ class ChartData:
 
     @property
     def n_chains(self) -> int:
-        """Return number of chains."""
         return int(self.chains.shape[0])
 
     @property
@@ -94,7 +93,7 @@ class Subplot:
         return dict()
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
-        """Render me into fig at the supplied row and column."""
+        """Render me into fig at supplied row and column."""
         pass
 
 
@@ -129,7 +128,6 @@ class TracePlot(Subplot):
     boxes: List[go.Scatter]     # one per slice
 
     def __init__(self, chart: ChartData, axis_ids: AxisIds):
-        """Make a trace plot."""
         super().__init__(chart, axis_ids)
         self.traces = [
             go.Scatter(
@@ -173,7 +171,6 @@ class JoiningSegments(Subplot):
     y_labels: go.Scatter  # one point per unique slice start/end point
 
     def __init__(self, chart: ChartData, axis_ids: AxisIds):
-        """Make a joining segment."""
         super().__init__(chart, axis_ids)
         width: int = 30  # check against R version
         self.segments = [
@@ -214,7 +211,6 @@ class JoiningSegments(Subplot):
         )
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
-        """Render the joining segments into fig at row and column."""
         for segment in self.segments:
             fig.add_trace(segment, row, col)
         fig.add_trace(self.y_labels, row, col)
@@ -315,7 +311,6 @@ class RafteryLewisPlots(Subplots):
     """Bottom component: one Raftery-Lewis plot per chain."""
 
     def __init__(self, chart: ChartData, axis_ids: AxisIds):
-        """Make an instance."""
         super().__init__(axis_ids, [
             RafteryLewisPlot(chart, increment_axes(axis_ids, n), n)
             for n, _ in enumerate(chart.chains)
