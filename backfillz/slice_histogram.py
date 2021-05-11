@@ -73,11 +73,21 @@ class ChartData:
 
 
 @dataclass
-class Subplot:
+class Plot:
+    """Base class of Subplot and Subplots."""
+    axis_ids: AxisIds
+    y_domain: Tuple[float, float]
+
+    def render(self, fig: go.Figure, row: int, col: int) -> None:
+        """Render me into fig at supplied row and column."""
+        pass
+
+
+@dataclass
+class Subplot(Plot):
     """A Plotly subplot and its assigned axis ids."""
 
     data: ChartData
-    axis_ids: AxisIds
 
     def layout_axes(self, fig: go.Figure) -> None:
         """Configure my x and y axis settings in fig."""
@@ -105,10 +115,6 @@ class Subplot:
     def yaxis_props(self) -> Props:
         """My custom y-axis settings; subclasses can override."""
         return dict()
-
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        """Render me into fig at supplied row and column."""
-        pass
 
 
 @dataclass
@@ -298,10 +304,10 @@ class DensityPlot(Subplot):
 class DensityPlots(Subplots):
     """Right-hand component: one density plot per slice."""
 
-    def __init__(self, chart: ChartData, axis_ids: AxisIds):
+    def __init__(self, axis_ids: AxisIds, y_domain: Tuple[float, float], chart: ChartData):
         """Make an instance."""
         super().__init__(axis_ids, [
-            DensityPlot(chart, increment_axes(axis_ids, n_slc), slc, n_slc)
+            DensityPlot(increment_axes(axis_ids, n_slc), y_domain, chart, slc, n_slc)
             for n_slc, slc in enumerate(chart.slcs)
         ])
 
@@ -344,9 +350,9 @@ class RafteryLewisPlot(Subplot):
 class RafteryLewisPlots(Subplots):
     """Bottom component: one Raftery-Lewis plot per chain."""
 
-    def __init__(self, chart: ChartData, axis_ids: AxisIds):
+    def __init__(self, axis_ids: AxisIds, y_domain, chart: ChartData):
         super().__init__(axis_ids, [
-            RafteryLewisPlot(chart, increment_axes(axis_ids, n), n)
+            RafteryLewisPlot(increment_axes(axis_ids, n), y_domain, chart, n)
             for n, _ in enumerate(chart.chains)
         ])
 
@@ -355,7 +361,7 @@ class SliceHistogram:
     """Top-level plot, for a given parameter."""
 
     backfillz: Backfillz
-    chart: ChartData
+    data: ChartData
     tracePlot: TracePlot
     rafteryLewisPlots: RafteryLewisPlots
     joiningSegments: JoiningSegments
@@ -365,7 +371,7 @@ class SliceHistogram:
         """Construct a Slice Histogram for a given parameter from a list of slices."""
         self.backfillz = backfillz
         chains: np.ndarray = backfillz.iter_chains(param)
-        self.chart = ChartData(
+        self.data = ChartData(
             theme=backfillz.theme,
             slcs=slcs,
             param=param,
@@ -373,10 +379,10 @@ class SliceHistogram:
             max_sample=np.amax(backfillz.mcmc_samples[param]),
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
-        self.tracePlot = TracePlot(self.chart, (None, None))
-        self.rafteryLewisPlots = RafteryLewisPlots(self.chart, (6, 6))
-        self.joiningSegments = JoiningSegments(self.chart, (2, 2))
-        self.densityPlots = DensityPlots(self.chart, (3, 3))
+        self.tracePlot = TracePlot((None, None), (0.25, 1.0), self.data)
+        self.rafteryLewisPlots = RafteryLewisPlots((6, 6), (0, 0.20), self.data)
+        self.joiningSegments = JoiningSegments((2, 2), (0.25, 1.0), self.data)
+        self.densityPlots = DensityPlots((3, 3), (0.25, 1.0), self.data)
 
     @property
     def figure(self) -> go.Figure:
@@ -386,21 +392,21 @@ class SliceHistogram:
         return fig
 
     def _layout(self) -> go.Figure:
-        n_slcs: int = len(self.chart.slcs)
+        n_slcs: int = len(self.data.slcs)
         layout: go.Layout = go.Layout(
-            title=f"Trace slice histogram of {self.chart.param}",
+            title=f"Trace slice histogram of {self.data.param}",
             titlefont=dict(size=32),
-            plot_bgcolor=self.chart.theme.bg_colour,
+            plot_bgcolor=self.data.theme.bg_colour,
             showlegend=False,
         )
         fig: go.Figure = go.Figure(layout=layout)
         specs: List[List[object]] = \
             [[dict(rowspan=n_slcs), dict(rowspan=n_slcs), dict()]] + \
-            [[None, None, dict()] for _ in self.chart.slcs[1:]] + \
-            [[dict(), None, None] for _ in self.chart.chains]
+            [[None, None, dict()] for _ in self.data.slcs[1:]] + \
+            [[dict(), None, None] for _ in self.data.chains]
 
         make_subplots(
-            rows=n_slcs + self.chart.n_chains,  # density plots + Raftery-Lewis plots
+            rows=n_slcs + self.data.n_chains,  # density plots + Raftery-Lewis plots
             cols=3,
             figure=fig,
             specs=specs,
@@ -413,11 +419,11 @@ class SliceHistogram:
         axis_settings: Dict[str, Any] = dict(
             showgrid=False,
             zeroline=False,
-            linecolor=self.chart.theme.fg_colour,
+            linecolor=self.data.theme.fg_colour,
             ticks='outside',
             tickwidth=1,
             ticklen=5,
-            tickcolor=self.chart.theme.fg_colour,
+            tickcolor=self.data.theme.fg_colour,
             fixedrange=True,  # disable selection zoom
         )
 
@@ -440,7 +446,7 @@ class SliceHistogram:
     def render(self, fig: go.Figure) -> None:
         """Render subplots into fig at appropriate rows/columns."""
         self.tracePlot.render(fig, 1, 1)
-        self.rafteryLewisPlots.render(fig, len(self.chart.slcs) + 1, 1)
+        self.rafteryLewisPlots.render(fig, len(self.data.slcs) + 1, 1)
         self.joiningSegments.render(fig, 1, 2)
         self.densityPlots.render(fig, 1, 3)
 
