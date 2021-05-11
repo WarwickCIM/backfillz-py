@@ -78,6 +78,21 @@ class Plot:
     axis_ids: AxisIds
     y_domain: Tuple[float, float]
 
+    @property
+    def xaxis_id(self) -> str:
+        """My Plotly-assigned x-axis id; for an aggregate, my first such id."""
+        xaxis_id = self.axis_ids[0]
+        return 'xaxis' + ('' if xaxis_id is None else str(xaxis_id))
+
+    @property
+    def yaxis_id(self) -> str:
+        """My Plotly-assigned y-axis id; for an aggregate, my first such id."""
+        yaxis_id = self.axis_ids[1]
+        return 'yaxis' + ('' if yaxis_id is None else str(yaxis_id))
+
+    def layout_axes(self, fig: go.Figure) -> None:
+        pass
+
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         """Render me into fig at supplied row and column."""
         pass
@@ -95,18 +110,6 @@ class Subplot(Plot):
         fig.layout[self.yaxis_id].update(**self.yaxis_props)
 
     @property
-    def xaxis_id(self) -> str:
-        """My Plotly-assigned x-axis id."""
-        xaxis_id = self.axis_ids[0]
-        return 'xaxis' + ('' if xaxis_id is None else str(xaxis_id))
-
-    @property
-    def yaxis_id(self) -> str:
-        """My Plotly-assigned y-axis id."""
-        yaxis_id = self.axis_ids[1]
-        return 'yaxis' + ('' if yaxis_id is None else str(yaxis_id))
-
-    @property
     def xaxis_props(self) -> Props:
         """My custom x-axis settings; subclasses can override."""
         return dict()
@@ -118,22 +121,15 @@ class Subplot(Plot):
 
 
 @dataclass
-class Subplots:
+class Subplots(Plot):
     """A collection of vertically arranged subplots."""
 
-    axis_ids: AxisIds  # ids of uppermost subplot
     plots: List[Subplot]
 
     def layout_axes(self, fig: go.Figure) -> None:
         """Ask each subplot to configure its axes."""
         for plot in self.plots:
             plot.layout_axes(fig)
-
-    @property
-    def xaxis_id(self) -> str:
-        """Plotly-assigned x-axis id for my first (uppermost) subplot."""
-        xaxis_id = self.axis_ids[0]
-        return 'xaxis' + ('' if xaxis_id is None else str(xaxis_id))
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         """Render my subplots into fig, placing subplots into descending rows."""
@@ -238,8 +234,8 @@ class JoiningSegments(Subplot):
         )
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
-        for segment in self.segments():
-            fig.add_trace(segment, row, col)
+        for seg in self.segments():
+            fig.add_trace(seg, row, col)
         fig.add_trace(self.y_labels(), row, col)
 
 
@@ -304,11 +300,10 @@ class DensityPlot(Subplot):
 class DensityPlots(Subplots):
     """Right-hand component: one density plot per slice."""
 
-    def __init__(self, axis_ids: AxisIds, y_domain: Tuple[float, float], chart: ChartData):
-        """Make an instance."""
-        super().__init__(axis_ids, [
-            DensityPlot(increment_axes(axis_ids, n_slc), y_domain, chart, slc, n_slc)
-            for n_slc, slc in enumerate(chart.slcs)
+    def __init__(self, axis_ids: AxisIds, y_domain: Tuple[float, float], data: ChartData):
+        super().__init__(axis_ids=axis_ids, y_domain=y_domain, plots=[
+            DensityPlot(increment_axes(axis_ids, n_slc), y_domain, data, slc, n_slc)
+            for n_slc, slc in enumerate(data.slcs)
         ])
 
 
@@ -350,10 +345,10 @@ class RafteryLewisPlot(Subplot):
 class RafteryLewisPlots(Subplots):
     """Bottom component: one Raftery-Lewis plot per chain."""
 
-    def __init__(self, axis_ids: AxisIds, y_domain, chart: ChartData):
-        super().__init__(axis_ids, [
-            RafteryLewisPlot(increment_axes(axis_ids, n), y_domain, chart, n)
-            for n, _ in enumerate(chart.chains)
+    def __init__(self, axis_ids: AxisIds, y_domain, data: ChartData):
+        super().__init__(axis_ids=axis_ids, y_domain=y_domain, plots=[
+            RafteryLewisPlot(increment_axes(axis_ids, n), y_domain, data, n)
+            for n, _ in enumerate(data.chains)
         ])
 
 
