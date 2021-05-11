@@ -132,11 +132,7 @@ class DensityPlot(Subplot):
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(
-            side='right',
-            rangemode='nonnegative',
-            domain=self.y_domain
-        )
+        return dict(side='right', rangemode='nonnegative', domain=self.y_domain)
 
     def histo(self, chain_slices: List[np.ndarray]) -> go.Histogram:
         return go.Histogram(

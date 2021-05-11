@@ -114,16 +114,13 @@ class Subplot(Plot):
 class Subplots(Plot):
     """A collection of vertically arranged subplots."""
 
-    @property
-    def plots(self) -> List[Plot]:
-        pass
-
+    # Unfortunately mypy doesn't support @cached-property properly
     def layout_axes(self, fig: go.Figure) -> None:
         """Ask each subplot to configure its axes."""
-        for plot in self.plots:
+        for plot in self.plots:  # type: ignore[attr-defined]
             plot.layout_axes(fig)
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         """Render my subplots into fig, placing subplots into descending rows."""
-        for n, plot in enumerate(self.plots):
+        for n, plot in enumerate(self.plots):  # type: ignore[attr-defined]
             plot.render(fig, row=row + n, col=col)
