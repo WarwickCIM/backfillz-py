@@ -34,6 +34,7 @@ Props = Dict[str, Any]
 
 
 def increment_axes(axis_ids: AxisIds, n: int) -> AxisIds:
+    """For non-None axes, increment each axis id by n."""
     assert isinstance(axis_ids[0], int)
     assert isinstance(axis_ids[1], int)
     return axis_ids[0] + n, int(axis_ids[1]) + n
@@ -400,13 +401,10 @@ class SliceHistogram:
         fig.update_xaxes(**axis_settings)
         fig.update_yaxes(**axis_settings)
 
-        for plot in [
-            self.tracePlot,
-            self.densityPlots,
-            self.joiningSegments,
-            self.rafteryLewisPlots
-        ]:
-            plot.layout_axes(fig)
+        self.tracePlot.layout_axes(fig)
+        self.densityPlots.layout_axes(fig)
+        self.joiningSegments.layout_axes(fig)
+        self.rafteryLewisPlots.layout_axes(fig)
 
         # TODO: eliminate magic indices 0, 1
         annotations = fig.layout.annotations
@@ -417,7 +415,7 @@ class SliceHistogram:
         return fig
 
     def render(self, fig: go.Figure) -> None:
-        """Render plot into fig."""
+        """Render subplots into fig at appropriate rows/columns."""
         self.tracePlot.render(fig, 1, 1)
         self.rafteryLewisPlots.render(fig, len(self.chart.slcs) + 1, 1)
         self.joiningSegments.render(fig, 1, 2)

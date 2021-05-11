@@ -9,6 +9,9 @@
 - labels on "joining segments" to right of y-axis
 - additional x-axis above density plots
 
+## Design topics
+- Improve class-oriented design to avoid dependency on magic numbers assigned to subplot axes by Plotly
+
 ## Still to do:
 - make a pass over R code to check for minor details, e.g. viz settings
 
