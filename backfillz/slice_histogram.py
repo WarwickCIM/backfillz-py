@@ -220,36 +220,7 @@ class JoiningSegments(Subplot):
 class DensityPlot(Subplot):
     """Histogram for a slice (aggregating all chains) plus density plot for each chain."""
 
-    histo: go.Histogram
-    chain_plots: List[go.Scatter]  # one per chain
-
-    def __init__(self, chart: ChartData, axis_ids: AxisIds, slc: Slice):
-        """Make an instance."""
-        super().__init__(chart, axis_ids)
-        chain_slices: List[np.ndarray] = [
-            chart.chains[n, floor(slc.lower * chart.n_iter):floor(slc.upper * chart.n_iter)]
-            for n in range(0, chart.n_chains)
-        ]
-        self.histo = go.Histogram(
-            x=[x for xs in chain_slices for x in xs],
-            xbins=dict(start=floor(chart.min_sample), end=ceil(chart.max_sample), size=1),
-            marker=dict(
-                color=chart.theme.bg_colour,
-                line=dict(color=chart.theme.fg_colour, width=1)
-            ),
-            histnorm='probability'
-        )
-        # non-parametric KDE, smoothed with a Gaussian kernel
-        x = np.linspace(chart.min_sample, chart.max_sample, 200)
-        self.chain_plots = [
-            go.Scatter(
-                x=x,
-                y=stats.kde.gaussian_kde(chain_slices[n])(x),
-                mode='lines',
-                line=dict(width=2, color=chart.theme.palette[n]),
-            )
-            for n in range(0, chart.n_chains)
-        ]
+    slc: Slice
 
     @property
     def xaxis_props(self) -> Props:
@@ -259,10 +230,41 @@ class DensityPlot(Subplot):
     def yaxis_props(self) -> Props:
         return dict(side='right', rangemode='nonnegative')
 
+    def histo(self, chain_slices: List[np.ndarray]) -> go.Histogram:
+        return go.Histogram(
+            x=[x for xs in chain_slices for x in xs],
+            xbins=dict(start=floor(self.chart.min_sample), end=ceil(self.chart.max_sample), size=1),
+            marker=dict(
+                color=self.chart.theme.bg_colour,
+                line=dict(color=self.chart.theme.fg_colour, width=1)
+            ),
+            histnorm='probability'
+        )
+
+    # non-parametric KDE, smoothed with a Gaussian kernel; one per chain
+    def chain_plots(self, chain_slices: List[np.ndarray]) -> List[go.Scatter]:
+        x = np.linspace(self.chart.min_sample, self.chart.max_sample, 200)
+        return [
+            go.Scatter(
+                x=x,
+                y=stats.kde.gaussian_kde(chain_slices[n])(x),
+                mode='lines',
+                line=dict(width=2, color=self.chart.theme.palette[n]),
+            )
+            for n in range(0, self.chart.n_chains)
+        ]
+
     def render(self, fig: go.Figure, row: int, col: int) -> None:
-        """Render density plot into fig at row and column."""
-        fig.add_trace(self.histo, row, col)
-        for chain_plot in self.chain_plots:
+        chain_slices: List[np.ndarray] = [
+            self.chart.chains[
+                n,
+                floor(self.slc.lower * self.chart.n_iter):floor(self.slc.upper * self.chart.n_iter)
+            ]
+            for n in range(0, self.chart.n_chains)
+        ]
+
+        fig.add_trace(self.histo(chain_slices), row, col)
+        for chain_plot in self.chain_plots(chain_slices):
             fig.add_trace(chain_plot, row, col)
 
 
