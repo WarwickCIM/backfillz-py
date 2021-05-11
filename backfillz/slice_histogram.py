@@ -124,27 +124,27 @@ class Subplots:
 class TracePlot(Subplot):
     """Left-hand component."""
 
-    traces: List[go.Scatter]    # one per chain
-    boxes: List[go.Scatter]     # one per slice
-
-    def __init__(self, chart: ChartData, axis_ids: AxisIds):
-        super().__init__(chart, axis_ids)
-        self.traces = [
+    # one per chain
+    def traces(self) -> List[go.Scatter]:
+        return [
             go.Scatter(
                 x=chain,
-                y=list(range(0, chart.n_iter)),
-                line=dict(color=chart.theme.palette[n])
+                y=list(range(0, self.chart.n_iter)),
+                line=dict(color=self.chart.theme.palette[n])
             )
-            for n, chain in enumerate(chart.chains)
+            for n, chain in enumerate(self.chart.chains)
         ]
-        self.boxes = [
+
+    # one per slice
+    def boxes(self) -> List[go.Scatter]:
+        return [
             go.Scatter(
-                x=[chart.min_sample] * 2 + [chart.max_sample] * 2 + [chart.min_sample],
-                y=_scale(chart.n_iter, [slc.lower, slc.upper, slc.upper, slc.lower, slc.lower]),
+                x=[self.chart.min_sample] * 2 + [self.chart.max_sample] * 2 + [self.chart.min_sample],
+                y=_scale(self.chart.n_iter, [slc.lower, slc.upper, slc.upper, slc.lower, slc.lower]),
                 mode='lines',
-                line=dict(width=2, color=chart.theme.fg_colour),
+                line=dict(width=2, color=self.chart.theme.fg_colour),
             )
-            for slc in chart.slcs
+            for slc in self.chart.slcs
         ]
 
     @property
@@ -156,10 +156,9 @@ class TracePlot(Subplot):
         return dict(range=[0, self.chart.n_iter])
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
-        """Render a trace plot into fig."""
-        for trace in self.traces:
+        for trace in self.traces():
             fig.add_trace(trace, row, col)
-        for box in self.boxes:
+        for box in self.boxes():
             fig.add_trace(box, row, col)
 
 
