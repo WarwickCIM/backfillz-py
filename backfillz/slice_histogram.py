@@ -167,32 +167,38 @@ class TracePlot(Subplot):
 class JoiningSegments(Subplot):
     """Middle component."""
 
-    segments: List[go.Scatter]  # one per slice
-    y_labels: go.Scatter  # one point per unique slice start/end point
+    width: int = 30  # check against R version
 
-    def __init__(self, chart: ChartData, axis_ids: AxisIds):
-        super().__init__(chart, axis_ids)
-        width: int = 30  # check against R version
-        self.segments = [
+    # one per slice
+    def segments(self) -> List[go.Scatter]:
+        return [
             go.Scatter(
-                x=_scale(width, [0, 1, 1, 0]),
-                y=_scale(chart.n_iter, [slc.lower, lower, upper, slc.upper]),
+                x=_scale(JoiningSegments.width, [0, 1, 1, 0]),
+                y=_scale(self.chart.n_iter, [slc.lower, lower, upper, slc.upper]),
                 mode='lines',
-                line=dict(color=chart.theme.fg_colour, width=1),
+                line=dict(color=self.chart.theme.fg_colour, width=1),
                 fill='toself',
                 fillcolor='rgba(240,240,240,255)'
             )
-            for n_slc, slc in enumerate(chart.slcs, start=1)
-            for lower, upper in [((n_slc - 1) / len(chart.slcs), n_slc / len(chart.slcs))]
+            for n_slc, slc in enumerate(self.chart.slcs, start=1)
+            for lower, upper in [((n_slc - 1) / len(self.chart.slcs), n_slc / len(self.chart.slcs))]
         ]
-        y = _scale(chart.n_iter, [*{*[y for slc in chart.slcs for y in [slc.lower, slc.upper]]}])
-        self.y_labels = go.Scatter(
+
+    # one point per unique slice start/end point
+    def y_labels(self) -> go.Scatter:
+        y = self.slice_delimiters
+        return go.Scatter(
             x=[0] * len(y),
             y=y,
             mode='text',
             text=[int(y) for y in y],
             textposition='middle right'
         )
+
+    @property
+    def slice_delimiters(self) -> List[float]:
+        delims: List[float] = [*{*[y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]}]
+        return _scale(self.chart.n_iter, delims)
 
     @property
     def xaxis_props(self) -> Props:
@@ -211,9 +217,9 @@ class JoiningSegments(Subplot):
         )
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
-        for segment in self.segments:
+        for segment in self.segments():
             fig.add_trace(segment, row, col)
-        fig.add_trace(self.y_labels, row, col)
+        fig.add_trace(self.y_labels(), row, col)
 
 
 @dataclass
@@ -294,14 +300,15 @@ class RafteryLewisPlot(Subplot):
     def yaxis_props(self) -> Props:
         return dict(visible=False)
 
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        plot: go.Scatter = go.Scatter(
+    def plot(self) -> go.Scatter:
+        return go.Scatter(
             x=list(range(0, self.chart.n_iter)),
             y=self.chart.chains[self.n_chain],
             line=dict(color=self.chart.theme.palette[self.n_chain])
         )
 
-        fig.add_trace(plot, row, col)
+    def render(self, fig: go.Figure, row: int, col: int) -> None:
+        fig.add_trace(self.plot(), row, col)
 
 
 @dataclass
