@@ -77,6 +77,7 @@ class Plot:
     """Base class of Subplot and Subplots."""
     axis_ids: AxisIds
     y_domain: Tuple[float, float]
+    data: ChartData
 
     @property
     def xaxis_id(self) -> str:
@@ -101,8 +102,6 @@ class Plot:
 @dataclass
 class Subplot(Plot):
     """A Plotly subplot and its assigned axis ids."""
-
-    data: ChartData
 
     def layout_axes(self, fig: go.Figure) -> None:
         """Configure my x and y axis settings in fig."""
@@ -183,13 +182,11 @@ class TracePlot(Subplot):
 class JoiningSegments(Subplot):
     """Middle component."""
 
-    width: int = 30  # check against R version
-
     # one per slice
     def segments(self) -> List[go.Scatter]:
         return [
             go.Scatter(
-                x=_scale(JoiningSegments.width, [0, 1, 1, 0]),
+                x=[0, 1, 1, 0],
                 y=_scale(self.data.n_iter, [slc.lower, lower, upper, slc.upper]),
                 mode='lines',
                 line=dict(color=self.data.theme.fg_colour, width=1),
@@ -301,7 +298,7 @@ class DensityPlots(Subplots):
     """Right-hand component: one density plot per slice."""
 
     def __init__(self, axis_ids: AxisIds, y_domain: Tuple[float, float], data: ChartData):
-        super().__init__(axis_ids=axis_ids, y_domain=y_domain, plots=[
+        super().__init__(axis_ids=axis_ids, y_domain=y_domain, data=data, plots=[
             DensityPlot(
                 increment_axes(axis_ids, n_slc),
                 segment(y_domain, len(data.slcs), n_slc), data, slc, n_slc
@@ -349,7 +346,7 @@ class RafteryLewisPlots(Subplots):
     """Bottom component: one Raftery-Lewis plot per chain."""
 
     def __init__(self, axis_ids: AxisIds, y_domain, data: ChartData):
-        super().__init__(axis_ids=axis_ids, y_domain=y_domain, plots=[
+        super().__init__(axis_ids=axis_ids, y_domain=y_domain, data=data, plots=[
             RafteryLewisPlot(increment_axes(axis_ids, n), y_domain, data, n)
             for n, _ in enumerate(data.chains)
         ])
