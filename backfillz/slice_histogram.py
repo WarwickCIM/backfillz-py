@@ -81,6 +81,17 @@ class Subplot:
 
 
 @dataclass
+class Subplots:
+    """A collection of subplots."""
+
+    plots: List[Subplot]
+
+    def layout_axes(self, fig: go.Figure) -> None:
+        for plot in self.plots:
+            plot.layout_axes(fig)
+
+
+@dataclass
 class TracePlot(Subplot):
     """Left-hand component."""
 
@@ -269,9 +280,11 @@ class RafteryLewisPlot(Subplot):
             line=dict(color=chart.theme.palette[n_chain])
         )
 
+    @property
     def xaxis_props(self):
         return dict(visible=False)
 
+    @property
     def yaxis_props(self):
         return dict(visible=False)
 
@@ -293,6 +306,11 @@ class RafteryLewisPlots(Subplot):
             RafteryLewisPlot(chart, axis_ids, n)
             for n, _ in enumerate(chart.chains)
         ]
+
+    # override to recurse into sub-subplots -- use a new subplot base class?
+    def layout_axes(self, fig: go.Figure) -> None:
+        for plot in self.plots:
+            plot.layout_axes(fig)
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         """Render plots into fig."""
@@ -382,6 +400,7 @@ class SliceHistogram:
         self.tracePlot.layout_axes(fig)
         self.densityPlots.layout_axes(fig)
         self.joiningSegments.layout_axes(fig)
+        self.rafteryLewisPlots.layout_axes(fig)
 
         # TODO: eliminate magic indices 0, 1
         fig.layout.annotations[0].update(xanchor='left', x=fig.layout[self.tracePlot.xaxis_id].domain[0])
