@@ -268,6 +268,7 @@ class RafteryLewisPlot(Subplot):
 
     def __init__(self, chart: ChartData, axis_ids: AxisIds, n_chain: int):
         """Make an instance."""
+        print("Raftery-Lewis Plot xaxis id: ", axis_ids[0])
         super().__init__(chart, axis_ids)
         self.plot = go.Scatter(
             x=list(range(0, chart.n_iter)),
@@ -295,7 +296,7 @@ class RafteryLewisPlots(Subplots):
     def __init__(self, chart: ChartData, axis_ids: AxisIds):
         """Make an instance."""
         super().__init__(axis_ids, [
-            RafteryLewisPlot(chart, axis_ids, n)
+            RafteryLewisPlot(chart, (axis_ids[0] + n, axis_ids[1] + n), n)
             for n, _ in enumerate(chart.chains)
         ])
 
