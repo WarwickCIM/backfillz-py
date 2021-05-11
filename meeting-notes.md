@@ -13,10 +13,13 @@
 - Improve class-oriented design to avoid dependency on magic numbers assigned to subplot axes by Plotly
 
 ## Still to do:
-- make a pass over R code to check for minor details, e.g. viz settings
+- make a pass over R code to check for minor viz details/settings
+- record plot information in Backfillz
 
 ## To discuss
-- Is Raftery-Lewis the right diagnostic, given no longer supported by PyMC3? Is R dependency ok?
+- Is Raftery-Lewis the right diagnostic, given no longer supported by PyMC3? (And is R dependency ok?)
+- Should each RL plot have its own x-axis? Perhaps should be max of expected/actual iterations for all chains?
+- Use cases to drive ledger requirements/design 
 
 # 29 April 2021
 

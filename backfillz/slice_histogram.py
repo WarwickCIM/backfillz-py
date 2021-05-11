@@ -40,6 +40,17 @@ def increment_axes(axis_ids: AxisIds, n: int) -> AxisIds:
     return xaxis_id + n, yaxis_id + n
 
 
+def _scale(factor: float, xs: List[float]) -> List[float]:
+    return [x * factor for x in xs]
+
+
+def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
+    """Break supplied "domain" into n equal-sized segments, and return the mth."""
+    start, end = domain
+    width = (end - start) / n
+    return start + m * width, start + (m + 1) * width
+
+
 @dataclass
 class ChartData:
     """The MCMC data being presented."""
@@ -65,7 +76,7 @@ class ChartData:
 class Subplot:
     """A Plotly subplot and its assigned axis ids."""
 
-    chart: ChartData
+    data: ChartData
     axis_ids: AxisIds
 
     def layout_axes(self, fig: go.Figure) -> None:
@@ -133,31 +144,31 @@ class TracePlot(Subplot):
         return [
             go.Scatter(
                 x=chain,
-                y=list(range(0, self.chart.n_iter)),
-                line=dict(color=self.chart.theme.palette[n])
+                y=list(range(0, self.data.n_iter)),
+                line=dict(color=self.data.theme.palette[n])
             )
-            for n, chain in enumerate(self.chart.chains)
+            for n, chain in enumerate(self.data.chains)
         ]
 
     # one per slice
     def boxes(self) -> List[go.Scatter]:
         return [
             go.Scatter(
-                x=[self.chart.min_sample] * 2 + [self.chart.max_sample] * 2 + [self.chart.min_sample],
-                y=_scale(self.chart.n_iter, [slc.lower, slc.upper, slc.upper, slc.lower, slc.lower]),
+                x=[self.data.min_sample] * 2 + [self.data.max_sample] * 2 + [self.data.min_sample],
+                y=_scale(self.data.n_iter, [slc.lower, slc.upper, slc.upper, slc.lower, slc.lower]),
                 mode='lines',
-                line=dict(width=2, color=self.chart.theme.fg_colour),
+                line=dict(width=2, color=self.data.theme.fg_colour),
             )
-            for slc in self.chart.slcs
+            for slc in self.data.slcs
         ]
 
     @property
     def xaxis_props(self) -> Props:
-        return dict(range=[self.chart.min_sample, self.chart.max_sample])
+        return dict(range=[self.data.min_sample, self.data.max_sample])
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(range=[0, self.chart.n_iter])
+        return dict(domain=[0.25, 1.0], range=[0, self.data.n_iter])
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         for trace in self.traces():
@@ -177,14 +188,14 @@ class JoiningSegments(Subplot):
         return [
             go.Scatter(
                 x=_scale(JoiningSegments.width, [0, 1, 1, 0]),
-                y=_scale(self.chart.n_iter, [slc.lower, lower, upper, slc.upper]),
+                y=_scale(self.data.n_iter, [slc.lower, lower, upper, slc.upper]),
                 mode='lines',
-                line=dict(color=self.chart.theme.fg_colour, width=1),
+                line=dict(color=self.data.theme.fg_colour, width=1),
                 fill='toself',
                 fillcolor='rgba(240,240,240,255)'
             )
-            for n_slc, slc in enumerate(self.chart.slcs, start=1)
-            for lower, upper in [((n_slc - 1) / len(self.chart.slcs), n_slc / len(self.chart.slcs))]
+            for n_slc, slc in enumerate(self.data.slcs, start=1)
+            for lower, upper in [((n_slc - 1) / len(self.data.slcs), n_slc / len(self.data.slcs))]
         ]
 
     # one point per unique slice start/end point
@@ -200,8 +211,8 @@ class JoiningSegments(Subplot):
 
     @property
     def slice_delimiters(self) -> List[float]:
-        delims: List[float] = [*{*[y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]}]
-        return _scale(self.chart.n_iter, delims)
+        delims: List[float] = [*{*[y for slc in self.data.slcs for y in [slc.lower, slc.upper]]}]
+        return _scale(self.data.n_iter, delims)
 
     @property
     def xaxis_props(self) -> Props:
@@ -210,11 +221,12 @@ class JoiningSegments(Subplot):
     @property
     def yaxis_props(self) -> Props:
         return dict(
-            range=[0, self.chart.n_iter],
+            domain=[0.25, 1.0],
+            range=[0, self.data.n_iter],
             tickmode='array',
             tickvals=_scale(
-                self.chart.n_iter,
-                [*{*[y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]}]
+                self.data.n_iter,
+                [*{*[y for slc in self.data.slcs for y in [slc.lower, slc.upper]]}]
             ),
             showticklabels=False
         )
@@ -230,6 +242,7 @@ class DensityPlot(Subplot):
     """Histogram for a slice (aggregating all chains) plus density plot for each chain."""
 
     slc: Slice
+    n_slc: int
 
     @property
     def xaxis_props(self) -> Props:
@@ -237,39 +250,43 @@ class DensityPlot(Subplot):
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(side='right', rangemode='nonnegative')
+        return dict(
+            side='right',
+            rangemode='nonnegative',
+            domain=segment((0.25, 1.0), len(self.data.slcs), self.n_slc)
+        )
 
     def histo(self, chain_slices: List[np.ndarray]) -> go.Histogram:
         return go.Histogram(
             x=[x for xs in chain_slices for x in xs],
-            xbins=dict(start=floor(self.chart.min_sample), end=ceil(self.chart.max_sample), size=1),
+            xbins=dict(start=floor(self.data.min_sample), end=ceil(self.data.max_sample), size=1),
             marker=dict(
-                color=self.chart.theme.bg_colour,
-                line=dict(color=self.chart.theme.fg_colour, width=1)
+                color=self.data.theme.bg_colour,
+                line=dict(color=self.data.theme.fg_colour, width=1)
             ),
             histnorm='probability'
         )
 
     # non-parametric KDE, smoothed with a Gaussian kernel; one per chain
     def chain_plots(self, chain_slices: List[np.ndarray]) -> List[go.Scatter]:
-        x = np.linspace(self.chart.min_sample, self.chart.max_sample, 200)
+        x = np.linspace(self.data.min_sample, self.data.max_sample, 200)
         return [
             go.Scatter(
                 x=x,
                 y=stats.kde.gaussian_kde(chain_slices[n])(x),
                 mode='lines',
-                line=dict(width=2, color=self.chart.theme.palette[n]),
+                line=dict(width=2, color=self.data.theme.palette[n]),
             )
-            for n in range(0, self.chart.n_chains)
+            for n in range(0, self.data.n_chains)
         ]
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         chain_slices: List[np.ndarray] = [
-            self.chart.chains[
+            self.data.chains[
                 n,
-                floor(self.slc.lower * self.chart.n_iter):floor(self.slc.upper * self.chart.n_iter)
+                floor(self.slc.lower * self.data.n_iter):floor(self.slc.upper * self.data.n_iter)
             ]
-            for n in range(0, self.chart.n_chains)
+            for n in range(0, self.data.n_chains)
         ]
 
         fig.add_trace(self.histo(chain_slices), row, col)
@@ -284,8 +301,8 @@ class DensityPlots(Subplots):
     def __init__(self, chart: ChartData, axis_ids: AxisIds):
         """Make an instance."""
         super().__init__(axis_ids, [
-            DensityPlot(chart, increment_axes(axis_ids, n), slc)
-            for n, slc in enumerate(chart.slcs[::-1])
+            DensityPlot(chart, increment_axes(axis_ids, n_slc), slc, n_slc)
+            for n_slc, slc in enumerate(chart.slcs)
         ])
 
 
@@ -297,24 +314,26 @@ class RafteryLewisPlot(Subplot):
 
     @property
     def xaxis_props(self) -> Props:
-        return dict(visible=False, range=[0, max(self.chart.n_iter, self.required_sample_size())])
+        return dict(
+            visible=False,
+            range=[0, max(self.data.n_iter, self.required_sample_size())]
+        )
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(visible=False)
+        return dict(visible=False, domain=_scale(0.04, [self.n_chain, self.n_chain + 1]))
 
     def required_sample_size(self) -> int:
         """Return N component of resmatrix component of result of raftery.diag R function."""
-        # provide same Raftery-Lewis parameters picked up by default in R version
-        result = coda.raftery_diag(self.chart.chains[self.n_chain], q=0.025, r=0.005)
+        result = coda.raftery_diag(self.data.chains[self.n_chain])
         resmatrix = result[1][0]
         return int(resmatrix[1])  # N is a float, but represents an iteration count
 
     def plot(self) -> go.Scatter:
         return go.Scatter(
-            x=list(range(0, self.chart.n_iter)),
-            y=self.chart.chains[self.n_chain],
-            line=dict(color=self.chart.theme.palette[self.n_chain])
+            x=list(range(0, self.data.n_iter)),
+            y=self.data.chains[self.n_chain],
+            line=dict(color=self.data.theme.palette[self.n_chain])
         )
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
@@ -441,7 +460,3 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
 
     # Update log
     backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
-
-
-def _scale(factor: float, xs: List[float]) -> List[float]:
-    return [x * factor for x in xs]
