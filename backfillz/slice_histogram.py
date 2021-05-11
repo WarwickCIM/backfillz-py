@@ -170,7 +170,7 @@ class TracePlot(Subplot):
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(domain=[0.25, 1.0], range=[0, self.data.n_iter])
+        return dict(domain=self.y_domain, range=[0, self.data.n_iter])
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         for trace in self.traces():
@@ -223,7 +223,7 @@ class JoiningSegments(Subplot):
     @property
     def yaxis_props(self) -> Props:
         return dict(
-            domain=[0.25, 1.0],
+            domain=self.y_domain,
             range=[0, self.data.n_iter],
             tickmode='array',
             tickvals=_scale(
@@ -255,7 +255,7 @@ class DensityPlot(Subplot):
         return dict(
             side='right',
             rangemode='nonnegative',
-            domain=segment((0.25, 1.0), len(self.data.slcs), self.n_slc)
+            domain=self.y_domain
         )
 
     def histo(self, chain_slices: List[np.ndarray]) -> go.Histogram:
@@ -302,7 +302,10 @@ class DensityPlots(Subplots):
 
     def __init__(self, axis_ids: AxisIds, y_domain: Tuple[float, float], data: ChartData):
         super().__init__(axis_ids=axis_ids, y_domain=y_domain, plots=[
-            DensityPlot(increment_axes(axis_ids, n_slc), y_domain, data, slc, n_slc)
+            DensityPlot(
+                increment_axes(axis_ids, n_slc),
+                segment(y_domain, len(data.slcs), n_slc), data, slc, n_slc
+            )
             for n_slc, slc in enumerate(data.slcs)
         ])
 
