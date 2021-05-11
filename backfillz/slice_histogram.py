@@ -365,10 +365,10 @@ class SliceHistogram:
         specs: List[List[object]] = \
             [[dict(rowspan=n_slcs), dict(rowspan=n_slcs), dict()]] + \
             [[None, None, dict()] for _ in self.chart.slcs[1:]] + \
-            [[dict(), None, None]]
+            [[dict(), None, None] for _ in self.chart.chains]
 
         make_subplots(
-            rows=n_slcs + 1,  # extra row for Raftery-Lewis
+            rows=n_slcs + self.chart.n_chains,  # density plots + Raftery-Lewis plots
             cols=3,
             figure=fig,
             specs=specs,
