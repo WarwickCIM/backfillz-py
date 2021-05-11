@@ -23,11 +23,11 @@ AxisIds = Tuple[Optional[int], Optional[int]]
 Props = Dict[str, Any]
 
 
-def increment_axes(axis_ids: AxisIds, n: int) -> AxisIds:
-    """For non-None axes, increment each axis id by n."""
+def nth_axes_of(axis_ids: AxisIds, n: int, count: int) -> AxisIds:
+    """For non-None axes, nth (from 0) pair of axis ids counting *up* (where axis ids grown *down*)."""
     [xaxis_id, yaxis_id] = axis_ids
     assert isinstance(xaxis_id, int) and isinstance(yaxis_id, int)
-    return xaxis_id + n, yaxis_id + n
+    return xaxis_id + count - 1 - n, yaxis_id + count - 1 - n
 
 
 def _scale(factor: float, xs: List[float]) -> List[float]:

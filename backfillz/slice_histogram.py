@@ -13,7 +13,7 @@ import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.plot \
-    import _scale, ChartData, increment_axes, Plot, Props, segment, Slice, Slices, Subplot, Subplots
+    import _scale, ChartData, nth_axes_of, Plot, Props, segment, Slice, Slices, Subplot, Subplots
 
 coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
 numpy2ri.activate()
@@ -128,7 +128,12 @@ class DensityPlot(Subplot):
 
     @property
     def xaxis_props(self) -> Props:
-        return dict(mirror='allticks', side='top', showticklabels=True)
+        bottom, top = self.n_slc == 0, self.n_slc == len(self.data.slcs) - 1
+        print(bottom, top, self.axis_ids)
+        props = dict(visible=bottom)
+        if top:
+            props.update(mirror='allticks', side='top', showticklabels=True)
+        return props
 
     @property
     def yaxis_props(self) -> Props:
@@ -180,7 +185,7 @@ class DensityPlots(Subplots):
     def plots(self) -> List[Plot]:
         return [
             DensityPlot(
-                increment_axes(self.axis_ids, n_slc),
+                nth_axes_of(self.axis_ids, n_slc, len(self.data.slcs)),
                 segment(self.y_domain, len(self.data.slcs), n_slc), self.data, slc, n_slc
             )
             for n_slc, slc in enumerate(self.data.slcs)
@@ -228,7 +233,7 @@ class RafteryLewisPlots(Subplots):
     @cached_property
     def plots(self) -> List[Plot]:
         return [
-            RafteryLewisPlot(increment_axes(self.axis_ids, n), self.y_domain, self.data, n)
+            RafteryLewisPlot(nth_axes_of(self.axis_ids, n, self.data.n_chains), self.y_domain, self.data, n)
             for n, _ in enumerate(self.data.chains)
         ]
 
