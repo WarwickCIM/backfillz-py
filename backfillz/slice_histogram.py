@@ -244,8 +244,6 @@ class DensityPlot(Subplot):
 class DensityPlots(Subplot):
     """Right-hand component: one density plot per slice."""
 
-    chart: ChartData
-    axes: Tuple[str, str]
     density_plots: List[DensityPlot]
 
     def __init__(self, chart: ChartData, axis_ids: AxisIds):
