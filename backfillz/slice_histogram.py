@@ -76,12 +76,14 @@ class Subplot:
     @property
     def xaxis_id(self) -> str:
         """My Plotly-assigned x-axis id."""
-        return 'xaxis' + ('' if self.axis_ids[0] is None else str(self.axis_ids[0]))
+        xaxis_id = self.axis_ids[0]
+        return 'xaxis' + ('' if xaxis_id is None else str(xaxis_id))
 
     @property
     def yaxis_id(self) -> str:
         """My Plotly-assigned y-axis id."""
-        return 'yaxis' + ('' if self.axis_ids[1] is None else str(self.axis_ids[1]))
+        yaxis_id = self.axis_ids[1]
+        return 'yaxis' + ('' if yaxis_id is None else str(yaxis_id))
 
     @property
     def xaxis_props(self) -> Props:
@@ -102,7 +104,7 @@ class Subplot:
 class Subplots:
     """A collection of vertically arranged subplots."""
 
-    axis_ids: AxisIds  # x_axis + first y_axis
+    axis_ids: AxisIds  # ids of uppermost subplot
     plots: List[Subplot]
 
     def layout_axes(self, fig: go.Figure) -> None:
@@ -113,7 +115,8 @@ class Subplots:
     @property
     def xaxis_id(self) -> str:
         """Plotly-assigned x-axis id for my first (uppermost) subplot."""
-        return 'xaxis' + ('' if self.axis_ids[0] is None else str(self.axis_ids[0]))
+        xaxis_id = self.axis_ids[0]
+        return 'xaxis' + ('' if xaxis_id is None else str(xaxis_id))
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         """Render my subplots into fig, placing subplots into descending rows."""
@@ -294,11 +297,18 @@ class RafteryLewisPlot(Subplot):
 
     @property
     def xaxis_props(self) -> Props:
-        return dict(visible=False)
+        return dict(visible=False, range=[0, max(self.chart.n_iter, self.required_sample_size())])
 
     @property
     def yaxis_props(self) -> Props:
         return dict(visible=False)
+
+    def required_sample_size(self) -> int:
+        """Return N component of resmatrix component of result of raftery.diag R function."""
+        # provide same Raftery-Lewis parameters picked up by default in R version
+        result = coda.raftery_diag(self.chart.chains[self.n_chain], q=0.025, r=0.005)
+        resmatrix = result[1][0]
+        return int(resmatrix[1])  # N is a float, but represents an iteration count
 
     def plot(self) -> go.Scatter:
         return go.Scatter(
@@ -320,12 +330,6 @@ class RafteryLewisPlots(Subplots):
             RafteryLewisPlot(chart, increment_axes(axis_ids, n), n)
             for n, _ in enumerate(chart.chains)
         ])
-
-    def _required_sample_size(self, chain: np.ndarray) -> float:
-        """Return N component of resmatrix component of result of raftery.diag R function."""
-        result = coda.raftery_diag(chain, q=0.025, r=0.005)  # same as defaults used in R version
-        resmatrix = result[1][0]
-        return float(resmatrix[1])
 
 
 class SliceHistogram:
