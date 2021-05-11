@@ -95,10 +95,10 @@ class Subplots:
     def xaxis_id(self):
         return 'xaxis' + ('' if self.axis_ids[0] is None else str(self.axis_ids[0]))
 
-    def render(self, fig: go.Figure, col: int) -> None:
+    def render(self, fig: go.Figure, row: int, col: int) -> None:
         """Render density plots into fig."""
         for n, plot in enumerate(self.plots):
-            plot.render(fig, row=n + 1, col=col)
+            plot.render(fig, row=row + n, col=col)
 
 
 @dataclass
@@ -407,7 +407,7 @@ class SliceHistogram:
         self.tracePlot.render(fig, 1, 1)
         self.rafteryLewisPlots.render(fig, len(self.chart.slcs) + 1, 1)
         self.joiningSegments.render(fig, 1, 2)
-        self.densityPlots.render(fig, 3)
+        self.densityPlots.render(fig, 1, 3)
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
