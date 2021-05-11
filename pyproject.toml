@@ -29,6 +29,7 @@ bokeh = "^2.3.1"
 plotly = "^4.14.3"
 scipy = "^1.6.3"
 rpy2 = "^3.4.4"
+cached-property = "^1.5.2"
 
 [tool.poetry.dev-dependencies]
 mkdocs-material = "^6.1.5"

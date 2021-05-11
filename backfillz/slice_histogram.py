@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from functools import cached_property
 from math import ceil, floor
 from typing import Any, Dict, List
 
+from cached_property import cached_property  # type: ignore
 import numpy as np
 import pandas as pd  # type: ignore
 import plotly.graph_objects as go  # type: ignore
