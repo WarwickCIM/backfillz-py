@@ -82,13 +82,18 @@ class Subplot:
 
 @dataclass
 class Subplots:
-    """A collection of subplots."""
+    """A collection of vertically arranged subplots."""
 
+    axis_ids: AxisIds  # x_axis + first y_axis
     plots: List[Subplot]
 
     def layout_axes(self, fig: go.Figure) -> None:
         for plot in self.plots:
             plot.layout_axes(fig)
+
+    @property
+    def xaxis_id(self):
+        return 'xaxis' + ('' if self.axis_ids[0] is None else str(self.axis_ids[0]))
 
 
 @dataclass
@@ -241,28 +246,20 @@ class DensityPlot(Subplot):
 
 
 @dataclass
-class DensityPlots(Subplot):
+class DensityPlots(Subplots):
     """Right-hand component: one density plot per slice."""
-
-    density_plots: List[DensityPlot]
 
     def __init__(self, chart: ChartData, axis_ids: AxisIds):
         """Make an instance."""
-        super().__init__(chart, axis_ids)
-        self.density_plots = [
+        super().__init__(axis_ids, [
             DensityPlot(chart, (axis_ids[0], axis_ids[1] + n), slc)
             for n, slc in enumerate(chart.slcs[::-1])
-        ]
-
-    # override to recurse into sub-subplots -- use a new subplot base class?
-    def layout_axes(self, fig: go.Figure) -> None:
-        for density_plot in self.density_plots:
-            density_plot.layout_axes(fig)
+        ])
 
     def render(self, fig: go.Figure, col: int) -> None:
         """Render density plots into fig."""
-        for n_slice, density_plot in enumerate(self.density_plots):
-            density_plot.render(fig, row=n_slice + 1, col=col)
+        for n_slice, plot in enumerate(self.plots):
+            plot.render(fig, row=n_slice + 1, col=col)
 
 
 @dataclass
