@@ -28,16 +28,16 @@ class Slice:
 Param = str
 Slices = Dict[Param, List[Slice]]
 
-# ids assigned as axis suffices by Plotly; omitted for first subplot
+# ints assigned as axis id suffixes by Plotly; omitted for first subplot
 AxisIds = Tuple[Optional[int], Optional[int]]
 Props = Dict[str, Any]
 
 
 def increment_axes(axis_ids: AxisIds, n: int) -> AxisIds:
     """For non-None axes, increment each axis id by n."""
-    assert isinstance(axis_ids[0], int)
-    assert isinstance(axis_ids[1], int)
-    return axis_ids[0] + n, int(axis_ids[1]) + n
+    [xaxis_id, yaxis_id] = axis_ids
+    assert isinstance(xaxis_id, int) and isinstance(yaxis_id, int)
+    return xaxis_id + n, yaxis_id + n
 
 
 @dataclass
