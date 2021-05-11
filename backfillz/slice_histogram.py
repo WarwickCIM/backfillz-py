@@ -282,16 +282,7 @@ class DensityPlots(Subplots):
 class RafteryLewisPlot(Subplot):
     """Beneath left-hand component: one Raftery-Lewis plot per chain."""
 
-    plot: go.Scatter
-
-    def __init__(self, chart: ChartData, axis_ids: AxisIds, n_chain: int):
-        """Make an instance."""
-        super().__init__(chart, axis_ids)
-        self.plot = go.Scatter(
-            x=list(range(0, chart.n_iter)),
-            y=chart.chains[n_chain],
-            line=dict(color=chart.theme.palette[n_chain])
-        )
+    n_chain: int
 
     @property
     def xaxis_props(self) -> Props:
@@ -302,8 +293,13 @@ class RafteryLewisPlot(Subplot):
         return dict(visible=False)
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
-        """Render plot into fig."""
-        fig.add_trace(self.plot, row, col)
+        plot: go.Scatter = go.Scatter(
+            x=list(range(0, self.chart.n_iter)),
+            y=self.chart.chains[self.n_chain],
+            line=dict(color=self.chart.theme.palette[self.n_chain])
+        )
+
+        fig.add_trace(plot, row, col)
 
 
 @dataclass
