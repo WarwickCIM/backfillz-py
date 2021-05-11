@@ -129,15 +129,16 @@ class DensityPlot(Subplot):
     @property
     def xaxis_props(self) -> Props:
         bottom, top = self.n_slc == 0, self.n_slc == len(self.data.slcs) - 1
-        print(self.axis_ids, bottom, top)
-        if top:
-            return dict(side='top')
-        elif bottom:
-            return dict()
+        # single slice requires special treatment; haven't figured out how to mirror tick labels
+        if len(self.data.slcs) == 1:
+            return dict(mirror='ticks')
         else:
-            return dict(visible=False)
-
-        # return dict(mirror='allticks', side='top', showticklabels=True)
+            if bottom:
+                return dict()
+            elif top:
+                return dict(side='top')
+            else:
+                return dict(visible=False)
 
     @property
     def yaxis_props(self) -> Props:
@@ -204,7 +205,6 @@ class RafteryLewisPlot(Subplot):
 
     @property
     def xaxis_props(self) -> Props:
-        print(self.xaxis_id)
         return dict(
             visible=False,
             range=[0, max(self.data.n_iter, self.required_sample_size())]
