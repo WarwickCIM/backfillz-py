@@ -34,6 +34,13 @@ def _scale(factor: float, xs: List[float]) -> List[float]:
     return [x * factor for x in xs]
 
 
+def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
+    """Break supplied "domain" into n equal-sized segments, and return the mth."""
+    start, end = domain
+    width = (end - start) / n
+    return start + m * width, start + (m + 1) * width
+
+
 @dataclass
 class ChartData:
     """The MCMC data being presented."""
@@ -58,6 +65,7 @@ class ChartData:
 @dataclass
 class Plot:
     """Base class of Subplot and Subplots."""
+
     axis_ids: AxisIds
     y_domain: Tuple[float, float]
     data: ChartData

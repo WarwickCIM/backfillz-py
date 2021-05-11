@@ -11,17 +11,11 @@ from rpy2.robjects.packages import importr  # type: ignore
 import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
-from backfillz.plot import AxisIds, ChartData, Props, Slice, Slices, Subplot, Subplots, increment_axes, _scale
+from backfillz.plot \
+    import _scale, AxisIds, ChartData, increment_axes, Props, segment, Slice, Slices, Subplot, Subplots
 
 coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
 numpy2ri.activate()
-
-
-def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
-    """Break supplied "domain" into n equal-sized segments, and return the mth."""
-    start, end = domain
-    width = (end - start) / n
-    return start + m * width, start + (m + 1) * width
 
 
 @dataclass
@@ -233,7 +227,7 @@ class RafteryLewisPlot(Subplot):
 class RafteryLewisPlots(Subplots):
     """Bottom component: one Raftery-Lewis plot per chain."""
 
-    def __init__(self, axis_ids: AxisIds, y_domain, data: ChartData):
+    def __init__(self, axis_ids: AxisIds, y_domain: Tuple[float, float], data: ChartData):
         super().__init__(axis_ids=axis_ids, y_domain=y_domain, data=data, plots=[
             RafteryLewisPlot(increment_axes(axis_ids, n), y_domain, data, n)
             for n, _ in enumerate(data.chains)
