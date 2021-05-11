@@ -30,6 +30,13 @@ Slices = Dict[Param, List[Slice]]
 
 # ids assigned as axis suffices by Plotly; omitted for first subplot
 AxisIds = Tuple[Optional[int], Optional[int]]
+Props = Dict[str, Any]
+
+
+def increment_axes(axis_ids: AxisIds, n: int) -> AxisIds:
+    assert isinstance(axis_ids[0], int)
+    assert isinstance(axis_ids[1], int)
+    return axis_ids[0] + n, int(axis_ids[1]) + n
 
 
 @dataclass
@@ -56,28 +63,39 @@ class ChartData:
 
 @dataclass
 class Subplot:
+    """A Plotly subplot and its assigned axis ids."""
+
     chart: ChartData
     axis_ids: AxisIds
 
     def layout_axes(self, fig: go.Figure) -> None:
+        """Configure my x and y axis settings in fig."""
         fig.layout[self.xaxis_id].update(**self.xaxis_props)
         fig.layout[self.yaxis_id].update(**self.yaxis_props)
 
     @property
-    def xaxis_id(self):
+    def xaxis_id(self) -> str:
+        """My Plotly-assigned x-axis id."""
         return 'xaxis' + ('' if self.axis_ids[0] is None else str(self.axis_ids[0]))
 
     @property
-    def yaxis_id(self):
+    def yaxis_id(self) -> str:
+        """My Plotly-assigned y-axis id."""
         return 'yaxis' + ('' if self.axis_ids[1] is None else str(self.axis_ids[1]))
 
     @property
-    def xaxis_props(self):
+    def xaxis_props(self) -> Props:
+        """My custom x-axis settings; subclasses can override."""
         return dict()
 
     @property
-    def yaxis_props(self):
+    def yaxis_props(self) -> Props:
+        """My custom y-axis settings; subclasses can override."""
         return dict()
+
+    def render(self, fig: go.Figure, row: int, col: int) -> None:
+        """Render me into fig at the supplied row and column."""
+        pass
 
 
 @dataclass
@@ -88,15 +106,17 @@ class Subplots:
     plots: List[Subplot]
 
     def layout_axes(self, fig: go.Figure) -> None:
+        """Ask each subplot to configure its axes."""
         for plot in self.plots:
             plot.layout_axes(fig)
 
     @property
-    def xaxis_id(self):
+    def xaxis_id(self) -> str:
+        """Plotly-assigned x-axis id for my first (uppermost) subplot."""
         return 'xaxis' + ('' if self.axis_ids[0] is None else str(self.axis_ids[0]))
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
-        """Render density plots into fig."""
+        """Render my subplots into fig, placing subplots into descending rows."""
         for n, plot in enumerate(self.plots):
             plot.render(fig, row=row + n, col=col)
 
@@ -130,14 +150,14 @@ class TracePlot(Subplot):
         ]
 
     @property
-    def xaxis_props(self):
+    def xaxis_props(self) -> Props:
         return dict(range=[self.chart.min_sample, self.chart.max_sample])
 
     @property
-    def yaxis_props(self):
+    def yaxis_props(self) -> Props:
         return dict(range=[0, self.chart.n_iter])
 
-    def render(self, fig: go.Figure, row, col: int) -> None:
+    def render(self, fig: go.Figure, row: int, col: int) -> None:
         """Render a trace plot into fig."""
         for trace in self.traces:
             fig.add_trace(trace, row, col)
@@ -178,11 +198,11 @@ class JoiningSegments(Subplot):
         )
 
     @property
-    def xaxis_props(self):
+    def xaxis_props(self) -> Props:
         return dict(rangemode='nonnegative', visible=False)
 
     @property
-    def yaxis_props(self):
+    def yaxis_props(self) -> Props:
         return dict(
             range=[0, self.chart.n_iter],
             tickmode='array',
@@ -190,7 +210,7 @@ class JoiningSegments(Subplot):
                 self.chart.n_iter,
                 [*{*[y for slc in self.chart.slcs for y in [slc.lower, slc.upper]]}]
             ),
-            showticklabels=False  # JoiningSegments will take care of these
+            showticklabels=False
         )
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
@@ -236,11 +256,11 @@ class DensityPlot(Subplot):
         ]
 
     @property
-    def xaxis_props(self):
+    def xaxis_props(self) -> Props:
         return dict(mirror='allticks', side='top', showticklabels=True)
 
     @property
-    def yaxis_props(self):
+    def yaxis_props(self) -> Props:
         return dict(side='right', rangemode='nonnegative')
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
@@ -257,18 +277,19 @@ class DensityPlots(Subplots):
     def __init__(self, chart: ChartData, axis_ids: AxisIds):
         """Make an instance."""
         super().__init__(axis_ids, [
-            DensityPlot(chart, (axis_ids[0], axis_ids[1] + n), slc)
+            DensityPlot(chart, increment_axes(axis_ids, n), slc)
             for n, slc in enumerate(chart.slcs[::-1])
         ])
 
 
 @dataclass
 class RafteryLewisPlot(Subplot):
+    """Beneath left-hand component: one Raftery-Lewis plot per chain."""
+
     plot: go.Scatter
 
     def __init__(self, chart: ChartData, axis_ids: AxisIds, n_chain: int):
         """Make an instance."""
-        print("Raftery-Lewis Plot xaxis id: ", axis_ids[0])
         super().__init__(chart, axis_ids)
         self.plot = go.Scatter(
             x=list(range(0, chart.n_iter)),
@@ -277,11 +298,11 @@ class RafteryLewisPlot(Subplot):
         )
 
     @property
-    def xaxis_props(self):
+    def xaxis_props(self) -> Props:
         return dict(visible=False)
 
     @property
-    def yaxis_props(self):
+    def yaxis_props(self) -> Props:
         return dict(visible=False)
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
@@ -296,7 +317,7 @@ class RafteryLewisPlots(Subplots):
     def __init__(self, chart: ChartData, axis_ids: AxisIds):
         """Make an instance."""
         super().__init__(axis_ids, [
-            RafteryLewisPlot(chart, (axis_ids[0] + n, axis_ids[1] + n), n)
+            RafteryLewisPlot(chart, increment_axes(axis_ids, n), n)
             for n, _ in enumerate(chart.chains)
         ])
 
@@ -380,13 +401,19 @@ class SliceHistogram:
         fig.update_xaxes(**axis_settings)
         fig.update_yaxes(**axis_settings)
 
-        for plot in [self.tracePlot, self.densityPlots, self.joiningSegments, self.rafteryLewisPlots]:
+        for plot in [
+            self.tracePlot,
+            self.densityPlots,
+            self.joiningSegments,
+            self.rafteryLewisPlots
+        ]:
             plot.layout_axes(fig)
 
         # TODO: eliminate magic indices 0, 1
-        fig.layout.annotations[0].update(xanchor='left', x=fig.layout[self.tracePlot.xaxis_id].domain[0])
-        fig.layout.annotations[1].update(y=1.03)  # oof -- adjust title subgraph
-        fig.layout.annotations[1].update(xanchor='left', x=fig.layout[self.densityPlots.xaxis_id].domain[0])
+        annotations = fig.layout.annotations
+        annotations[0].update(xanchor='left', x=fig.layout[self.tracePlot.xaxis_id].domain[0])
+        annotations[1].update(y=1.03)  # oof -- adjust title subgraph
+        annotations[1].update(xanchor='left', x=fig.layout[self.densityPlots.xaxis_id].domain[0])
 
         return fig
 
