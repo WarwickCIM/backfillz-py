@@ -212,7 +212,7 @@ class RafteryLewisPlot(Subplot):
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(visible=False, domain=_scale(0.04, [self.n_chain, self.n_chain + 1]))
+        return dict(visible=False, domain=self.y_domain)
 
     def required_sample_size(self) -> int:
         """Return N component of resmatrix component of result of raftery.diag R function."""
@@ -238,7 +238,12 @@ class RafteryLewisPlots(Subplots):
     @cached_property
     def plots(self) -> List[Plot]:
         return [
-            RafteryLewisPlot(nth_axes_of(self.axis_ids, n, self.data.n_chains), self.y_domain, self.data, n)
+            RafteryLewisPlot(
+                nth_axes_of(self.axis_ids, n, self.data.n_chains),
+                segment(self.y_domain, self.data.n_chains, n),
+                self.data,
+                n
+            )
             for n, _ in enumerate(self.data.chains)
         ]
 
@@ -266,8 +271,13 @@ class SliceHistogram:
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
         lower_section = 0.25
+        lower_section_margin = 0.2
         self.tracePlot = TracePlot((None, None), (lower_section, 1.0), self.data)
-        self.rafteryLewisPlots = RafteryLewisPlots((3 + len(slcs), 3 + len(slcs)), (0, 0.20), self.data)
+        self.rafteryLewisPlots = RafteryLewisPlots(
+            (3 + len(slcs), 3 + len(slcs)),
+            (0, lower_section * (1 - lower_section_margin)),
+            self.data
+        )
         self.joiningSegments = JoiningSegments((2, 2), (lower_section, 1.0), self.data)
         self.densityPlots = DensityPlots((3, 3), (lower_section, 1.0), self.data)
 
