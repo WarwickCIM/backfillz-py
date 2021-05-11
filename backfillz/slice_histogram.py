@@ -204,6 +204,7 @@ class RafteryLewisPlot(Subplot):
 
     @property
     def xaxis_props(self) -> Props:
+        print(self.xaxis_id)
         return dict(
             visible=False,
             range=[0, max(self.data.n_iter, self.required_sample_size())]
@@ -265,7 +266,7 @@ class SliceHistogram:
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
         self.tracePlot = TracePlot((None, None), (0.25, 1.0), self.data)
-        self.rafteryLewisPlots = RafteryLewisPlots((6, 6), (0, 0.20), self.data)
+        self.rafteryLewisPlots = RafteryLewisPlots((3 + len(slcs), 3 + len(slcs)), (0, 0.20), self.data)
         self.joiningSegments = JoiningSegments((2, 2), (0.25, 1.0), self.data)
         self.densityPlots = DensityPlots((3, 3), (0.25, 1.0), self.data)
 
@@ -340,7 +341,8 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
     params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
     slice_list: List[Slice] = [
-        Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)
+#        Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)
+        Slice(0.1, 0.2)
     ]
     slices: Slices = {param: slice_list for param in params}
 
