@@ -95,6 +95,11 @@ class Subplots:
     def xaxis_id(self):
         return 'xaxis' + ('' if self.axis_ids[0] is None else str(self.axis_ids[0]))
 
+    def render(self, fig: go.Figure, col: int) -> None:
+        """Render density plots into fig."""
+        for n, plot in enumerate(self.plots):
+            plot.render(fig, row=n + 1, col=col)
+
 
 @dataclass
 class TracePlot(Subplot):
@@ -255,11 +260,6 @@ class DensityPlots(Subplots):
             DensityPlot(chart, (axis_ids[0], axis_ids[1] + n), slc)
             for n, slc in enumerate(chart.slcs[::-1])
         ])
-
-    def render(self, fig: go.Figure, col: int) -> None:
-        """Render density plots into fig."""
-        for n_slice, plot in enumerate(self.plots):
-            plot.render(fig, row=n_slice + 1, col=col)
 
 
 @dataclass
