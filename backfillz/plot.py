@@ -121,6 +121,6 @@ class Subplots(Plot):
             plot.layout_axes(fig)
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
-        """Render my subplots into fig, placing subplots into ascending (from 0) rows starting from the bottom."""
+        """Render subplots into fig, placing subplots into ascending (from 0) rows starting from bottom."""
         for n, plot in enumerate(self.plots):  # type: ignore[attr-defined]
             plot.render(fig, row=row + len(self.plots) - 1 - n, col=col)

@@ -270,8 +270,8 @@ class SliceHistogram:
             max_sample=np.amax(backfillz.mcmc_samples[param]),
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
-        lower_section = 0.25
-        lower_section_margin = 0.2
+        lower_section = 0.2
+        lower_section_margin = 0.4
         self.tracePlot = TracePlot((None, None), (lower_section, 1.0), self.data)
         self.rafteryLewisPlots = RafteryLewisPlots(
             (3 + len(slcs), 3 + len(slcs)),
@@ -352,8 +352,7 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
     params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
     slice_list: List[Slice] = [
-#        Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)
-        Slice(0.1, 0.2)
+        Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)
     ]
     slices: Slices = {param: slice_list for param in params}
 
