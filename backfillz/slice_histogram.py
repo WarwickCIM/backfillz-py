@@ -265,10 +265,11 @@ class SliceHistogram:
             max_sample=np.amax(backfillz.mcmc_samples[param]),
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
-        self.tracePlot = TracePlot((None, None), (0.25, 1.0), self.data)
+        lower_section = 0.25
+        self.tracePlot = TracePlot((None, None), (lower_section, 1.0), self.data)
         self.rafteryLewisPlots = RafteryLewisPlots((3 + len(slcs), 3 + len(slcs)), (0, 0.20), self.data)
-        self.joiningSegments = JoiningSegments((2, 2), (0.25, 1.0), self.data)
-        self.densityPlots = DensityPlots((3, 3), (0.25, 1.0), self.data)
+        self.joiningSegments = JoiningSegments((2, 2), (lower_section, 1.0), self.data)
+        self.densityPlots = DensityPlots((3, 3), (lower_section, 1.0), self.data)
 
     @property
     def figure(self) -> go.Figure:
