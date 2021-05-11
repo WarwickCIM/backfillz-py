@@ -12,7 +12,7 @@ import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.plot \
-    import _scale, AxisIds, ChartData, increment_axes, Props, segment, Slice, Slices, Subplot, Subplots
+    import _scale, AxisIds, ChartData, increment_axes, Plot, Props, segment, Slice, Slices, Subplot, Subplots
 
 coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
 numpy2ri.activate()
