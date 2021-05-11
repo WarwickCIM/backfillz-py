@@ -129,11 +129,15 @@ class DensityPlot(Subplot):
     @property
     def xaxis_props(self) -> Props:
         bottom, top = self.n_slc == 0, self.n_slc == len(self.data.slcs) - 1
-        print(bottom, top, self.axis_ids)
-        props = dict(visible=bottom)
+        print(self.axis_ids, bottom, top)
         if top:
-            props.update(mirror='allticks', side='top', showticklabels=True)
-        return props
+            return dict(side='top')
+        elif bottom:
+            return dict()
+        else:
+            return dict(visible=False)
+
+        # return dict(mirror='allticks', side='top', showticklabels=True)
 
     @property
     def yaxis_props(self) -> Props:
