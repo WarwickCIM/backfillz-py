@@ -289,28 +289,15 @@ class RafteryLewisPlot(Subplot):
 
 
 @dataclass
-class RafteryLewisPlots(Subplot):
+class RafteryLewisPlots(Subplots):
     """Bottom component: one Raftery-Lewis plot per chain."""
-
-    plots: List[RafteryLewisPlot]
 
     def __init__(self, chart: ChartData, axis_ids: AxisIds):
         """Make an instance."""
-        super().__init__(chart, axis_ids)
-        self.plots = [
+        super().__init__(axis_ids, [
             RafteryLewisPlot(chart, axis_ids, n)
             for n, _ in enumerate(chart.chains)
-        ]
-
-    # override to recurse into sub-subplots -- use a new subplot base class?
-    def layout_axes(self, fig: go.Figure) -> None:
-        for plot in self.plots:
-            plot.layout_axes(fig)
-
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        """Render plots into fig."""
-        for plot in self.plots:
-            plot.render(fig, row, col)
+        ])
 
     def _required_sample_size(self, chain: np.ndarray) -> float:
         """Return N component of resmatrix component of result of raftery.diag R function."""
