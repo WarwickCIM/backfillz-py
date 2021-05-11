@@ -392,10 +392,8 @@ class SliceHistogram:
         fig.update_xaxes(**axis_settings)
         fig.update_yaxes(**axis_settings)
 
-        self.tracePlot.layout_axes(fig)
-        self.densityPlots.layout_axes(fig)
-        self.joiningSegments.layout_axes(fig)
-        self.rafteryLewisPlots.layout_axes(fig)
+        for plot in [self.tracePlot, self.densityPlots, self.joiningSegments, self.rafteryLewisPlots]:
+            plot.layout_axes(fig)
 
         # TODO: eliminate magic indices 0, 1
         fig.layout.annotations[0].update(xanchor='left', x=fig.layout[self.tracePlot.xaxis_id].domain[0])
