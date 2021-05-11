@@ -1,6 +1,7 @@
 from dataclasses import dataclass
+from functools import cached_property
 from math import ceil, floor
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -12,7 +13,7 @@ import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.plot \
-    import _scale, AxisIds, ChartData, increment_axes, Plot, Props, segment, Slice, Slices, Subplot, Subplots
+    import _scale, ChartData, increment_axes, Plot, Props, segment, Slice, Slices, Subplot, Subplots
 
 coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
 numpy2ri.activate()
@@ -179,14 +180,15 @@ class DensityPlot(Subplot):
 class DensityPlots(Subplots):
     """Right-hand component: one density plot per slice."""
 
-    def __init__(self, axis_ids: AxisIds, y_domain: Tuple[float, float], data: ChartData):
-        super().__init__(axis_ids=axis_ids, y_domain=y_domain, data=data, plots=[
+    @cached_property
+    def plots(self) -> List[Subplot]:
+        return [
             DensityPlot(
-                increment_axes(axis_ids, n_slc),
-                segment(y_domain, len(data.slcs), n_slc), data, slc, n_slc
+                increment_axes(self.axis_ids, n_slc),
+                segment(self.y_domain, len(self.data.slcs), n_slc), self.data, slc, n_slc
             )
-            for n_slc, slc in enumerate(data.slcs)
-        ])
+            for n_slc, slc in enumerate(self.data.slcs)
+        ]
 
 
 @dataclass
@@ -227,11 +229,12 @@ class RafteryLewisPlot(Subplot):
 class RafteryLewisPlots(Subplots):
     """Bottom component: one Raftery-Lewis plot per chain."""
 
-    def __init__(self, axis_ids: AxisIds, y_domain: Tuple[float, float], data: ChartData):
-        super().__init__(axis_ids=axis_ids, y_domain=y_domain, data=data, plots=[
-            RafteryLewisPlot(increment_axes(axis_ids, n), y_domain, data, n)
-            for n, _ in enumerate(data.chains)
-        ])
+    @cached_property
+    def plots(self) -> List[Plot]:
+        return [
+            RafteryLewisPlot(increment_axes(self.axis_ids, n), self.y_domain, self.data, n)
+            for n, _ in enumerate(self.data.chains)
+        ]
 
 
 class SliceHistogram:

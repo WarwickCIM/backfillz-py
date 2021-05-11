@@ -114,7 +114,9 @@ class Subplot(Plot):
 class Subplots(Plot):
     """A collection of vertically arranged subplots."""
 
-    plots: List[Subplot]
+    @property
+    def plots(self) -> List[Subplot]:
+        pass
 
     def layout_axes(self, fig: go.Figure) -> None:
         """Ask each subplot to configure its axes."""
