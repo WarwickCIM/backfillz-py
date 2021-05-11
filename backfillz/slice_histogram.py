@@ -181,7 +181,7 @@ class DensityPlots(Subplots):
     """Right-hand component: one density plot per slice."""
 
     @cached_property
-    def plots(self) -> List[Subplot]:
+    def plots(self) -> List[Plot]:
         return [
             DensityPlot(
                 increment_axes(self.axis_ids, n_slc),
