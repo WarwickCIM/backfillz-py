@@ -1,7 +1,7 @@
 ---
 # Project Information
 site_name: backfillz-py
-site_author: Roly Perera
+site_author: Centre for Interdisciplinary Methodologies, University of Warwick
 site_description: MCMC visualisations package developed at the University of Warwick and supported by the Turing Institute.
 
 # Repository information
@@ -10,7 +10,7 @@ repo_url: https://github.com/rolyp/backfillz
 edit_uri: ""
 
 # Copyright
-copyright: Copyright &copy; 2020 Roly Perera
+copyright: Copyright &copy; 2021 Centre for Interdisciplinary Methodologies, University of Warwick
 
 # Configuration
 theme:
@@ -26,8 +26,8 @@ theme:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/rolyp
-      name: rolyp on GitHub
+      link: https://github.com/WarwickCIM
+      name: WarwickCIM on GitHub
 
 # Page tree
 nav:
