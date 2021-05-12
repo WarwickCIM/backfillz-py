@@ -202,7 +202,7 @@ class DensityPlots(Subplots):
 
 @dataclass
 class RafteryLewisPlot(Subplot):
-    """Beneath left-hand component: one Raftery-Lewis plot per chain."""
+    """Raftery-Lewis plot for a chain."""
 
     n_chain: int
 
