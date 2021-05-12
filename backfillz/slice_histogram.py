@@ -292,7 +292,7 @@ class SliceHistogram:
         )
         self.densityPlots = DensityPlots(
             axis_ids=(3, 3),
-            x_domain=(1 - left_w - middle_w, 1),
+            x_domain=(left_w + middle_w, 1),
             y_domain=(lower_h, 1.0),
             data=self.data
         )

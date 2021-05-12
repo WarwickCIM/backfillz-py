@@ -110,7 +110,7 @@ class Subplot(Plot):
 
     def layout_axes(self, fig: go.Figure) -> None:
         """Configure my x and y axis settings in fig."""
-        fig.layout[self.xaxis_id].update(**self.axis_defaults, **self.xaxis_props)
+        fig.layout[self.xaxis_id].update(domain=self.x_domain, **self.axis_defaults, **self.xaxis_props)
         fig.layout[self.yaxis_id].update(domain=self.y_domain, **self.axis_defaults, **self.yaxis_props)
 
     @property
