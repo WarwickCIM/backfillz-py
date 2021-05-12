@@ -21,13 +21,14 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = "3.9.4"
+python = "3.9.5"
 importlib_metadata = "3.4.0"
 pystan = "3.0.0"
 pandas = "1.2.3"
 bokeh = "^2.3.1"
 plotly = "^4.14.3"
 scipy = "^1.6.3"
+rpy2 = "^3.4.4"
 
 [tool.poetry.dev-dependencies]
 mkdocs-material = "^6.1.5"
@@ -39,7 +40,7 @@ flake8-import-order = "0.18.1"
 flake8-colors = "0.1.6"
 
 
-mypy = "0.790"
+mypy = "0.812"
 
 [tool.black]
 line-length=100
