@@ -67,7 +67,8 @@ class Plot:
     """Base class of Subplot and Subplots."""
 
     axis_ids: AxisIds
-    y_domain: Tuple[float, float]
+    x_domain: Tuple[float, float]  # left/right edges normalised to [0, 1]
+    y_domain: Tuple[float, float]  # top/bottom edges normalised to [0, 1]
     data: ChartData
 
     @property

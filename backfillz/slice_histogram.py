@@ -190,8 +190,12 @@ class DensityPlots(Subplots):
     def plots(self) -> List[Plot]:
         return [
             DensityPlot(
-                nth_axes_of(self.axis_ids, n_slc, len(self.data.slcs)),
-                segment(self.y_domain, len(self.data.slcs), n_slc), self.data, slc, n_slc
+                axis_ids=nth_axes_of(self.axis_ids, n_slc, len(self.data.slcs)),
+                x_domain=self.x_domain,
+                y_domain=segment(self.y_domain, len(self.data.slcs), n_slc),
+                data=self.data,
+                slc=slc,
+                n_slc=n_slc
             )
             for n_slc, slc in enumerate(self.data.slcs)
         ]
@@ -239,10 +243,11 @@ class RafteryLewisPlots(Subplots):
     def plots(self) -> List[Plot]:
         return [
             RafteryLewisPlot(
-                nth_axes_of(self.axis_ids, n, self.data.n_chains),
-                segment(self.y_domain, self.data.n_chains, n),
-                self.data,
-                n
+                axis_ids=nth_axes_of(self.axis_ids, n, self.data.n_chains),
+                x_domain=self.x_domain,
+                y_domain=segment(self.y_domain, self.data.n_chains, n),
+                data=self.data,
+                n_chain=n
             )
             for n, _ in enumerate(self.data.chains)
         ]
@@ -270,26 +275,32 @@ class SliceHistogram:
             max_sample=np.amax(backfillz.mcmc_samples[param]),
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
-        lower_section = 0.2  # top of y-domain for Raftery-Lewis section
-        lower_section_margin = 0.4
+        lower_h = 0.2       # height of Raftery-Lewis section
+        lower_margin = 0.4
+        left_w = 0.4        # width of trace plot
+        middle_w = 0.2      # width of joining segments
         self.tracePlot = TracePlot(
             axis_ids=(None, None),
-            y_domain=(lower_section, 1.0),
+            x_domain=(0, left_w),
+            y_domain=(lower_h, 1.0),
             data=self.data
         )
         self.joiningSegments = JoiningSegments(
             axis_ids=(2, 2),
-            y_domain=(lower_section, 1.0),
-            data=self.data
-        )
-        self.rafteryLewisPlots = RafteryLewisPlots(
-            axis_ids=(3 + len(slcs), 3 + len(slcs)),
-            y_domain=(0, lower_section * (1 - lower_section_margin)),
+            x_domain=(left_w, left_w + middle_w),
+            y_domain=(lower_h, 1.0),
             data=self.data
         )
         self.densityPlots = DensityPlots(
             axis_ids=(3, 3),
-            y_domain=(lower_section, 1.0),
+            x_domain=(1 - left_w - middle_w, 1),
+            y_domain=(lower_h, 1.0),
+            data=self.data
+        )
+        self.rafteryLewisPlots = RafteryLewisPlots(
+            axis_ids=(3 + len(slcs), 3 + len(slcs)),
+            x_domain=(0, left_w),
+            y_domain=(0, lower_h * (1 - lower_margin)),
             data=self.data
         )
 
@@ -338,7 +349,7 @@ class SliceHistogram:
         self.rafteryLewisPlots.render(fig, len(self.data.slcs) + 1, 1)
         self.joiningSegments.render(fig, 1, 2)
         self.densityPlots.render(fig, 1, 3)
-        fig.show(dict(displayModeBar=False, showAxisDragHandles=False))
+        fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
