@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import List
+from typing import Any, List
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -356,7 +356,7 @@ class SliceHistogram:
         return fig
 
     @staticmethod
-    def annotate(fig: go.Figure, **kwargs):
+    def annotate(fig: go.Figure, **kwargs: Any) -> None:
         fig.add_annotation(
             xref='paper',
             yref='paper',
