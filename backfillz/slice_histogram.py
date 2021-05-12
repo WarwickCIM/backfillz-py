@@ -347,19 +347,24 @@ class SliceHistogram:
         annotations[1].update(y=1.03)  # oof -- adjust title subgraph
         annotations[1].update(xanchor='left', x=fig.layout[self.densityPlots.xaxis_id].domain[0])
 
-        fig.add_annotation(
-            xref='paper',
-            yref='paper',
-            x=0,
-            y=0,
-            xanchor='left',
-            yanchor='top',
-            text="Raftery-Lewis Diagnostic",
-            font=dict(size=14),
-            showarrow=False
+        SliceHistogram.annotate(fig, x=0, y=0, xanchor='left', text="Raftery-Lewis Diagnostic")
+        SliceHistogram.annotate(
+            fig, x=1, y=0, xanchor='right',
+            text="Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
 
         return fig
+
+    @staticmethod
+    def annotate(fig: go.Figure, **kwargs):
+        fig.add_annotation(
+            xref='paper',
+            yref='paper',
+            yanchor='top',
+            showarrow=False,
+            font=dict(size=14),
+            **kwargs,
+        )
 
     def render(self) -> None:
         """Create fig and render subplots at appropriate rows/columns."""
