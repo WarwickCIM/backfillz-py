@@ -332,7 +332,8 @@ class SliceHistogram:
             horizontal_spacing=0,
             vertical_spacing=0,
             print_grid=True,
-            subplot_titles=["Trace Plot with Slices", None, "Density Plots for Slices"]
+            # Plotly subplot titles look a bit broken, annotations sounds better
+            subplot_titles=["Trace Plot with Slices", "", "Density Plots for Slices"]
         )
 
         self.tracePlot.layout_axes(fig)
@@ -345,6 +346,17 @@ class SliceHistogram:
         annotations[0].update(xanchor='left', x=fig.layout[self.tracePlot.xaxis_id].domain[0])
         annotations[1].update(y=1.03)  # oof -- adjust title subgraph
         annotations[1].update(xanchor='left', x=fig.layout[self.densityPlots.xaxis_id].domain[0])
+
+        fig.add_annotation(
+            xref='paper',
+            yref='paper',
+            x=0,
+            y=0,
+            xanchor='left',
+            yanchor='top',
+            text="Raftery-Lewis Diagnostic",
+            showarrow=False
+        )
 
         return fig
 

@@ -16,9 +16,10 @@
   - avoid brittle dependency on magic numbers assigned to subplot axes by Plotly
   - parameterise on height of Raftery-Lewis section and width of other 3 sections
 
-## Still to do:
+## On the horizon:
 - make a pass over R code to check for minor viz details/settings
 - record plot information in Backfillz
+- further design improvements to make subplot titles and row/column specifications less brittle
 
 ## To discuss
 - Is Raftery-Lewis the right diagnostic, given no longer supported by PyMC3? (And is R dependency ok?)
