@@ -233,8 +233,9 @@ class RafteryLewisPlot(Subplot):
             x=[self.required_sample_size()],
             y=[0],
             mode='text',
-            text=['X' if self.required_sample_size() > self.data.n_iter else 'Y'],
-            textposition='middle left'
+            text=['X' if self.required_sample_size() > self.data.n_iter else ''],
+            textposition='middle center',
+            cliponaxis=False  # ensure visible
         )
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:

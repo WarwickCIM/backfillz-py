@@ -7,10 +7,14 @@
 - histograms to aggregate all chains
 - performance experiment with 1,000,000 iterations
 - labels on "joining segments" to right of y-axis
+- disable zoom/drag functionality
+- plot Raftery-Lewis diagnostic
 - additional x-axis above density plots
 
 ## Design topics
-- Improve class-oriented design to avoid dependency on magic numbers assigned to subplot axes by Plotly
+- Improve class-oriented design:
+  - avoid brittle dependency on magic numbers assigned to subplot axes by Plotly
+  - parameterise on height of Raftery-Lewis section and width of other 3 sections
 
 ## Still to do:
 - make a pass over R code to check for minor viz details/settings
