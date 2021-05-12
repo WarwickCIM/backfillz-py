@@ -59,7 +59,7 @@ class Stan:
 def generate_fit() -> Stan:
     """Make PyStan fit from the Eight Schools example."""
     model = stan.build(schools_code, data=schools_data, random_seed=1)
-    return Stan(model, model.sample(num_chains=4, num_samples=5000))
+    return Stan(model, model.sample(num_chains=4, num_samples=12000))
 
 
 if __name__ == '__main__':

@@ -6,6 +6,25 @@
 - add density function plot to histogram (one per chain) 
 - histograms to aggregate all chains
 - performance experiment with 1,000,000 iterations
+- labels on "joining segments" to right of y-axis
+- disable zoom/drag functionality
+- plot Raftery-Lewis diagnostic
+- additional x-axis above density plots
+
+## Design topics
+- Improve class-oriented design:
+  - avoid brittle dependency on magic numbers assigned to subplot axes by Plotly
+  - parameterise on height of Raftery-Lewis section and width of other 3 sections
+
+## On the horizon:
+- make a pass over R code to check for minor viz details/settings
+- record plot information in Backfillz
+- further design improvements to make subplot titles and row/column specifications less brittle
+
+## To discuss
+- Is Raftery-Lewis the right diagnostic, given no longer supported by PyMC3? (And is R dependency ok?)
+- Should each RL plot have its own x-axis? Perhaps should be max of expected/actual iterations for all chains?
+- Use cases to drive ledger requirements/design 
 
 # 29 April 2021
 
@@ -14,12 +33,6 @@
 - single x-axis shared by histograms
 - one "joining segment" per slice (shaded for now)
 - rectangle drawn around in slice in trace plot
-
-## Still to do:
-- Raftery-Lewis diagnostic
-- labels on "joining segments" to be to right of y-axis 
-- additional x-axis above density plots
-- make a pass over R code to check for other details, plot settings
 
 ## Design topics
 - Class-oriented design to make various things explicit:
