@@ -270,20 +270,31 @@ class SliceHistogram:
             max_sample=np.amax(backfillz.mcmc_samples[param]),
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
-        lower_section = 0.2
+        lower_section = 0.2  # top of y-domain for Raftery-Lewis section
         lower_section_margin = 0.4
-        self.tracePlot = TracePlot((None, None), (lower_section, 1.0), self.data)
-        self.rafteryLewisPlots = RafteryLewisPlots(
-            (3 + len(slcs), 3 + len(slcs)),
-            (0, lower_section * (1 - lower_section_margin)),
-            self.data
+        self.tracePlot = TracePlot(
+            axis_ids=(None, None),
+            y_domain=(lower_section, 1.0),
+            data=self.data
         )
-        self.joiningSegments = JoiningSegments((2, 2), (lower_section, 1.0), self.data)
-        self.densityPlots = DensityPlots((3, 3), (lower_section, 1.0), self.data)
+        self.joiningSegments = JoiningSegments(
+            axis_ids=(2, 2),
+            y_domain=(lower_section, 1.0),
+            data=self.data
+        )
+        self.rafteryLewisPlots = RafteryLewisPlots(
+            axis_ids=(3 + len(slcs), 3 + len(slcs)),
+            y_domain=(0, lower_section * (1 - lower_section_margin)),
+            data=self.data
+        )
+        self.densityPlots = DensityPlots(
+            axis_ids=(3, 3),
+            y_domain=(lower_section, 1.0),
+            data=self.data
+        )
 
     @property
     def figure(self) -> go.Figure:
-        """Derive Plotly figure from 3 parts."""
         fig: go.Figure = self._layout()
         self.render(fig)
         return fig
@@ -292,7 +303,7 @@ class SliceHistogram:
         n_slcs: int = len(self.data.slcs)
         layout: go.Layout = go.Layout(
             title=f"Trace slice histogram of {self.data.param}",
-            titlefont=dict(size=32),
+            titlefont=dict(size=30),
             plot_bgcolor=self.data.theme.bg_colour,
             showlegend=False,
         )
@@ -312,20 +323,6 @@ class SliceHistogram:
             print_grid=True,
             subplot_titles=["Trace Plot with Slices", None, "Density Plots for Slices"]
         )
-
-        axis_settings: Dict[str, Any] = dict(
-            showgrid=False,
-            zeroline=False,
-            linecolor=self.data.theme.fg_colour,
-            ticks='outside',
-            tickwidth=1,
-            ticklen=5,
-            tickcolor=self.data.theme.fg_colour,
-            fixedrange=True,  # disable selection zoom
-        )
-
-        fig.update_xaxes(**axis_settings)
-        fig.update_yaxes(**axis_settings)
 
         self.tracePlot.layout_axes(fig)
         self.densityPlots.layout_axes(fig)
@@ -351,9 +348,7 @@ class SliceHistogram:
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
     params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
-    slice_list: List[Slice] = [
-        Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)
-    ]
+    slice_list: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
     slices: Slices = {param: slice_list for param in params}
 
     config = dict(displayModeBar=False, showAxisDragHandles=False)

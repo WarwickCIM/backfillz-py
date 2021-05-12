@@ -94,10 +94,23 @@ class Plot:
 class Subplot(Plot):
     """A Plotly subplot and its assigned axis ids."""
 
+    @property
+    def axis_defaults(self) -> Dict[str, Any]:
+        return dict(
+            showgrid=False,
+            zeroline=False,
+            linecolor=self.data.theme.fg_colour,
+            ticks='outside',
+            tickwidth=1,
+            ticklen=5,
+            tickcolor=self.data.theme.fg_colour,
+            fixedrange=True,  # disable selection zoom
+        )
+
     def layout_axes(self, fig: go.Figure) -> None:
         """Configure my x and y axis settings in fig."""
-        fig.layout[self.xaxis_id].update(**self.xaxis_props)
-        fig.layout[self.yaxis_id].update(**self.yaxis_props)
+        fig.layout[self.xaxis_id].update(**{**self.axis_defaults, **self.xaxis_props})
+        fig.layout[self.yaxis_id].update(**{**self.axis_defaults, **self.yaxis_props})
 
     @property
     def xaxis_props(self) -> Props:
