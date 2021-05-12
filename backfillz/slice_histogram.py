@@ -52,7 +52,7 @@ class TracePlot(Subplot):
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(domain=self.y_domain, range=[0, self.data.n_iter])
+        return dict(range=[0, self.data.n_iter])
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         for trace in self.traces():
@@ -103,7 +103,6 @@ class JoiningSegments(Subplot):
     @property
     def yaxis_props(self) -> Props:
         return dict(
-            domain=self.y_domain,
             range=[0, self.data.n_iter],
             tickmode='array',
             tickvals=_scale(
@@ -142,7 +141,7 @@ class DensityPlot(Subplot):
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(side='right', rangemode='nonnegative', domain=self.y_domain)
+        return dict(side='right', rangemode='nonnegative')
 
     def histo(self, chain_slices: List[np.ndarray]) -> go.Histogram:
         return go.Histogram(
@@ -216,7 +215,7 @@ class RafteryLewisPlot(Subplot):
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(visible=False, domain=self.y_domain)
+        return dict(visible=False)
 
     def required_sample_size(self) -> int:
         """Return N component of resmatrix component of result of raftery.diag R function."""
