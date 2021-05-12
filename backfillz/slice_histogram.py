@@ -355,6 +355,7 @@ class SliceHistogram:
             xanchor='left',
             yanchor='top',
             text="Raftery-Lewis Diagnostic",
+            font=dict(size=14),
             showarrow=False
         )
 
