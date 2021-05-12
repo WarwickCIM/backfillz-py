@@ -293,13 +293,7 @@ class SliceHistogram:
             data=self.data
         )
 
-    @property
-    def figure(self) -> go.Figure:
-        fig: go.Figure = self._layout()
-        self.render(fig)
-        return fig
-
-    def _layout(self) -> go.Figure:
+    def layout(self) -> go.Figure:
         n_slcs: int = len(self.data.slcs)
         layout: go.Layout = go.Layout(
             title=f"Trace slice histogram of {self.data.param}",
@@ -337,12 +331,14 @@ class SliceHistogram:
 
         return fig
 
-    def render(self, fig: go.Figure) -> None:
-        """Render subplots into fig at appropriate rows/columns."""
+    def render(self) -> None:
+        """Create fig and render subplots at appropriate rows/columns."""
+        fig: go.Figure = self.layout()
         self.tracePlot.render(fig, 1, 1)
         self.rafteryLewisPlots.render(fig, len(self.data.slcs) + 1, 1)
         self.joiningSegments.render(fig, 1, 2)
         self.densityPlots.render(fig, 1, 3)
+        fig.show(dict(displayModeBar=False, showAxisDragHandles=False))
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
@@ -351,10 +347,8 @@ def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     slice_list: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
     slices: Slices = {param: slice_list for param in params}
 
-    config = dict(displayModeBar=False, showAxisDragHandles=False)
     for param in params:
         # Assume scalar parameter for now; what about vectors?
-        SliceHistogram(backfillz, slices[param], param).figure.show(config=config)
+        SliceHistogram(backfillz, slices[param], param).render()
 
-    # Update log
     backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
