@@ -64,7 +64,7 @@ class ChartData:
 
 @dataclass
 class Plot:
-    """Base class of Subplot and Subplots."""
+    """Base class providing common subplot functionality."""
 
     axis_ids: AxisIds
     x_domain: Tuple[float, float]  # left/right edges normalised to [0, 1]
@@ -127,7 +127,7 @@ class Subplot(Plot):
 class VerticalSubplots(Plot):
     """A collection of vertically arranged subplots."""
 
-    _plots: List[Plot]  # @cached_property would be nice here but MyPy doesn't support it properly
+    _plots: List[Plot]  # @cached_property would be nice but Mypy doesn't support it properly
 
     def __init__(
         self,
