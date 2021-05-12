@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from functools import cached_property
 from math import ceil, floor
 from typing import Any, Dict, List
 
@@ -13,7 +12,7 @@ import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.plot \
-    import _scale, ChartData, nth_axes_of, Plot, Props, segment, Slice, Slices, Subplot, Subplots
+    import _scale, ChartData, nth_axes_of, Plot, Props, segment, Slice, Slices, Subplot, VerticalSubplots
 
 coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
 numpy2ri.activate()
@@ -181,11 +180,9 @@ class DensityPlot(Subplot):
             fig.add_trace(chain_plot, row, col)
 
 
-@dataclass
-class DensityPlots(Subplots):
+class DensityPlots(VerticalSubplots):
     """Right-hand component: one density plot per slice."""
 
-    @cached_property
     def plots(self) -> List[Plot]:
         return [
             DensityPlot(
@@ -234,11 +231,9 @@ class RafteryLewisPlot(Subplot):
         fig.add_trace(self.plot(), row, col)
 
 
-@dataclass
-class RafteryLewisPlots(Subplots):
+class RafteryLewisPlots(VerticalSubplots):
     """Bottom component: one Raftery-Lewis plot per chain."""
 
-    @cached_property
     def plots(self) -> List[Plot]:
         return [
             RafteryLewisPlot(

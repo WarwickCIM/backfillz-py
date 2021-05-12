@@ -124,17 +124,31 @@ class Subplot(Plot):
         return dict()
 
 
-@dataclass
-class Subplots(Plot):
+class VerticalSubplots(Plot):
     """A collection of vertically arranged subplots."""
 
-    # Unfortunately mypy doesn't support @cached-property properly
+    _plots: List[Plot]  # @cached_property would be nice here but MyPy doesn't support it properly
+
+    def __init__(
+        self,
+        axis_ids: AxisIds,
+        x_domain: Tuple[float, float],
+        y_domain: Tuple[float, float],
+        data: ChartData
+    ):
+        super().__init__(axis_ids, x_domain, y_domain, data)
+        self._plots = self.plots()
+
+    def plots(self) -> List[Plot]:
+        """My subplots."""
+        return []
+
     def layout_axes(self, fig: go.Figure) -> None:
         """Ask each subplot to configure its axes."""
-        for plot in self.plots:  # type: ignore[attr-defined]
+        for plot in self._plots:
             plot.layout_axes(fig)
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         """Render subplots into fig, placing subplots into ascending (from 0) rows starting from bottom."""
-        for n, plot in enumerate(self.plots):  # type: ignore[attr-defined]
-            plot.render(fig, row=row + len(self.plots) - 1 - n, col=col)
+        for n, plot in enumerate(self._plots):
+            plot.render(fig, row=row + len(self._plots) - 1 - n, col=col)
