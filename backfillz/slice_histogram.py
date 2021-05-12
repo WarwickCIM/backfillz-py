@@ -227,8 +227,19 @@ class RafteryLewisPlot(Subplot):
             line=dict(color=self.data.theme.palette[self.n_chain])
         )
 
+    def warning_cross(self) -> go.Scatter:
+        """Singleton scatterplot to render X if iterations fall short of required sample size."""
+        return go.Scatter(
+            x=[self.required_sample_size()],
+            y=[0],
+            mode='text',
+            text=['X' if self.required_sample_size() > self.data.n_iter else 'Y'],
+            textposition='middle left'
+        )
+
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         fig.add_trace(self.plot(), row, col)
+        fig.add_trace(self.warning_cross(), row, col)
 
 
 class RafteryLewisPlots(VerticalSubplots):
