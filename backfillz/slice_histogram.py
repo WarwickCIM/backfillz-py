@@ -80,11 +80,11 @@ class JoiningSegments(Subplot):
                 fill='toself',
                 fillcolor='rgba(240,240,240,255)'
             )
-            for n_slc, slc in enumerate(self.data.slcs, start=1)
-            for lower, upper in [((n_slc - 1) / self.data.n_slcs, n_slc / self.data.n_slcs)]
+            for n, slc in enumerate(self.data.slcs, start=1)
+            for lower, upper in [((n - 1) / self.data.n_slcs, n / self.data.n_slcs)]
         ]
 
-    # one point per unique slice start/end point
+    # one numerical marker per slice delimiter
     def y_labels(self) -> go.Scatter:
         y = self.slice_delimiters
         return go.Scatter(
@@ -97,6 +97,7 @@ class JoiningSegments(Subplot):
 
     @property
     def slice_delimiters(self) -> List[float]:
+        """The unique slice start/end points, expressed in iterations."""
         delims: List[float] = [*{*[y for slc in self.data.slcs for y in [slc.lower, slc.upper]]}]
         return _scale(self.data.n_iter, delims)
 
@@ -109,10 +110,7 @@ class JoiningSegments(Subplot):
         return dict(
             range=[0, self.data.n_iter],
             tickmode='array',
-            tickvals=_scale(
-                self.data.n_iter,
-                [*{*[y for slc in self.data.slcs for y in [slc.lower, slc.upper]]}]
-            ),
+            tickvals=self.slice_delimiters,
             showticklabels=False
         )
 
