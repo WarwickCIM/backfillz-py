@@ -23,6 +23,8 @@ AxisIds = Tuple[Optional[int], Optional[int]]
 Props = Dict[str, Any]
 
 
+# This happens to work with the current figure but doesn't generalise. A better idea is probably to extract
+# the axis ids from the layout object.
 def nth_axes_of(axis_ids: AxisIds, n: int, count: int) -> AxisIds:
     """For non-None axes, nth (from 0) pair of axis ids counting *up* (where axis ids grown *down*)."""
     [xaxis_id, yaxis_id] = axis_ids

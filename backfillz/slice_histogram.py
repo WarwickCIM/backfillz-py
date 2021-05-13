@@ -122,23 +122,18 @@ class DensityPlot(Subplot):
     slc: Slice
     n_slc: int
 
-    @property
-    def xaxis_props(self) -> Props:
-        bottom, top = self.n_slc == 0, self.n_slc == self.data.n_slcs - 1
-        # single slice requires special treatment; haven't figured out how to mirror tick labels
-        if self.data.n_slcs == 1:
-            return dict(mirror='ticks')
-        else:
-            if bottom:
-                return dict()
-            elif top:
-                return dict(side='top')
-            else:
-                return dict(visible=False)
+    def render(self, fig: go.Figure, row: int, col: int) -> None:
+        chain_slices: List[np.ndarray] = [
+            self.data.chains[
+                n,
+                floor(self.slc.lower * self.data.n_iter):floor(self.slc.upper * self.data.n_iter)
+            ]
+            for n in range(0, self.data.n_chains)
+        ]
 
-    @property
-    def yaxis_props(self) -> Props:
-        return dict(side='right', rangemode='nonnegative')
+        fig.add_trace(self.histo(chain_slices), row, col)
+        for chain_plot in self.chain_plots(chain_slices):
+            fig.add_trace(chain_plot, row, col)
 
     def histo(self, chain_slices: List[np.ndarray]) -> go.Histogram:
         return go.Histogram(
@@ -164,18 +159,22 @@ class DensityPlot(Subplot):
             for n in range(0, self.data.n_chains)
         ]
 
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        chain_slices: List[np.ndarray] = [
-            self.data.chains[
-                n,
-                floor(self.slc.lower * self.data.n_iter):floor(self.slc.upper * self.data.n_iter)
-            ]
-            for n in range(0, self.data.n_chains)
-        ]
+    @property
+    def xaxis_props(self) -> Props:
+        bottom, top = self.n_slc == 0, self.n_slc == self.data.n_slcs - 1
+        # single slice requires special treatment; haven't figured out how to mirror tick labels
+        if self.data.n_slcs == 1:
+            return dict(mirror='ticks')
+        elif bottom:
+            return dict()
+        elif top:
+            return dict(side='top')
+        else:
+            return dict(visible=False)
 
-        fig.add_trace(self.histo(chain_slices), row, col)
-        for chain_plot in self.chain_plots(chain_slices):
-            fig.add_trace(chain_plot, row, col)
+    @property
+    def yaxis_props(self) -> Props:
+        return dict(side='right', rangemode='nonnegative')
 
 
 class DensityPlots(VerticalSubplots):
@@ -201,22 +200,9 @@ class RafteryLewisPlot(Subplot):
 
     n_chain: int
 
-    @property
-    def xaxis_props(self) -> Props:
-        return dict(
-            visible=False,
-            range=[0, max(self.data.n_iter, self.required_sample_size())]
-        )
-
-    @property
-    def yaxis_props(self) -> Props:
-        return dict(visible=False)
-
-    def required_sample_size(self) -> int:
-        """Return N component of resmatrix component of result of raftery.diag R function."""
-        result = coda.raftery_diag(self.data.chains[self.n_chain])
-        resmatrix = result[1][0]
-        return int(resmatrix[1])  # N is a float, but represents an iteration count
+    def render(self, fig: go.Figure, row: int, col: int) -> None:
+        fig.add_trace(self.plot(), row, col)
+        fig.add_trace(self.warning_cross(), row, col)
 
     def plot(self) -> go.Scatter:
         return go.Scatter(
@@ -228,17 +214,31 @@ class RafteryLewisPlot(Subplot):
     def warning_cross(self) -> go.Scatter:
         """Singleton scatterplot to render X if iterations fall short of required sample size."""
         return go.Scatter(
-            x=[self.required_sample_size()],
+            x=[self.required_sample_size],
             y=[0],
             mode='text',
-            text=['X' if self.required_sample_size() > self.data.n_iter else ''],
+            text=['X' if self.required_sample_size > self.data.n_iter else ''],
             textposition='middle center',
             cliponaxis=False  # ensure visible
         )
 
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        fig.add_trace(self.plot(), row, col)
-        fig.add_trace(self.warning_cross(), row, col)
+    @property
+    def required_sample_size(self) -> int:
+        """N component of resmatrix component of result of raftery.diag R function."""
+        result = coda.raftery_diag(self.data.chains[self.n_chain])
+        resmatrix = result[1][0]
+        return int(resmatrix[1])  # N is a float, but represents an iteration count
+
+    @property
+    def xaxis_props(self) -> Props:
+        return dict(
+            visible=False,
+            range=[0, max(self.data.n_iter, self.required_sample_size)]
+        )
+
+    @property
+    def yaxis_props(self) -> Props:
+        return dict(visible=False)
 
 
 class RafteryLewisPlots(VerticalSubplots):
