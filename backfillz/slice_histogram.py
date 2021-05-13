@@ -22,6 +22,12 @@ numpy2ri.activate()
 class TracePlot(Subplot):
     """Left-hand component."""
 
+    def render(self, fig: go.Figure, row: int, col: int) -> None:
+        for trace in self.traces():
+            fig.add_trace(trace, row, col)
+        for box in self.boxes():
+            fig.add_trace(box, row, col)
+
     # one per chain
     def traces(self) -> List[go.Scatter]:
         return [
@@ -53,16 +59,15 @@ class TracePlot(Subplot):
     def yaxis_props(self) -> Props:
         return dict(range=[0, self.data.n_iter])
 
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        for trace in self.traces():
-            fig.add_trace(trace, row, col)
-        for box in self.boxes():
-            fig.add_trace(box, row, col)
-
 
 @dataclass
 class JoiningSegments(Subplot):
     """Middle component."""
+
+    def render(self, fig: go.Figure, row: int, col: int) -> None:
+        for seg in self.segments():
+            fig.add_trace(seg, row, col)
+        fig.add_trace(self.y_labels(), row, col)
 
     # one per slice
     def segments(self) -> List[go.Scatter]:
@@ -76,7 +81,7 @@ class JoiningSegments(Subplot):
                 fillcolor='rgba(240,240,240,255)'
             )
             for n_slc, slc in enumerate(self.data.slcs, start=1)
-            for lower, upper in [((n_slc - 1) / len(self.data.slcs), n_slc / len(self.data.slcs))]
+            for lower, upper in [((n_slc - 1) / self.data.n_slcs, n_slc / self.data.n_slcs)]
         ]
 
     # one point per unique slice start/end point
@@ -111,11 +116,6 @@ class JoiningSegments(Subplot):
             showticklabels=False
         )
 
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        for seg in self.segments():
-            fig.add_trace(seg, row, col)
-        fig.add_trace(self.y_labels(), row, col)
-
 
 @dataclass
 class DensityPlot(Subplot):
@@ -126,9 +126,9 @@ class DensityPlot(Subplot):
 
     @property
     def xaxis_props(self) -> Props:
-        bottom, top = self.n_slc == 0, self.n_slc == len(self.data.slcs) - 1
+        bottom, top = self.n_slc == 0, self.n_slc == self.data.n_slcs - 1
         # single slice requires special treatment; haven't figured out how to mirror tick labels
-        if len(self.data.slcs) == 1:
+        if self.data.n_slcs == 1:
             return dict(mirror='ticks')
         else:
             if bottom:
@@ -186,9 +186,9 @@ class DensityPlots(VerticalSubplots):
     def plots(self) -> List[Plot]:
         return [
             DensityPlot(
-                axis_ids=nth_axes_of(self.axis_ids, n_slc, len(self.data.slcs)),
+                axis_ids=nth_axes_of(self.axis_ids, n_slc, self.data.n_slcs),
                 x_domain=self.x_domain,
-                y_domain=segment(self.y_domain, len(self.data.slcs), n_slc),
+                y_domain=segment(self.y_domain, self.data.n_slcs, n_slc),
                 data=self.data,
                 slc=slc,
                 n_slc=n_slc
@@ -311,7 +311,7 @@ class SliceHistogram:
         )
 
     def layout(self) -> go.Figure:
-        n_slcs: int = len(self.data.slcs)
+        n_slcs: int = self.data.n_slcs
         layout: go.Layout = go.Layout(
             title=f"Trace slice histogram of {self.data.param}",
             titlefont=dict(size=30),
@@ -332,7 +332,7 @@ class SliceHistogram:
             horizontal_spacing=0,
             vertical_spacing=0,
             print_grid=True,
-            # Plotly subplot titles look a bit broken, annotations sounds better
+            # TODO: redo these using annotations
             subplot_titles=["Trace Plot with Slices", "", "Density Plots for Slices"]
         )
 
@@ -347,33 +347,33 @@ class SliceHistogram:
         annotations[1].update(y=1.03)  # oof -- adjust title subgraph
         annotations[1].update(xanchor='left', x=fig.layout[self.densityPlots.xaxis_id].domain[0])
 
-        SliceHistogram.annotate(fig, x=0, y=0, xanchor='left', text="Raftery-Lewis Diagnostic")
-        SliceHistogram.annotate(
+        annotate(fig, x=0, y=0, xanchor='left', text="Raftery-Lewis Diagnostic")
+        annotate(
             fig, x=1, y=0, xanchor='right',
             text="Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
 
         return fig
 
-    @staticmethod
-    def annotate(fig: go.Figure, **kwargs: Any) -> None:
-        fig.add_annotation(
-            xref='paper',
-            yref='paper',
-            yanchor='top',
-            showarrow=False,
-            font=dict(size=14),
-            **kwargs,
-        )
-
     def render(self) -> None:
         """Create fig and render subplots at appropriate rows/columns."""
         fig: go.Figure = self.layout()
         self.tracePlot.render(fig, 1, 1)
-        self.rafteryLewisPlots.render(fig, len(self.data.slcs) + 1, 1)
+        self.rafteryLewisPlots.render(fig, self.data.n_slcs + 1, 1)
         self.joiningSegments.render(fig, 1, 2)
         self.densityPlots.render(fig, 1, 3)
         fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
+
+
+def annotate(fig: go.Figure, **kwargs: Any) -> None:
+    fig.add_annotation(
+        xref='paper',
+        yref='paper',
+        yanchor='top',
+        showarrow=False,
+        font=dict(size=14),
+        **kwargs,
+    )
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:

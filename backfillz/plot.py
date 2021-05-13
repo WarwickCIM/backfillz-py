@@ -61,6 +61,10 @@ class ChartData:
         """Return number of MCMC iterations per chain."""
         return int(self.chains.shape[1])
 
+    @property
+    def n_slcs(self) -> int:
+        return len(self.slcs)
+
 
 @dataclass
 class Plot:
