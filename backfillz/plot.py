@@ -30,16 +30,6 @@ def scale(factor: float, xs: List[float]) -> List[float]:
     return [x * factor for x in xs]
 
 
-def first(f: Callable[[float], float], p: Tuple[float, float]) -> Tuple[float, float]:
-    """Lift function to operate on first component of pair."""
-    return f(p[0]), p[1]
-
-
-def second(f: Callable[[float], float], p: Tuple[float, float]) -> Tuple[float, float]:
-    """Lift function to operate on second component of pair."""
-    return p[0], f(p[1])
-
-
 def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
     """Break supplied "domain" into n equal-sized segments, and return the mth."""
     start, end = domain
@@ -87,6 +77,10 @@ class Plot:
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         """Render me into fig at supplied row and column."""
         pass
+
+    @property
+    def top_left(self):
+        return self.x_domain[0], self.y_domain[1]
 
 
 @dataclass

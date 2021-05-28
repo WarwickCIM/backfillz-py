@@ -193,10 +193,6 @@ class DensityPlots(VerticalSubplots):
             for n, slc in enumerate(self.data.slcs)
         ]
 
-    @property
-    def uppermost(self) -> DensityPlot:
-        return cast(DensityPlot, self.plots[-1])
-
 
 @dataclass
 class RafteryLewisPlot(Subplot):
@@ -348,9 +344,8 @@ class SliceHistogram:
 
     def add_titles(self, fig: go.Figure) -> None:
         annotate(
-            # oof -- adjust for x-axis
             fig, 16,
-            second(lambda x: x * 1.03, fig.layout[self.densityPlots.uppermost.xaxis_id].domain), 'left', 'bottom',
+            (lambda p: (p[0] * 1.03, p[1]))(self.densityPlots.top_left), 'left', 'bottom',  # oof -- adjust for x-axis
             "Density Plots for Slices"
         )
 
