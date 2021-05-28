@@ -23,6 +23,8 @@ class TracePlot(Subplot):
     """Left-hand component."""
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
+        assert row == self.row
+        assert col == self.col
         for trace in self.traces():
             fig.add_trace(trace, row, col)
         for box in self.boxes():
@@ -65,6 +67,8 @@ class JoiningSegments(Subplot):
     """Middle component."""
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
+        assert row == self.row
+        assert col == self.col
         for seg in self.segments():
             fig.add_trace(seg, row, col)
         fig.add_trace(self.y_labels(), row, col)
@@ -123,6 +127,8 @@ class DensityPlot(Subplot):
     n_slc: int
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
+        assert row == self.row
+        assert col == self.col
         chain_slices: List[np.ndarray] = [
             self.data.chains[
                 n,
@@ -189,7 +195,7 @@ class DensityPlots(VerticalSubplots):
                 data=self.data,
                 slc=slc,
                 n_slc=n,
-                row=self.row + n,
+                row=self.row + self.data.n_slcs - 1 - n,
                 col=self.col,
             )
             for n, slc in enumerate(self.data.slcs)
@@ -203,8 +209,10 @@ class RafteryLewisPlot(Subplot):
     n_chain: int
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
-        fig.add_trace(self.plot(), row, col)
-        fig.add_trace(self.warning_cross(), row, col)
+        assert row == self.row
+        assert col == self.col
+        fig.add_trace(self.plot(), self.row, self.col)
+        fig.add_trace(self.warning_cross(), self.row, self.col)
 
     def plot(self) -> go.Scatter:
         return go.Scatter(
@@ -254,7 +262,7 @@ class RafteryLewisPlots(VerticalSubplots):
                 y_domain=segment(self.y_domain, self.data.n_chains, n),
                 data=self.data,
                 n_chain=n,
-                row=self.row + n,
+                row=self.row + self.data.n_chains - 1 - n,
                 col=self.col
             )
             for n, _ in enumerate(self.data.chains)
