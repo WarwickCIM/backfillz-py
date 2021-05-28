@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import Any, cast, List
+from typing import Any, cast, List, Literal, Tuple
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -336,8 +336,6 @@ class SliceHistogram:
             horizontal_spacing=0,
             vertical_spacing=0,
             print_grid=True,
-            # TODO: redo using annotations
-            subplot_titles=["", "", "Density Plots for Slices"]
         )
 
         self.tracePlot.layout_axes(fig)
@@ -346,27 +344,30 @@ class SliceHistogram:
         self.rafteryLewisPlots.layout_axes(fig)
 
         self.add_titles(fig)
-
         return fig
 
     def add_titles(self, fig: go.Figure) -> None:
-        # TODO: push magic indices 0, 1 into constructors of subplots
-        annotations = fig.layout.annotations
-        annotations[0].update(y=1.03)  # oof -- adjust title subgraph
-        annotations[0].update(xanchor='left', x=fig.layout[self.densityPlots.uppermost.xaxis_id].domain[0])
+        annotate(
+            fig,
+            16,
+            (fig.layout[self.densityPlots.uppermost.xaxis_id].domain[0],
+             fig.layout[self.densityPlots.uppermost.yaxis_id].domain[1] * 1.03),  # oof -- adjust for x-axis
+            'left',
+            'bottom',
+            text="Density Plots for Slices"
+        )
 
         annotate(
             fig,
-            font_size=16,
-            x=fig.layout[self.tracePlot.xaxis_id].domain[0],
-            y=fig.layout[self.tracePlot.yaxis_id].domain[1],
-            xanchor='left',
-            yanchor='bottom',
+            16,
+            (fig.layout[self.tracePlot.xaxis_id].domain[0], fig.layout[self.tracePlot.yaxis_id].domain[1]),
+            'left',
+            'bottom',
             text="Trace Plot With Slices"
         )
-        annotate(fig, font_size=14, x=0, y=0, xanchor='left', yanchor='top', text="Raftery-Lewis Diagnostic")
+        annotate(fig, 14, (0, 0), xanchor='left', yanchor='top', text="Raftery-Lewis Diagnostic")
         annotate(
-            fig, font_size=14, x=1, y=0, xanchor='right', yanchor='top',
+            fig, 14, (1, 0), 'right', 'top',
             text="Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
 
@@ -380,14 +381,25 @@ class SliceHistogram:
         fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
 
 
-def annotate(fig: go.Figure, font_size: int, **kwargs: Any) -> None:
+def annotate(
+    fig: go.Figure,
+    font_size: int,
+    at: Tuple[int, int],
+    xanchor: Literal['left', 'right'],
+    yanchor: Literal['top', 'bottom'],
+    text: str,
+) -> None:
     """Add an annotation to supplied figure, with supplied arguments in addition to some default settings."""
     fig.add_annotation(
         xref='paper',
         yref='paper',
         showarrow=False,
         font=dict(size=font_size),
-        **kwargs,
+        x=at[0],
+        y=at[1],
+        xanchor=xanchor,
+        yanchor=yanchor,
+        text=text,
     )
 
 
