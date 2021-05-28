@@ -345,6 +345,11 @@ class SliceHistogram:
         self.joiningSegments.layout_axes(fig)
         self.rafteryLewisPlots.layout_axes(fig)
 
+        self.add_titles(fig)
+
+        return fig
+
+    def add_titles(self, fig: go.Figure) -> None:
         # TODO: push magic indices 0, 1 into constructors of subplots
         annotations = fig.layout.annotations
         annotations[0].update(y=1.03)  # oof -- adjust title subgraph
@@ -364,8 +369,6 @@ class SliceHistogram:
             fig, font_size=14, x=1, y=0, xanchor='right', yanchor='top',
             text="Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
-
-        return fig
 
     def render(self) -> None:
         """Create fig and render subplots at appropriate rows/columns."""
