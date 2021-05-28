@@ -76,8 +76,8 @@ class Plot:
     def layout_axes(self, fig: go.Figure) -> None:
         pass
 
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        """Render me into fig at supplied row and column."""
+    def render(self, fig: go.Figure) -> None:
+        """Render me into fig."""
         pass
 
     @property
@@ -159,7 +159,7 @@ class VerticalSubplots(Plot):
         for plot in self.plots:
             plot.layout_axes(fig)
 
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        """Render subplots into fig, placing subplots into ascending (from 0) rows starting from bottom."""
+    def render(self, fig: go.Figure) -> None:
+        """Render subplots into fig."""
         for n, plot in enumerate(self.plots):
-            plot.render(fig, row=row + len(self.plots) - 1 - n, col=col)
+            plot.render(fig)

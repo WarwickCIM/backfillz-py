@@ -22,9 +22,7 @@ numpy2ri.activate()
 class TracePlot(Subplot):
     """Left-hand component."""
 
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        assert row == self.row
-        assert col == self.col
+    def render(self, fig: go.Figure) -> None:
         for trace in self.traces():
             fig.add_trace(trace, self.row, self.col)
         for box in self.boxes():
@@ -66,9 +64,7 @@ class TracePlot(Subplot):
 class JoiningSegments(Subplot):
     """Middle component."""
 
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        assert row == self.row
-        assert col == self.col
+    def render(self, fig: go.Figure) -> None:
         for seg in self.segments():
             fig.add_trace(seg, self.row, self.col)
         fig.add_trace(self.y_labels(), self.row, self.col)
@@ -126,9 +122,7 @@ class DensityPlot(Subplot):
     slc: Slice
     n_slc: int
 
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        assert row == self.row
-        assert col == self.col
+    def render(self, fig: go.Figure) -> None:
         chain_slices: List[np.ndarray] = [
             self.data.chains[
                 n,
@@ -208,9 +202,7 @@ class RafteryLewisPlot(Subplot):
 
     n_chain: int
 
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        assert row == self.row
-        assert col == self.col
+    def render(self, fig: go.Figure) -> None:
         fig.add_trace(self.plot(), self.row, self.col)
         fig.add_trace(self.warning_cross(), self.row, self.col)
 
@@ -383,10 +375,10 @@ class SliceHistogram:
     def render(self) -> None:
         """Create fig and render subplots at appropriate rows/columns."""
         fig: go.Figure = self.layout()
-        self.tracePlot.render(fig, 1, 1)
-        self.rafteryLewisPlots.render(fig, self.data.n_slcs + 1, 1)
-        self.joiningSegments.render(fig, 1, 2)
-        self.densityPlots.render(fig, 1, 3)
+        self.tracePlot.render(fig)
+        self.rafteryLewisPlots.render(fig)
+        self.joiningSegments.render(fig)
+        self.densityPlots.render(fig)
         fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
 
 
