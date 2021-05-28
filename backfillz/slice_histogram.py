@@ -188,7 +188,9 @@ class DensityPlots(VerticalSubplots):
                 y_domain=segment(self.y_domain, self.data.n_slcs, n),
                 data=self.data,
                 slc=slc,
-                n_slc=n
+                n_slc=n,
+                row=self.row + n,
+                col=self.col,
             )
             for n, slc in enumerate(self.data.slcs)
         ]
@@ -251,7 +253,9 @@ class RafteryLewisPlots(VerticalSubplots):
                 x_domain=self.x_domain,
                 y_domain=segment(self.y_domain, self.data.n_chains, n),
                 data=self.data,
-                n_chain=n
+                n_chain=n,
+                row=self.row + n,
+                col=self.col
             )
             for n, _ in enumerate(self.data.chains)
         ]
@@ -289,24 +293,32 @@ class SliceHistogram:
             axis_ids=[None],
             x_domain=(0, left_w),
             y_domain=(lower_h, 1.0),
+            row=1,
+            col=1,
             data=self.data
         )
         self.joiningSegments = JoiningSegments(
             axis_ids=[2],
             x_domain=(left_w, left_w + middle_w),
             y_domain=(lower_h, 1.0),
+            row=1,
+            col=2,
             data=self.data
         )
         self.densityPlots = DensityPlots(
             axis_ids=[n + 3 for n in reversed(range(self.data.n_slcs))],
             x_domain=(left_w + middle_w, 1),
             y_domain=(lower_h, 1.0),
+            row=1,
+            col=3,
             data=self.data
         )
         self.rafteryLewisPlots = RafteryLewisPlots(
             axis_ids=[n + 3 + len(slcs) for n in reversed(range(self.data.n_chains))],
             x_domain=(0, left_w),
             y_domain=(0, lower_h * (1 - lower_margin)),
+            row=self.data.n_slcs + 1,
+            col=1,
             data=self.data
         )
 

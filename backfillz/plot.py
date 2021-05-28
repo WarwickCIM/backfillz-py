@@ -69,6 +69,8 @@ class Plot:
     axis_ids: List[AxisId]
     x_domain: Tuple[float, float]  # left/right edges normalised to [0, 1]
     y_domain: Tuple[float, float]  # top/bottom edges normalised to [0, 1]
+    row: int
+    col: int
     data: ChartData
 
     def layout_axes(self, fig: go.Figure) -> None:
@@ -138,13 +140,12 @@ class VerticalSubplots(Plot):
         axis_ids: List[AxisId],
         x_domain: Tuple[float, float],
         y_domain: Tuple[float, float],
+        row: int,
+        col: int,
         data: ChartData
     ):
         super().__init__(
-            axis_ids=axis_ids,
-            x_domain=x_domain,
-            y_domain=y_domain,
-            data=data
+            axis_ids=axis_ids, x_domain=x_domain, y_domain=y_domain, row=row, col=col, data=data
         )
         self.plots = self.make_plots()
 
