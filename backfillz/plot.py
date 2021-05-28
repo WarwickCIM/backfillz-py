@@ -80,19 +80,6 @@ class Plot:
     y_domain: Tuple[float, float]  # top/bottom edges normalised to [0, 1]
     data: ChartData
 
-    @property
-    def xaxis_id(self) -> str:
-        """My Plotly-assigned x-axis id; for an aggregate, my first such id."""
-        assert self.axis_ids2[0] == self.axis_ids[0]
-        xaxis_id = self.axis_ids[0]
-        return 'xaxis' + ('' if xaxis_id is None else str(xaxis_id))
-
-    @property
-    def yaxis_id(self) -> str:
-        """My Plotly-assigned y-axis id; for an aggregate, my first such id."""
-        yaxis_id = self.axis_ids[1]
-        return 'yaxis' + ('' if yaxis_id is None else str(yaxis_id))
-
     def layout_axes(self, fig: go.Figure) -> None:
         pass
 
@@ -117,6 +104,19 @@ class Subplot(Plot):
             tickcolor=self.data.theme.fg_colour,
             fixedrange=True,  # disable selection zoom
         )
+
+    @property
+    def xaxis_id(self) -> str:
+        """My Plotly-assigned x-axis id."""
+        assert self.axis_ids2[0] == self.axis_ids[0]
+        xaxis_id = self.axis_ids[0]
+        return 'xaxis' + ('' if xaxis_id is None else str(xaxis_id))
+
+    @property
+    def yaxis_id(self) -> str:
+        """My Plotly-assigned y-axis id."""
+        yaxis_id = self.axis_ids[1]
+        return 'yaxis' + ('' if yaxis_id is None else str(yaxis_id))
 
     def layout_axes(self, fig: go.Figure) -> None:
         """Configure my x and y axis settings in fig."""
