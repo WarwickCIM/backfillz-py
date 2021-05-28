@@ -25,15 +25,6 @@ AxisIds = Tuple[AxisId, AxisId]
 Props = Dict[str, Any]
 
 
-# This happens to work with the current figure but doesn't generalise. A better idea is probably to extract
-# the axis ids from the layout object.
-def nth_axes_of(axis_ids: AxisIds, n: int, count: int) -> AxisIds:
-    """For non-None axes, nth (from 0) pair of axis ids counting *up* (where axis ids grow *down*)."""
-    [xaxis_id, yaxis_id] = axis_ids
-    assert isinstance(xaxis_id, int) and isinstance(yaxis_id, int)
-    return xaxis_id + count - 1 - n, yaxis_id + count - 1 - n
-
-
 def _scale(factor: float, xs: List[float]) -> List[float]:
     return [x * factor for x in xs]
 
@@ -74,7 +65,7 @@ class ChartData:
 class Plot:
     """Base class providing common subplot functionality."""
 
-    axis_ids2: List[AxisId]
+    axis_ids: List[AxisId]
     x_domain: Tuple[float, float]  # left/right edges normalised to [0, 1]
     y_domain: Tuple[float, float]  # top/bottom edges normalised to [0, 1]
     data: ChartData
@@ -107,13 +98,13 @@ class Subplot(Plot):
     @property
     def xaxis_id(self) -> str:
         """My Plotly-assigned x-axis id."""
-        xaxis_id = self.axis_ids2[0]
+        xaxis_id = self.axis_ids[0]
         return 'xaxis' + ('' if xaxis_id is None else str(xaxis_id))
 
     @property
     def yaxis_id(self) -> str:
         """My Plotly-assigned y-axis id."""
-        yaxis_id = self.axis_ids2[0]
+        yaxis_id = self.axis_ids[0]
         return 'yaxis' + ('' if yaxis_id is None else str(yaxis_id))
 
     def layout_axes(self, fig: go.Figure) -> None:
@@ -139,13 +130,13 @@ class VerticalSubplots(Plot):
 
     def __init__(
         self,
-        axis_ids2: List[AxisId],
+        axis_ids: List[AxisId],
         x_domain: Tuple[float, float],
         y_domain: Tuple[float, float],
         data: ChartData
     ):
         super().__init__(
-            axis_ids2=axis_ids2,
+            axis_ids=axis_ids,
             x_domain=x_domain,
             y_domain=y_domain,
             data=data

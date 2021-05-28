@@ -12,7 +12,7 @@ import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.plot \
-    import _scale, ChartData, nth_axes_of, Plot, Props, segment, Slice, Slices, Subplot, VerticalSubplots
+    import _scale, ChartData, Plot, Props, segment, Slice, Slices, Subplot, VerticalSubplots
 
 coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
 numpy2ri.activate()
@@ -183,7 +183,7 @@ class DensityPlots(VerticalSubplots):
     def make_plots(self) -> List[Plot]:
         return [
             DensityPlot(
-                axis_ids2=[self.axis_ids2[n]],
+                axis_ids=[self.axis_ids[n]],
                 x_domain=self.x_domain,
                 y_domain=segment(self.y_domain, self.data.n_slcs, n),
                 data=self.data,
@@ -251,7 +251,7 @@ class RafteryLewisPlots(VerticalSubplots):
     def make_plots(self) -> List[Plot]:
         return [
             RafteryLewisPlot(
-                axis_ids2=[self.axis_ids2[n]],
+                axis_ids=[self.axis_ids[n]],
                 x_domain=self.x_domain,
                 y_domain=segment(self.y_domain, self.data.n_chains, n),
                 data=self.data,
@@ -290,25 +290,25 @@ class SliceHistogram:
 
         # Axis ids are one of Plotly's design failures. No easy way to extract them from the layout.
         self.tracePlot = TracePlot(
-            axis_ids2=[None],
+            axis_ids=[None],
             x_domain=(0, left_w),
             y_domain=(lower_h, 1.0),
             data=self.data
         )
         self.joiningSegments = JoiningSegments(
-            axis_ids2=[2],
+            axis_ids=[2],
             x_domain=(left_w, left_w + middle_w),
             y_domain=(lower_h, 1.0),
             data=self.data
         )
         self.densityPlots = DensityPlots(
-            axis_ids2=[n + 3 for n in reversed(range(self.data.n_slcs))],
+            axis_ids=[n + 3 for n in reversed(range(self.data.n_slcs))],
             x_domain=(left_w + middle_w, 1),
             y_domain=(lower_h, 1.0),
             data=self.data
         )
         self.rafteryLewisPlots = RafteryLewisPlots(
-            axis_ids2=[n + 3 + len(slcs) for n in reversed(range(self.data.n_chains))],
+            axis_ids=[n + 3 + len(slcs) for n in reversed(range(self.data.n_chains))],
             x_domain=(0, left_w),
             y_domain=(0, lower_h * (1 - lower_margin)),
             data=self.data
