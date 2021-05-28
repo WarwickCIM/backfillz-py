@@ -108,15 +108,13 @@ class Subplot(Plot):
     @property
     def xaxis_id(self) -> str:
         """My Plotly-assigned x-axis id."""
-        assert self.axis_ids2[0] == self.axis_ids[0]
-        xaxis_id = self.axis_ids[0]
+        xaxis_id = self.axis_ids2[0]
         return 'xaxis' + ('' if xaxis_id is None else str(xaxis_id))
 
     @property
     def yaxis_id(self) -> str:
         """My Plotly-assigned y-axis id."""
-        assert self.axis_ids2[0] == self.axis_ids[1]
-        yaxis_id = self.axis_ids[1]
+        yaxis_id = self.axis_ids2[0]
         return 'yaxis' + ('' if yaxis_id is None else str(yaxis_id))
 
     def layout_axes(self, fig: go.Figure) -> None:
