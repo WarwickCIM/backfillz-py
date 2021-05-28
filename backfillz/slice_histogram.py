@@ -26,9 +26,9 @@ class TracePlot(Subplot):
         assert row == self.row
         assert col == self.col
         for trace in self.traces():
-            fig.add_trace(trace, row, col)
+            fig.add_trace(trace, self.row, self.col)
         for box in self.boxes():
-            fig.add_trace(box, row, col)
+            fig.add_trace(box, self.row, self.col)
 
     # one per chain
     def traces(self) -> List[go.Scatter]:
@@ -70,8 +70,8 @@ class JoiningSegments(Subplot):
         assert row == self.row
         assert col == self.col
         for seg in self.segments():
-            fig.add_trace(seg, row, col)
-        fig.add_trace(self.y_labels(), row, col)
+            fig.add_trace(seg, self.row, self.col)
+        fig.add_trace(self.y_labels(), self.row, self.col)
 
     # one per slice
     def segments(self) -> List[go.Scatter]:
