@@ -115,6 +115,7 @@ class Subplot(Plot):
     @property
     def yaxis_id(self) -> str:
         """My Plotly-assigned y-axis id."""
+        assert self.axis_ids2[0] == self.axis_ids[1]
         yaxis_id = self.axis_ids[1]
         return 'yaxis' + ('' if yaxis_id is None else str(yaxis_id))
 
