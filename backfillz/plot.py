@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import plotly.graph_objects as go  # type: ignore
@@ -79,7 +79,7 @@ class Plot:
         pass
 
     @property
-    def top_left(self):
+    def top_left(self) -> Tuple[float, float]:
         return self.x_domain[0], self.y_domain[1]
 
 

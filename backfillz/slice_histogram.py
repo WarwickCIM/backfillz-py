@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import cast, List, Literal, Tuple
+from typing import List, Literal, Optional, Tuple
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -12,7 +12,7 @@ import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.plot \
-    import scale, ChartData, Plot, Props, second, segment, Slice, Slices, Subplot, VerticalSubplots
+    import ChartData, Plot, Props, scale, segment, Slice, Slices, Subplot, VerticalSubplots
 
 coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
 numpy2ri.activate()
@@ -344,21 +344,19 @@ class SliceHistogram:
 
     def add_titles(self, fig: go.Figure) -> None:
         annotate(
-            fig, 16,
-            (lambda p: (p[0] * 1.03, p[1]))(self.densityPlots.top_left), 'left', 'bottom',  # oof -- adjust for x-axis
+            fig, 16, self.densityPlots.top_left, 'left', 'bottom', 1.03,  # oof -- adjust for x_axis
             "Density Plots for Slices"
         )
-
         annotate(
-            fig, 16, fig.layout[self.tracePlot.xaxis_id].domain, 'left', 'bottom',
+            fig, 16, self.tracePlot.top_left, 'left', 'bottom', None,
             "Trace Plot With Slices"
         )
         annotate(
-            fig, 14, (0, 0), 'left', 'top',
+            fig, 14, (0, 0), 'left', 'top', None,
             "Raftery-Lewis Diagnostic"
         )
         annotate(
-            fig, 14, (1, 0), 'right', 'top',
+            fig, 14, (1, 0), 'right', 'top', None,
             "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
 
@@ -378,6 +376,7 @@ def annotate(
     at: Tuple[float, float],
     xanchor: Literal['left', 'right'],
     yanchor: Literal['top', 'bottom'],
+    y_adjust: Optional[float],  # additional scaling to put text above plot with an x-axis at the top
     text: str,
 ) -> None:
     """Add an annotation to supplied figure, with supplied arguments in addition to some default settings."""
@@ -387,7 +386,7 @@ def annotate(
         showarrow=False,
         font=dict(size=font_size),
         x=at[0],
-        y=at[1],
+        y=at[1] * (1.0 if y_adjust is None else y_adjust),
         xanchor=xanchor,
         yanchor=yanchor,
         text=text,
