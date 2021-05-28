@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import Any, cast, List, Literal, Tuple
+from typing import cast, List, Literal, Tuple
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -12,7 +12,7 @@ import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.plot \
-    import _scale, ChartData, Plot, Props, segment, Slice, Slices, Subplot, VerticalSubplots
+    import scale, ChartData, Plot, Props, second, segment, Slice, Slices, Subplot, VerticalSubplots
 
 coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
 numpy2ri.activate()
@@ -44,7 +44,7 @@ class TracePlot(Subplot):
         return [
             go.Scatter(
                 x=[self.data.min_sample] * 2 + [self.data.max_sample] * 2 + [self.data.min_sample],
-                y=_scale(self.data.n_iter, [slc.lower, slc.upper, slc.upper, slc.lower, slc.lower]),
+                y=scale(self.data.n_iter, [slc.lower, slc.upper, slc.upper, slc.lower, slc.lower]),
                 mode='lines',
                 line=dict(width=2, color=self.data.theme.fg_colour),
             )
@@ -74,7 +74,7 @@ class JoiningSegments(Subplot):
         return [
             go.Scatter(
                 x=[0, 1, 1, 0],
-                y=_scale(self.data.n_iter, [slc.lower, lower, upper, slc.upper]),
+                y=scale(self.data.n_iter, [slc.lower, lower, upper, slc.upper]),
                 mode='lines',
                 line=dict(color=self.data.theme.fg_colour, width=1),
                 fill='toself',
@@ -99,7 +99,7 @@ class JoiningSegments(Subplot):
     def slice_delimiters(self) -> List[float]:
         """Unique slice start/end points, expressed in iterations."""
         delims: List[float] = [*{*[y for slc in self.data.slcs for y in [slc.lower, slc.upper]]}]
-        return _scale(self.data.n_iter, delims)
+        return scale(self.data.n_iter, delims)
 
     @property
     def xaxis_props(self) -> Props:
@@ -348,27 +348,23 @@ class SliceHistogram:
 
     def add_titles(self, fig: go.Figure) -> None:
         annotate(
-            fig,
-            16,
-            (fig.layout[self.densityPlots.uppermost.xaxis_id].domain[0],
-             fig.layout[self.densityPlots.uppermost.yaxis_id].domain[1] * 1.03),  # oof -- adjust for x-axis
-            'left',
-            'bottom',
-            text="Density Plots for Slices"
+            # oof -- adjust for x-axis
+            fig, 16,
+            second(lambda x: x * 1.03, fig.layout[self.densityPlots.uppermost.xaxis_id].domain), 'left', 'bottom',
+            "Density Plots for Slices"
         )
 
         annotate(
-            fig,
-            16,
-            (fig.layout[self.tracePlot.xaxis_id].domain[0], fig.layout[self.tracePlot.yaxis_id].domain[1]),
-            'left',
-            'bottom',
-            text="Trace Plot With Slices"
+            fig, 16, fig.layout[self.tracePlot.xaxis_id].domain, 'left', 'bottom',
+            "Trace Plot With Slices"
         )
-        annotate(fig, 14, (0, 0), xanchor='left', yanchor='top', text="Raftery-Lewis Diagnostic")
+        annotate(
+            fig, 14, (0, 0), 'left', 'top',
+            "Raftery-Lewis Diagnostic"
+        )
         annotate(
             fig, 14, (1, 0), 'right', 'top',
-            text="Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
+            "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
 
     def render(self) -> None:
@@ -384,7 +380,7 @@ class SliceHistogram:
 def annotate(
     fig: go.Figure,
     font_size: int,
-    at: Tuple[int, int],
+    at: Tuple[float, float],
     xanchor: Literal['left', 'right'],
     yanchor: Literal['top', 'bottom'],
     text: str,

@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 import plotly.graph_objects as go  # type: ignore
@@ -25,8 +25,19 @@ AxisIds = Tuple[AxisId, AxisId]
 Props = Dict[str, Any]
 
 
-def _scale(factor: float, xs: List[float]) -> List[float]:
+def scale(factor: float, xs: List[float]) -> List[float]:
+    """Element-wise product."""
     return [x * factor for x in xs]
+
+
+def first(f: Callable[[float], float], p: Tuple[float, float]) -> Tuple[float, float]:
+    """Lift function to operate on first component of pair."""
+    return f(p[0]), p[1]
+
+
+def second(f: Callable[[float], float], p: Tuple[float, float]) -> Tuple[float, float]:
+    """Lift function to operate on second component of pair."""
+    return p[0], f(p[1])
 
 
 def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
