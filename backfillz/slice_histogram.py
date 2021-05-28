@@ -337,7 +337,7 @@ class SliceHistogram:
             vertical_spacing=0,
             print_grid=True,
             # TODO: redo using annotations
-            subplot_titles=["Trace Plot with Slices", "", "Density Plots for Slices"]
+            subplot_titles=["", "", "Density Plots for Slices"]
         )
 
         self.tracePlot.layout_axes(fig)
@@ -347,13 +347,21 @@ class SliceHistogram:
 
         # TODO: push magic indices 0, 1 into constructors of subplots
         annotations = fig.layout.annotations
-        annotations[0].update(xanchor='left', x=fig.layout[self.tracePlot.xaxis_id].domain[0])
-        annotations[1].update(y=1.03)  # oof -- adjust title subgraph
-        annotations[1].update(xanchor='left', x=fig.layout[self.densityPlots.uppermost.xaxis_id].domain[0])
+        annotations[0].update(y=1.03)  # oof -- adjust title subgraph
+        annotations[0].update(xanchor='left', x=fig.layout[self.densityPlots.uppermost.xaxis_id].domain[0])
 
-        annotate(fig, x=0, y=0, xanchor='left', text="Raftery-Lewis Diagnostic")
         annotate(
-            fig, x=1, y=0, xanchor='right',
+            fig,
+            font_size=16,
+            x=fig.layout[self.tracePlot.xaxis_id].domain[0],
+            y=fig.layout[self.tracePlot.yaxis_id].domain[1],
+            xanchor='left',
+            yanchor='bottom',
+            text="Trace Plot With Slices"
+        )
+        annotate(fig, font_size=14, x=0, y=0, xanchor='left', yanchor='top', text="Raftery-Lewis Diagnostic")
+        annotate(
+            fig, font_size=14, x=1, y=0, xanchor='right', yanchor='top',
             text="Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
 
@@ -369,14 +377,13 @@ class SliceHistogram:
         fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
 
 
-def annotate(fig: go.Figure, **kwargs: Any) -> None:
+def annotate(fig: go.Figure, font_size: int, **kwargs: Any) -> None:
     """Add an annotation to supplied figure, with supplied arguments in addition to some default settings."""
     fig.add_annotation(
         xref='paper',
         yref='paper',
-        yanchor='top',
         showarrow=False,
-        font=dict(size=14),
+        font=dict(size=font_size),
         **kwargs,
     )
 
