@@ -184,7 +184,6 @@ class DensityPlots(VerticalSubplots):
         return [
             DensityPlot(
                 axis_ids2=[self.axis_ids2[n]],
-                axis_ids=nth_axes_of(self.axis_ids, n, self.data.n_slcs),
                 x_domain=self.x_domain,
                 y_domain=segment(self.y_domain, self.data.n_slcs, n),
                 data=self.data,
@@ -253,7 +252,6 @@ class RafteryLewisPlots(VerticalSubplots):
         return [
             RafteryLewisPlot(
                 axis_ids2=[self.axis_ids2[n]],
-                axis_ids=nth_axes_of(self.axis_ids, n, self.data.n_chains),
                 x_domain=self.x_domain,
                 y_domain=segment(self.y_domain, self.data.n_chains, n),
                 data=self.data,
@@ -293,28 +291,24 @@ class SliceHistogram:
         # Axis ids are one of Plotly's design failures. No easy way to extract them from the layout.
         self.tracePlot = TracePlot(
             axis_ids2=[None],
-            axis_ids=(None, None),
             x_domain=(0, left_w),
             y_domain=(lower_h, 1.0),
             data=self.data
         )
         self.joiningSegments = JoiningSegments(
             axis_ids2=[2],
-            axis_ids=(2, 2),
             x_domain=(left_w, left_w + middle_w),
             y_domain=(lower_h, 1.0),
             data=self.data
         )
         self.densityPlots = DensityPlots(
             axis_ids2=[n + 3 for n in reversed(range(self.data.n_slcs))],
-            axis_ids=(3, 3),
             x_domain=(left_w + middle_w, 1),
             y_domain=(lower_h, 1.0),
             data=self.data
         )
         self.rafteryLewisPlots = RafteryLewisPlots(
             axis_ids2=[n + 3 + len(slcs) for n in reversed(range(self.data.n_chains))],
-            axis_ids=(3 + len(slcs), 3 + len(slcs)),
             x_domain=(0, left_w),
             y_domain=(0, lower_h * (1 - lower_margin)),
             data=self.data

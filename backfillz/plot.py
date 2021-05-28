@@ -75,7 +75,6 @@ class Plot:
     """Base class providing common subplot functionality."""
 
     axis_ids2: List[AxisId]
-    axis_ids: AxisIds
     x_domain: Tuple[float, float]  # left/right edges normalised to [0, 1]
     y_domain: Tuple[float, float]  # top/bottom edges normalised to [0, 1]
     data: ChartData
@@ -141,12 +140,16 @@ class VerticalSubplots(Plot):
     def __init__(
         self,
         axis_ids2: List[AxisId],
-        axis_ids: AxisIds,
         x_domain: Tuple[float, float],
         y_domain: Tuple[float, float],
         data: ChartData
     ):
-        super().__init__(axis_ids2, axis_ids, x_domain, y_domain, data)
+        super().__init__(
+            axis_ids2=axis_ids2,
+            x_domain=x_domain,
+            y_domain=y_domain,
+            data=data
+        )
         self.plots = self.make_plots()
 
     @abstractmethod
