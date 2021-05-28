@@ -56,11 +56,11 @@ class Backfillz:
         ]
 
     def iter_chains(self, param: str, index: int = 0) -> np.ndarray:
-        """Return the (num_chains x num_samples) matrix of draws for a given parameter."""
-        num_chains, num_samples = self.mcmc_samples.num_chains, self.mcmc_samples.num_samples
-        xss = np.zeros((num_chains, num_samples))
-        for n in range(0, num_chains):
-            xss[n] = self.mcmc_samples[param][index][n * num_samples: (n + 1) * num_samples]
+        """Return the (n_chains x n_samples) matrix of draws for a given parameter."""
+        n_chains, n_samples = self.mcmc_samples.num_chains, self.mcmc_samples.num_samples
+        xss = np.zeros((n_chains, n_samples))
+        for n in range(0, n_chains):
+            xss[n] = self.mcmc_samples[param][index][n * n_samples: (n + 1) * n_samples]
         return xss
 
     def set_theme(self, theme: BackfillzTheme, verbose: bool = True) -> None:

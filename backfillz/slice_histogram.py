@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import Any, List
+from typing import List, Literal, Optional, Tuple
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -12,7 +12,7 @@ import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.plot \
-    import _scale, ChartData, nth_axes_of, Plot, Props, segment, Slice, Slices, Subplot, VerticalSubplots
+    import ChartData, Plot, Props, scale, segment, Slice, Slices, Subplot, VerticalSubplots
 
 coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
 numpy2ri.activate()
@@ -21,6 +21,12 @@ numpy2ri.activate()
 @dataclass
 class TracePlot(Subplot):
     """Left-hand component."""
+
+    def render(self, fig: go.Figure) -> None:
+        for trace in self.traces():
+            fig.add_trace(trace, self.row, self.col)
+        for box in self.boxes():
+            fig.add_trace(box, self.row, self.col)
 
     # one per chain
     def traces(self) -> List[go.Scatter]:
@@ -38,7 +44,7 @@ class TracePlot(Subplot):
         return [
             go.Scatter(
                 x=[self.data.min_sample] * 2 + [self.data.max_sample] * 2 + [self.data.min_sample],
-                y=_scale(self.data.n_iter, [slc.lower, slc.upper, slc.upper, slc.lower, slc.lower]),
+                y=scale(self.data.n_iter, [slc.lower, slc.upper, slc.upper, slc.lower, slc.lower]),
                 mode='lines',
                 line=dict(width=2, color=self.data.theme.fg_colour),
             )
@@ -53,33 +59,32 @@ class TracePlot(Subplot):
     def yaxis_props(self) -> Props:
         return dict(range=[0, self.data.n_iter])
 
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        for trace in self.traces():
-            fig.add_trace(trace, row, col)
-        for box in self.boxes():
-            fig.add_trace(box, row, col)
-
 
 @dataclass
 class JoiningSegments(Subplot):
     """Middle component."""
+
+    def render(self, fig: go.Figure) -> None:
+        for seg in self.segments():
+            fig.add_trace(seg, self.row, self.col)
+        fig.add_trace(self.y_labels(), self.row, self.col)
 
     # one per slice
     def segments(self) -> List[go.Scatter]:
         return [
             go.Scatter(
                 x=[0, 1, 1, 0],
-                y=_scale(self.data.n_iter, [slc.lower, lower, upper, slc.upper]),
+                y=scale(self.data.n_iter, [slc.lower, lower, upper, slc.upper]),
                 mode='lines',
                 line=dict(color=self.data.theme.fg_colour, width=1),
                 fill='toself',
                 fillcolor='rgba(240,240,240,255)'
             )
-            for n_slc, slc in enumerate(self.data.slcs, start=1)
-            for lower, upper in [((n_slc - 1) / len(self.data.slcs), n_slc / len(self.data.slcs))]
+            for n, slc in enumerate(self.data.slcs, start=1)
+            for lower, upper in [((n - 1) / self.data.n_slcs, n / self.data.n_slcs)]
         ]
 
-    # one point per unique slice start/end point
+    # one numerical marker per slice delimiter
     def y_labels(self) -> go.Scatter:
         y = self.slice_delimiters
         return go.Scatter(
@@ -92,8 +97,9 @@ class JoiningSegments(Subplot):
 
     @property
     def slice_delimiters(self) -> List[float]:
+        """Unique slice start/end points, expressed in iterations."""
         delims: List[float] = [*{*[y for slc in self.data.slcs for y in [slc.lower, slc.upper]]}]
-        return _scale(self.data.n_iter, delims)
+        return scale(self.data.n_iter, delims)
 
     @property
     def xaxis_props(self) -> Props:
@@ -104,17 +110,9 @@ class JoiningSegments(Subplot):
         return dict(
             range=[0, self.data.n_iter],
             tickmode='array',
-            tickvals=_scale(
-                self.data.n_iter,
-                [*{*[y for slc in self.data.slcs for y in [slc.lower, slc.upper]]}]
-            ),
+            tickvals=self.slice_delimiters,
             showticklabels=False
         )
-
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        for seg in self.segments():
-            fig.add_trace(seg, row, col)
-        fig.add_trace(self.y_labels(), row, col)
 
 
 @dataclass
@@ -124,23 +122,18 @@ class DensityPlot(Subplot):
     slc: Slice
     n_slc: int
 
-    @property
-    def xaxis_props(self) -> Props:
-        bottom, top = self.n_slc == 0, self.n_slc == len(self.data.slcs) - 1
-        # single slice requires special treatment; haven't figured out how to mirror tick labels
-        if len(self.data.slcs) == 1:
-            return dict(mirror='ticks')
-        else:
-            if bottom:
-                return dict()
-            elif top:
-                return dict(side='top')
-            else:
-                return dict(visible=False)
+    def render(self, fig: go.Figure) -> None:
+        chain_slices: List[np.ndarray] = [
+            self.data.chains[
+                n,
+                floor(self.slc.lower * self.data.n_iter):floor(self.slc.upper * self.data.n_iter)
+            ]
+            for n in range(0, self.data.n_chains)
+        ]
 
-    @property
-    def yaxis_props(self) -> Props:
-        return dict(side='right', rangemode='nonnegative')
+        fig.add_trace(self.histo(chain_slices), self.row, self.col)
+        for chain_plot in self.chain_plots(chain_slices):
+            fig.add_trace(chain_plot, self.row, self.col)
 
     def histo(self, chain_slices: List[np.ndarray]) -> go.Histogram:
         return go.Histogram(
@@ -166,34 +159,40 @@ class DensityPlot(Subplot):
             for n in range(0, self.data.n_chains)
         ]
 
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        chain_slices: List[np.ndarray] = [
-            self.data.chains[
-                n,
-                floor(self.slc.lower * self.data.n_iter):floor(self.slc.upper * self.data.n_iter)
-            ]
-            for n in range(0, self.data.n_chains)
-        ]
+    @property
+    def xaxis_props(self) -> Props:
+        bottom, top = self.n_slc == 0, self.n_slc == self.data.n_slcs - 1
+        # single slice requires special treatment; haven't figured out how to mirror tick labels
+        if self.data.n_slcs == 1:
+            return dict(mirror='ticks')
+        elif bottom:
+            return dict()
+        elif top:
+            return dict(side='top')
+        else:
+            return dict(visible=False)
 
-        fig.add_trace(self.histo(chain_slices), row, col)
-        for chain_plot in self.chain_plots(chain_slices):
-            fig.add_trace(chain_plot, row, col)
+    @property
+    def yaxis_props(self) -> Props:
+        return dict(side='right', rangemode='nonnegative')
 
 
 class DensityPlots(VerticalSubplots):
     """Right-hand component: one density plot per slice."""
 
-    def plots(self) -> List[Plot]:
+    def make_plots(self) -> List[Plot]:
         return [
             DensityPlot(
-                axis_ids=nth_axes_of(self.axis_ids, n_slc, len(self.data.slcs)),
+                axis_ids=[self.axis_ids[n]],
                 x_domain=self.x_domain,
-                y_domain=segment(self.y_domain, len(self.data.slcs), n_slc),
+                y_domain=segment(self.y_domain, self.data.n_slcs, n),
                 data=self.data,
                 slc=slc,
-                n_slc=n_slc
+                n_slc=n,
+                row=self.row + self.data.n_slcs - 1 - n,
+                col=self.col,
             )
-            for n_slc, slc in enumerate(self.data.slcs)
+            for n, slc in enumerate(self.data.slcs)
         ]
 
 
@@ -203,22 +202,9 @@ class RafteryLewisPlot(Subplot):
 
     n_chain: int
 
-    @property
-    def xaxis_props(self) -> Props:
-        return dict(
-            visible=False,
-            range=[0, max(self.data.n_iter, self.required_sample_size())]
-        )
-
-    @property
-    def yaxis_props(self) -> Props:
-        return dict(visible=False)
-
-    def required_sample_size(self) -> int:
-        """Return N component of resmatrix component of result of raftery.diag R function."""
-        result = coda.raftery_diag(self.data.chains[self.n_chain])
-        resmatrix = result[1][0]
-        return int(resmatrix[1])  # N is a float, but represents an iteration count
+    def render(self, fig: go.Figure) -> None:
+        fig.add_trace(self.plot(), self.row, self.col)
+        fig.add_trace(self.warning_cross(), self.row, self.col)
 
     def plot(self) -> go.Scatter:
         return go.Scatter(
@@ -230,30 +216,46 @@ class RafteryLewisPlot(Subplot):
     def warning_cross(self) -> go.Scatter:
         """Singleton scatterplot to render X if iterations fall short of required sample size."""
         return go.Scatter(
-            x=[self.required_sample_size()],
+            x=[self.required_sample_size],
             y=[0],
             mode='text',
-            text=['X' if self.required_sample_size() > self.data.n_iter else ''],
+            text=['X' if self.required_sample_size > self.data.n_iter else ''],
             textposition='middle center',
             cliponaxis=False  # ensure visible
         )
 
-    def render(self, fig: go.Figure, row: int, col: int) -> None:
-        fig.add_trace(self.plot(), row, col)
-        fig.add_trace(self.warning_cross(), row, col)
+    @property
+    def required_sample_size(self) -> int:
+        """N component of resmatrix component of result of raftery.diag R function."""
+        result = coda.raftery_diag(self.data.chains[self.n_chain])
+        resmatrix = result[1][0]
+        return int(resmatrix[1])  # N is a float, but represents an iteration count
+
+    @property
+    def xaxis_props(self) -> Props:
+        return dict(
+            visible=False,
+            range=[0, max(self.data.n_iter, self.required_sample_size)]
+        )
+
+    @property
+    def yaxis_props(self) -> Props:
+        return dict(visible=False)
 
 
 class RafteryLewisPlots(VerticalSubplots):
     """Bottom component: one Raftery-Lewis plot per chain."""
 
-    def plots(self) -> List[Plot]:
+    def make_plots(self) -> List[Plot]:
         return [
             RafteryLewisPlot(
-                axis_ids=nth_axes_of(self.axis_ids, n, self.data.n_chains),
+                axis_ids=[self.axis_ids[n]],
                 x_domain=self.x_domain,
                 y_domain=segment(self.y_domain, self.data.n_chains, n),
                 data=self.data,
-                n_chain=n
+                n_chain=n,
+                row=self.row + self.data.n_chains - 1 - n,
+                col=self.col
             )
             for n, _ in enumerate(self.data.chains)
         ]
@@ -285,33 +287,43 @@ class SliceHistogram:
         lower_margin = 0.4
         left_w = 0.4        # width of trace plot
         middle_w = 0.2      # width of joining segments
+
+        # Axis ids are one of Plotly's design failures. No easy way to extract them from the layout.
         self.tracePlot = TracePlot(
-            axis_ids=(None, None),
+            axis_ids=[None],
             x_domain=(0, left_w),
             y_domain=(lower_h, 1.0),
+            row=1,
+            col=1,
             data=self.data
         )
         self.joiningSegments = JoiningSegments(
-            axis_ids=(2, 2),
+            axis_ids=[2],
             x_domain=(left_w, left_w + middle_w),
             y_domain=(lower_h, 1.0),
+            row=1,
+            col=2,
             data=self.data
         )
         self.densityPlots = DensityPlots(
-            axis_ids=(3, 3),
+            axis_ids=[n + 3 for n in reversed(range(self.data.n_slcs))],
             x_domain=(left_w + middle_w, 1),
             y_domain=(lower_h, 1.0),
+            row=1,
+            col=3,
             data=self.data
         )
         self.rafteryLewisPlots = RafteryLewisPlots(
-            axis_ids=(3 + len(slcs), 3 + len(slcs)),
+            axis_ids=[n + 3 + len(slcs) for n in reversed(range(self.data.n_chains))],
             x_domain=(0, left_w),
             y_domain=(0, lower_h * (1 - lower_margin)),
+            row=self.data.n_slcs + 1,
+            col=1,
             data=self.data
         )
 
     def layout(self) -> go.Figure:
-        n_slcs: int = len(self.data.slcs)
+        n_slcs: int = self.data.n_slcs
         layout: go.Layout = go.Layout(
             title=f"Trace slice histogram of {self.data.param}",
             titlefont=dict(size=30),
@@ -332,8 +344,6 @@ class SliceHistogram:
             horizontal_spacing=0,
             vertical_spacing=0,
             print_grid=True,
-            # Plotly subplot titles look a bit broken, annotations sounds better
-            subplot_titles=["Trace Plot with Slices", "", "Density Plots for Slices"]
         )
 
         self.tracePlot.layout_axes(fig)
@@ -341,39 +351,58 @@ class SliceHistogram:
         self.joiningSegments.layout_axes(fig)
         self.rafteryLewisPlots.layout_axes(fig)
 
-        # TODO: eliminate magic indices 0, 1
-        annotations = fig.layout.annotations
-        annotations[0].update(xanchor='left', x=fig.layout[self.tracePlot.xaxis_id].domain[0])
-        annotations[1].update(y=1.03)  # oof -- adjust title subgraph
-        annotations[1].update(xanchor='left', x=fig.layout[self.densityPlots.xaxis_id].domain[0])
-
-        SliceHistogram.annotate(fig, x=0, y=0, xanchor='left', text="Raftery-Lewis Diagnostic")
-        SliceHistogram.annotate(
-            fig, x=1, y=0, xanchor='right',
-            text="Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
-        )
-
+        self.add_titles(fig)
         return fig
 
-    @staticmethod
-    def annotate(fig: go.Figure, **kwargs: Any) -> None:
-        fig.add_annotation(
-            xref='paper',
-            yref='paper',
-            yanchor='top',
-            showarrow=False,
-            font=dict(size=14),
-            **kwargs,
+    def add_titles(self, fig: go.Figure) -> None:
+        annotate(
+            fig, 16, self.densityPlots.top_left, 'left', 'bottom', 1.03,  # oof -- adjust for x_axis
+            "Density Plots for Slices"
+        )
+        annotate(
+            fig, 16, self.tracePlot.top_left, 'left', 'bottom', None,
+            "Trace Plot With Slices"
+        )
+        annotate(
+            fig, 14, (0, 0), 'left', 'top', None,
+            "Raftery-Lewis Diagnostic"
+        )
+        annotate(
+            fig, 14, (1, 0), 'right', 'top', None,
+            "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
 
     def render(self) -> None:
         """Create fig and render subplots at appropriate rows/columns."""
         fig: go.Figure = self.layout()
-        self.tracePlot.render(fig, 1, 1)
-        self.rafteryLewisPlots.render(fig, len(self.data.slcs) + 1, 1)
-        self.joiningSegments.render(fig, 1, 2)
-        self.densityPlots.render(fig, 1, 3)
+        self.tracePlot.render(fig)
+        self.rafteryLewisPlots.render(fig)
+        self.joiningSegments.render(fig)
+        self.densityPlots.render(fig)
         fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
+
+
+def annotate(
+    fig: go.Figure,
+    font_size: int,
+    at: Tuple[float, float],
+    xanchor: Literal['left', 'right'],
+    yanchor: Literal['top', 'bottom'],
+    y_adjust: Optional[float],  # additional scaling to put text above plot with an x-axis at the top
+    text: str,
+) -> None:
+    """Add an annotation to supplied figure, with supplied arguments in addition to some default settings."""
+    fig.add_annotation(
+        xref='paper',
+        yref='paper',
+        showarrow=False,
+        font=dict(size=font_size),
+        x=at[0],
+        y=at[1] * (1.0 if y_adjust is None else y_adjust),
+        xanchor=xanchor,
+        yanchor=yanchor,
+        text=text,
+    )
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
