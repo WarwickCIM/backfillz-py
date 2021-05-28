@@ -90,7 +90,7 @@ class Plot:
 
 @dataclass
 class Subplot(Plot):
-    """A (leaf?) Plotly subplot."""
+    """A leaf subplot."""
 
     @property
     def axis_defaults(self) -> Dict[str, Any]:

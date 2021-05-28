@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import Any, List
+from typing import Any, cast, List
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -194,6 +194,10 @@ class DensityPlots(VerticalSubplots):
             for n, slc in enumerate(self.data.slcs)
         ]
 
+    @property
+    def uppermost(self) -> DensityPlot:
+        return cast(DensityPlot, self.plots[-1])
+
 
 @dataclass
 class RafteryLewisPlot(Subplot):
@@ -351,7 +355,7 @@ class SliceHistogram:
         annotations = fig.layout.annotations
         annotations[0].update(xanchor='left', x=fig.layout[self.tracePlot.xaxis_id].domain[0])
         annotations[1].update(y=1.03)  # oof -- adjust title subgraph
-        annotations[1].update(xanchor='left', x=fig.layout[self.densityPlots.plots[-1].xaxis_id].domain[0])
+        annotations[1].update(xanchor='left', x=fig.layout[self.densityPlots.uppermost.xaxis_id].domain[0])
 
         annotate(fig, x=0, y=0, xanchor='left', text="Raftery-Lewis Diagnostic")
         annotate(
