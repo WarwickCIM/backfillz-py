@@ -131,9 +131,9 @@ class DensityPlot(Subplot):
             for n in range(0, self.data.n_chains)
         ]
 
-        fig.add_trace(self.histo(chain_slices), row, col)
+        fig.add_trace(self.histo(chain_slices), self.row, self.col)
         for chain_plot in self.chain_plots(chain_slices):
-            fig.add_trace(chain_plot, row, col)
+            fig.add_trace(chain_plot, self.row, self.col)
 
     def histo(self, chain_slices: List[np.ndarray]) -> go.Histogram:
         return go.Histogram(
