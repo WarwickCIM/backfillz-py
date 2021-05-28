@@ -97,7 +97,7 @@ class JoiningSegments(Subplot):
 
     @property
     def slice_delimiters(self) -> List[float]:
-        """The unique slice start/end points, expressed in iterations."""
+        """Unique slice start/end points, expressed in iterations."""
         delims: List[float] = [*{*[y for slc in self.data.slcs for y in [slc.lower, slc.upper]]}]
         return _scale(self.data.n_iter, delims)
 
@@ -180,17 +180,18 @@ class DensityPlot(Subplot):
 class DensityPlots(VerticalSubplots):
     """Right-hand component: one density plot per slice."""
 
-    def plots(self) -> List[Plot]:
+    def make_plots(self) -> List[Plot]:
         return [
             DensityPlot(
-                axis_ids=nth_axes_of(self.axis_ids, n_slc, self.data.n_slcs),
+                axis_ids2=[self.axis_ids2[n]],
+                axis_ids=nth_axes_of(self.axis_ids, n, self.data.n_slcs),
                 x_domain=self.x_domain,
-                y_domain=segment(self.y_domain, self.data.n_slcs, n_slc),
+                y_domain=segment(self.y_domain, self.data.n_slcs, n),
                 data=self.data,
                 slc=slc,
-                n_slc=n_slc
+                n_slc=n
             )
-            for n_slc, slc in enumerate(self.data.slcs)
+            for n, slc in enumerate(self.data.slcs)
         ]
 
 
@@ -244,9 +245,10 @@ class RafteryLewisPlot(Subplot):
 class RafteryLewisPlots(VerticalSubplots):
     """Bottom component: one Raftery-Lewis plot per chain."""
 
-    def plots(self) -> List[Plot]:
+    def make_plots(self) -> List[Plot]:
         return [
             RafteryLewisPlot(
+                axis_ids2=[self.axis_ids2[n]],
                 axis_ids=nth_axes_of(self.axis_ids, n, self.data.n_chains),
                 x_domain=self.x_domain,
                 y_domain=segment(self.y_domain, self.data.n_chains, n),
@@ -283,25 +285,31 @@ class SliceHistogram:
         lower_margin = 0.4
         left_w = 0.4        # width of trace plot
         middle_w = 0.2      # width of joining segments
+
+        # Axis ids are one of Plotly's design failures. No easy way to extract them from the layout.
         self.tracePlot = TracePlot(
+            axis_ids2=[None],
             axis_ids=(None, None),
             x_domain=(0, left_w),
             y_domain=(lower_h, 1.0),
             data=self.data
         )
         self.joiningSegments = JoiningSegments(
+            axis_ids2=[2],
             axis_ids=(2, 2),
             x_domain=(left_w, left_w + middle_w),
             y_domain=(lower_h, 1.0),
             data=self.data
         )
         self.densityPlots = DensityPlots(
+            axis_ids2=[n + 3 for n in reversed(range(self.data.n_slcs))],
             axis_ids=(3, 3),
             x_domain=(left_w + middle_w, 1),
             y_domain=(lower_h, 1.0),
             data=self.data
         )
         self.rafteryLewisPlots = RafteryLewisPlots(
+            axis_ids2=[n + 3 + len(slcs) for n in reversed(range(self.data.n_chains))],
             axis_ids=(3 + len(slcs), 3 + len(slcs)),
             x_domain=(0, left_w),
             y_domain=(0, lower_h * (1 - lower_margin)),
@@ -343,7 +351,7 @@ class SliceHistogram:
         annotations = fig.layout.annotations
         annotations[0].update(xanchor='left', x=fig.layout[self.tracePlot.xaxis_id].domain[0])
         annotations[1].update(y=1.03)  # oof -- adjust title subgraph
-        annotations[1].update(xanchor='left', x=fig.layout[self.densityPlots.xaxis_id].domain[0])
+        annotations[1].update(xanchor='left', x=fig.layout[self.densityPlots.plots[-1].xaxis_id].domain[0])
 
         annotate(fig, x=0, y=0, xanchor='left', text="Raftery-Lewis Diagnostic")
         annotate(
@@ -364,6 +372,7 @@ class SliceHistogram:
 
 
 def annotate(fig: go.Figure, **kwargs: Any) -> None:
+    """Add an annotation to supplied figure, with supplied arguments in addition to some default settings."""
     fig.add_annotation(
         xref='paper',
         yref='paper',

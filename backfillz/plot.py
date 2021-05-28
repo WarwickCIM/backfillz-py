@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -19,14 +20,15 @@ Param = str
 Slices = Dict[Param, List[Slice]]
 
 # ints assigned as axis id suffixes by Plotly; omitted for first subplot
-AxisIds = Tuple[Optional[int], Optional[int]]
+AxisId = Optional[int]
+AxisIds = Tuple[AxisId, AxisId]
 Props = Dict[str, Any]
 
 
 # This happens to work with the current figure but doesn't generalise. A better idea is probably to extract
 # the axis ids from the layout object.
 def nth_axes_of(axis_ids: AxisIds, n: int, count: int) -> AxisIds:
-    """For non-None axes, nth (from 0) pair of axis ids counting *up* (where axis ids grown *down*)."""
+    """For non-None axes, nth (from 0) pair of axis ids counting *up* (where axis ids grow *down*)."""
     [xaxis_id, yaxis_id] = axis_ids
     assert isinstance(xaxis_id, int) and isinstance(yaxis_id, int)
     return xaxis_id + count - 1 - n, yaxis_id + count - 1 - n
@@ -72,6 +74,7 @@ class ChartData:
 class Plot:
     """Base class providing common subplot functionality."""
 
+    axis_ids2: List[AxisId]
     axis_ids: AxisIds
     x_domain: Tuple[float, float]  # left/right edges normalised to [0, 1]
     y_domain: Tuple[float, float]  # top/bottom edges normalised to [0, 1]
@@ -80,6 +83,7 @@ class Plot:
     @property
     def xaxis_id(self) -> str:
         """My Plotly-assigned x-axis id; for an aggregate, my first such id."""
+        assert self.axis_ids2[0] == self.axis_ids[0]
         xaxis_id = self.axis_ids[0]
         return 'xaxis' + ('' if xaxis_id is None else str(xaxis_id))
 
@@ -99,7 +103,7 @@ class Plot:
 
 @dataclass
 class Subplot(Plot):
-    """A Plotly subplot and its assigned axis ids."""
+    """A (leaf?) Plotly subplot."""
 
     @property
     def axis_defaults(self) -> Dict[str, Any]:
@@ -133,28 +137,30 @@ class Subplot(Plot):
 class VerticalSubplots(Plot):
     """A collection of vertically arranged subplots."""
 
-    _plots: List[Plot]  # @cached_property would be nice but Mypy doesn't support it properly
+    plots: List[Plot]  # @cached_property would be nice but Mypy doesn't support it properly
 
     def __init__(
         self,
+        axis_ids2: List[AxisId],
         axis_ids: AxisIds,
         x_domain: Tuple[float, float],
         y_domain: Tuple[float, float],
         data: ChartData
     ):
-        super().__init__(axis_ids, x_domain, y_domain, data)
-        self._plots = self.plots()
+        super().__init__(axis_ids2, axis_ids, x_domain, y_domain, data)
+        self.plots = self.make_plots()
 
-    def plots(self) -> List[Plot]:
+    @abstractmethod
+    def make_plots(self) -> List[Plot]:
         """My subplots."""
-        return []
+        pass
 
     def layout_axes(self, fig: go.Figure) -> None:
         """Ask each subplot to configure its axes."""
-        for plot in self._plots:
+        for plot in self.plots:
             plot.layout_axes(fig)
 
     def render(self, fig: go.Figure, row: int, col: int) -> None:
         """Render subplots into fig, placing subplots into ascending (from 0) rows starting from bottom."""
-        for n, plot in enumerate(self._plots):
-            plot.render(fig, row=row + len(self._plots) - 1 - n, col=col)
+        for n, plot in enumerate(self.plots):
+            plot.render(fig, row=row + len(self.plots) - 1 - n, col=col)
