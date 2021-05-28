@@ -336,7 +336,7 @@ class SliceHistogram:
             horizontal_spacing=0,
             vertical_spacing=0,
             print_grid=True,
-            # TODO: redo these using annotations
+            # TODO: redo using annotations
             subplot_titles=["Trace Plot with Slices", "", "Density Plots for Slices"]
         )
 
@@ -345,7 +345,7 @@ class SliceHistogram:
         self.joiningSegments.layout_axes(fig)
         self.rafteryLewisPlots.layout_axes(fig)
 
-        # TODO: eliminate magic indices 0, 1
+        # TODO: push magic indices 0, 1 into constructors of subplots
         annotations = fig.layout.annotations
         annotations[0].update(xanchor='left', x=fig.layout[self.tracePlot.xaxis_id].domain[0])
         annotations[1].update(y=1.03)  # oof -- adjust title subgraph
