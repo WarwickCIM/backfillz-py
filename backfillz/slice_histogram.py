@@ -248,7 +248,6 @@ class SliceHistogram(RootPlot):
         )
 
     def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
-        """Construct a Slice Histogram for a given parameter from a list of slices."""
         self.theme = backfillz.theme
         self.data = ParameterSlices(
             slcs=slcs,
