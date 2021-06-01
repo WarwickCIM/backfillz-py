@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from dataclasses import dataclass
 from math import ceil, floor
 from typing import List, Literal, Optional, Tuple
@@ -272,10 +271,6 @@ class SliceHistogram(RootPlot):
             print_grid=True,
         )
 
-        for plot in self.plots:
-            plot.layout_axes(fig)
-
-        self.add_titles(fig)
         return fig
 
     def add_titles(self, fig: go.Figure) -> None:
