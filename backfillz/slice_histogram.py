@@ -12,7 +12,7 @@ import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.plot \
-    import ChartData, Plot, Props, scale, segment, Slice, Slices, Subplot, VerticalSubplots
+    import ParameterSlices, Plot, Props, scale, segment, Slice, Slices, Subplot, VerticalSubplots
 
 coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
 numpy2ri.activate()
@@ -267,7 +267,7 @@ class SliceHistogram:
     """Top-level plot, for a given parameter."""
 
     backfillz: Backfillz
-    data: ChartData
+    data: ParameterSlices
     tracePlot: TracePlot
     rafteryLewisPlots: RafteryLewisPlots
     joiningSegments: JoiningSegments
@@ -277,7 +277,7 @@ class SliceHistogram:
         """Construct a Slice Histogram for a given parameter from a list of slices."""
         self.backfillz = backfillz
         chains: np.ndarray = backfillz.iter_chains(param)
-        self.data = ChartData(
+        self.data = ParameterSlices(
             slcs=slcs,
             param=param,
             chains=chains,

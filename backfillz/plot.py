@@ -38,7 +38,7 @@ def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
 
 
 @dataclass
-class ChartData:
+class ParameterSlices:
     """The MCMC data being presented."""
 
     slcs: List[Slice]
@@ -70,7 +70,7 @@ class Plot:
     y_domain: Tuple[float, float]  # top/bottom edges normalised to [0, 1]
     row: int
     col: int
-    data: ChartData
+    data: ParameterSlices
     theme: BackfillzTheme
 
     def layout_axes(self, fig: go.Figure) -> None:
