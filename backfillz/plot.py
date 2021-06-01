@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -128,7 +127,7 @@ class Subplot(Plot):
         return dict()
 
 
-@dataclass  # type: ignore[misc]
+@dataclass
 class VerticalSubplots(Plot):
     """A collection of vertically arranged subplots."""
 
@@ -137,7 +136,7 @@ class VerticalSubplots(Plot):
     def __post_init__(self) -> None:
         self.plots = self.make_plots()
 
-    @abstractmethod
+    # want #abstractmethod here but MyPy doesn't support abstract data classes
     def make_plots(self) -> List[Plot]:
         """My subplots."""
         pass
