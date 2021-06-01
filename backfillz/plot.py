@@ -3,8 +3,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.core import Props
-from backfillz.core import ParameterSlices
+from backfillz.core import ParameterSlices, Props
 from backfillz.theme import BackfillzTheme
 
 
