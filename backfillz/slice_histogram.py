@@ -54,6 +54,9 @@ class TracePlot(LeafPlot):
     def yaxis_props(self) -> Props:
         return dict(range=[0, self.data.n_iter])
 
+    def add_title(self, fig: go.Figure) -> None:
+        annotate(fig, 16, self.top_left, 'left', 'bottom', None, "Trace Plot With Slices")
+
 
 @dataclass
 class JoiningSegments(LeafPlot):
@@ -192,10 +195,8 @@ class DensityPlots(VerticalSubplots):
         ]
 
     def add_title(self, fig: go.Figure):
-        annotate(
-            fig, 16, self.top_left, 'left', 'bottom', 0.03,  # oof -- adjust for x-axis
-            "Density Plots for Slices"
-        )
+        # oof -- adjust for x-axis
+        annotate(fig, 16, self.top_left, 'left', 'bottom', 0.03, "Density Plots for Slices")
 
 
 class SliceHistogram(RootPlot):
@@ -284,10 +285,10 @@ class SliceHistogram(RootPlot):
 
     def add_titles(self, fig: go.Figure) -> None:
         self.densityPlots.add_title(fig)
-        annotate(
-            fig, 16, self.trace_plot.top_left, 'left', 'bottom', None,
-            "Trace Plot With Slices"
-        )
+        self.trace_plot.add_title(fig)
+        self.add_title(fig)
+
+    def add_title(self, fig: go.Figure) -> None:
         annotate(
             fig, 14, (1, -0.03), 'right', 'top', None,  # adjust for x-axis
             "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
