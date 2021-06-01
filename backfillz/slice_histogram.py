@@ -10,7 +10,9 @@ from rpy2.robjects import numpy2ri  # type: ignore
 from rpy2.robjects.packages import importr  # type: ignore
 import scipy.stats as stats  # type: ignore
 
-from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, Slice, Slices, ParameterSlices, Props
+from backfillz.core import (
+    Backfillz, BackfillzTheme, HistoryEntry, HistoryEvent, Slice, Slices, ParameterSlices, Props
+)
 from backfillz.plot import LeafPlot, Plot, scale, segment, VerticalSubplots
 
 coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
@@ -265,8 +267,8 @@ class RafteryLewisPlots(VerticalSubplots):
 class SliceHistogram:
     """Top-level plot, for a given parameter."""
 
-    backfillz: Backfillz
     data: ParameterSlices
+    theme: BackfillzTheme
     tracePlot: TracePlot
     rafteryLewisPlots: RafteryLewisPlots
     joiningSegments: JoiningSegments
@@ -274,12 +276,11 @@ class SliceHistogram:
 
     def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
         """Construct a Slice Histogram for a given parameter from a list of slices."""
-        self.backfillz = backfillz
-        chains: np.ndarray = backfillz.iter_chains(param)
+        self.theme = backfillz.theme
         self.data = ParameterSlices(
             slcs=slcs,
             param=param,
-            chains=chains,
+            chains=backfillz.iter_chains(param),
             max_sample=np.amax(backfillz.mcmc_samples[param]),
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
@@ -331,7 +332,7 @@ class SliceHistogram:
         layout: go.Layout = go.Layout(
             title=f"Trace slice histogram of {self.data.param}",
             titlefont=dict(size=30),
-            plot_bgcolor=self.backfillz.theme.bg_colour,
+            plot_bgcolor=self.theme.bg_colour,
             showlegend=False,
         )
         fig: go.Figure = go.Figure(layout=layout)
