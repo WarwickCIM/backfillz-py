@@ -279,7 +279,7 @@ class SliceHistogram:
 
     def add_titles(self, fig: go.Figure) -> None:
         annotate(
-            fig, 16, self.densityPlots.top_left, 'left', 'bottom', 1.03,  # oof -- adjust for x_axis
+            fig, 16, self.densityPlots.top_left, 'left', 'bottom', 0.03,  # oof -- adjust for x-axis
             "Density Plots for Slices"
         )
         annotate(
@@ -287,7 +287,7 @@ class SliceHistogram:
             "Trace Plot With Slices"
         )
         annotate(
-            fig, 14, (1, -0.03), 'right', 'top', None,
+            fig, 14, (1, -0.03), 'right', 'top', None,  # adjust for x-axis
             "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
 
@@ -305,7 +305,7 @@ def annotate(
     at: Tuple[float, float],
     xanchor: Literal['left', 'right'],
     yanchor: Literal['top', 'bottom'],
-    y_adjust: Optional[float],  # additional scaling to put text above plot with an x-axis at the top
+    y_adjust: Optional[float],  # additional normalised offet of text relative to plot
     text: str,
 ) -> None:
     """Add an annotation to supplied figure, with supplied arguments in addition to some default settings."""
@@ -315,7 +315,7 @@ def annotate(
         showarrow=False,
         font=dict(size=font_size),
         x=at[0],
-        y=at[1] * (1.0 if y_adjust is None else y_adjust),
+        y=at[1] + (0 if y_adjust is None else y_adjust),
         xanchor=xanchor,
         yanchor=yanchor,
         text=text,
