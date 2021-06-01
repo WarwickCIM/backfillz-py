@@ -1,7 +1,8 @@
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 import sys
-from typing import List
+from typing import Any, Dict, List
 
 import numpy as np
 from stan.fit import Fit  # type: ignore
@@ -68,3 +69,40 @@ class Backfillz:
         if verbose:
             print("Setting backfillz object theme to " + theme.name)
         self.theme = theme
+
+
+@dataclass
+class Slice:
+    """A slice of an MCMC trace."""
+
+    lower: float
+    upper: float
+
+
+Param = str
+Slices = Dict[Param, List[Slice]]
+Props = Dict[str, Any]
+
+
+@dataclass
+class ParameterSlices:
+    """The MCMC data being presented."""
+
+    slcs: List[Slice]
+    param: str
+    chains: np.ndarray
+    max_sample: float
+    min_sample: float
+
+    @property
+    def n_chains(self) -> int:
+        return int(self.chains.shape[0])
+
+    @property
+    def n_iter(self) -> int:
+        """Return number of MCMC iterations per chain."""
+        return int(self.chains.shape[1])
+
+    @property
+    def n_slcs(self) -> int:
+        return len(self.slcs)

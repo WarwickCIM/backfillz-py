@@ -1,26 +1,15 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import plotly.graph_objects as go  # type: ignore
 
+from backfillz.core import Props
+from backfillz.core import ParameterSlices
 from backfillz.theme import BackfillzTheme
 
 
-@dataclass
-class Slice:
-    """A slice of an MCMC trace."""
-
-    lower: float
-    upper: float
-
-
-Param = str
-Slices = Dict[Param, List[Slice]]
-
 # ints assigned as axis id suffixes by Plotly; omitted for first subplot
 AxisId = Optional[int]
-Props = Dict[str, Any]
 
 
 def scale(factor: float, xs: List[float]) -> List[float]:
@@ -33,30 +22,6 @@ def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
     start, end = domain
     width = (end - start) / n
     return start + m * width, start + (m + 1) * width
-
-
-@dataclass
-class ParameterSlices:
-    """The MCMC data being presented."""
-
-    slcs: List[Slice]
-    param: str
-    chains: np.ndarray
-    max_sample: float
-    min_sample: float
-
-    @property
-    def n_chains(self) -> int:
-        return int(self.chains.shape[0])
-
-    @property
-    def n_iter(self) -> int:
-        """Return number of MCMC iterations per chain."""
-        return int(self.chains.shape[1])
-
-    @property
-    def n_slcs(self) -> int:
-        return len(self.slcs)
 
 
 @dataclass
@@ -136,7 +101,7 @@ class VerticalSubplots(Plot):
     def __post_init__(self) -> None:
         self.plots = self.make_plots()
 
-    # want #abstractmethod here but MyPy doesn't support abstract data classes
+    # want #abstractmethod but MyPy doesn't support abstract data classes
     def make_plots(self) -> List[Plot]:
         """My subplots."""
         pass

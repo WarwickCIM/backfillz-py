@@ -10,9 +10,8 @@ from rpy2.robjects import numpy2ri  # type: ignore
 from rpy2.robjects.packages import importr  # type: ignore
 import scipy.stats as stats  # type: ignore
 
-from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
-from backfillz.plot \
-    import ParameterSlices, Plot, Props, scale, segment, Slice, Slices, Subplot, VerticalSubplots
+from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, Slice, Slices, ParameterSlices, Props
+from backfillz.plot import Plot, scale, segment, Subplot, VerticalSubplots
 
 coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
 numpy2ri.activate()
