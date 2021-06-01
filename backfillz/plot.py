@@ -41,7 +41,6 @@ def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
 class ChartData:
     """The MCMC data being presented."""
 
-    theme: BackfillzTheme
     slcs: List[Slice]
     param: str
     chains: np.ndarray
@@ -72,6 +71,7 @@ class Plot:
     row: int
     col: int
     data: ChartData
+    theme: BackfillzTheme
 
     def layout_axes(self, fig: go.Figure) -> None:
         pass
@@ -94,11 +94,11 @@ class Subplot(Plot):
         return dict(
             showgrid=False,
             zeroline=False,
-            linecolor=self.data.theme.fg_colour,
+            linecolor=self.theme.fg_colour,
             ticks='outside',
             tickwidth=1,
             ticklen=5,
-            tickcolor=self.data.theme.fg_colour,
+            tickcolor=self.theme.fg_colour,
             fixedrange=True,  # disable selection zoom
         )
 
@@ -130,24 +130,18 @@ class Subplot(Plot):
         return dict()
 
 
+@dataclass
 class VerticalSubplots(Plot):
     """A collection of vertically arranged subplots."""
 
-    plots: List[Plot]  # @cached_property would be nice but Mypy doesn't support it properly
+    _plots: Optional[List[Plot]] = None
 
-    def __init__(
-        self,
-        axis_ids: List[AxisId],
-        x_domain: Tuple[float, float],
-        y_domain: Tuple[float, float],
-        row: int,
-        col: int,
-        data: ChartData
-    ):
-        super().__init__(
-            axis_ids=axis_ids, x_domain=x_domain, y_domain=y_domain, row=row, col=col, data=data
-        )
-        self.plots = self.make_plots()
+    # Want @cached_property but Mypy doesn't seem to support it properly.
+    @property
+    def plots(self) -> List[Plot]:
+        if self._plots is None:
+            self._plots = self.make_plots()
+        return self._plots
 
     @abstractmethod
     def make_plots(self) -> List[Plot]:
