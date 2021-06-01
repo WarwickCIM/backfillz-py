@@ -1,3 +1,4 @@
+from backfillz.core import Backfillz
 from backfillz.plot import LeafPlot, RootPlot, VerticalSubplots
 
 
@@ -23,3 +24,7 @@ class TraceDial(RootPlot):
     @property
     def histograms(self) -> Histograms:
         return Histograms()
+
+    @staticmethod
+    def plot(backfillz: Backfillz) -> None:
+        pass

@@ -289,14 +289,14 @@ class SliceHistogram(RootPlot):
             "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
 
+    @staticmethod
+    def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
+        """Plot a slice histogram."""
+        params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
+        slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
 
-def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
-    """Plot a slice histogram."""
-    params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
-    slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
+        for param in params:
+            # Assume scalar parameter for now; what about vectors?
+            SliceHistogram(backfillz, slcs, param).render()
 
-    for param in params:
-        # Assume scalar parameter for now; what about vectors?
-        SliceHistogram(backfillz, slcs, param).render()
-
-    backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
+        backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))

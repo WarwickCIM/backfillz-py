@@ -3,7 +3,8 @@
 from tests.generate_sample_fit import generate_fit, Stan
 
 from backfillz.core import Backfillz
-from backfillz.slice_histogram import plot_slice_histogram
+from backfillz.slice_histogram import SliceHistogram
+from backfillz.trace_dial import TraceDial
 from backfillz.theme import demo_1
 
 
@@ -24,7 +25,8 @@ def test_plot_slice_histogram() -> None:
     stan = generate_fit()
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(demo_1, False)
-    plot_slice_histogram(backfillz)
+    SliceHistogram.plot(backfillz)
+    TraceDial.plot(backfillz)
 
 
 if __name__ == '__main__':
