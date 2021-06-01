@@ -51,6 +51,8 @@ def annotate(
 class Plot:
     """Base class providing common subplot functionality."""
 
+    # Axis ids (and annotation ids) are a bit of a design disaster. Need hand-configuration to match
+    # assignment by Plotly.
     axis_ids: List[AxisId]
     x_domain: Tuple[float, float]  # left/right edges normalised to [0, 1]
     y_domain: Tuple[float, float]  # top/bottom edges normalised to [0, 1]
@@ -146,7 +148,7 @@ class VerticalSubplots(Plot):
 
 
 class RootPlot:
-    """Top-level plot."""
+    """Top-level plot container."""
 
     @property
     @abstractmethod

@@ -257,8 +257,6 @@ class SliceHistogram(RootPlot):
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
 
-        # Axis ids are one of Plotly's design failures. No easy way to extract them from the layout.
-
     def layout(self) -> go.Figure:
         n_slcs: int = self.data.n_slcs
         layout: go.Layout = go.Layout(
