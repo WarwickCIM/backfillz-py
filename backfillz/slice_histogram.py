@@ -209,7 +209,7 @@ class SliceHistogram(RootPlot):
 
     @property
     def plots(self) -> List[Plot]:
-        return [self.trace_plot, self.joiningSegments, self.densityPlots]
+        return [self.trace_plot, self.joining_segments, self.density_plots]
 
     @property
     def trace_plot(self):
@@ -223,8 +223,29 @@ class SliceHistogram(RootPlot):
             theme=self.theme,
         )
 
-    joiningSegments: JoiningSegments
-    densityPlots: DensityPlots
+    @property
+    def joining_segments(self) -> JoiningSegments:
+        return JoiningSegments(
+            axis_ids=[2],
+            x_domain=(self.left_w, self.left_w + self.middle_w),
+            y_domain=(0, 1.0),
+            row=1,
+            col=2,
+            data=self.data,
+            theme=self.theme,
+        )
+
+    @property
+    def density_plots(self) -> DensityPlots:
+        return DensityPlots(
+            axis_ids=[n + 3 for n in reversed(range(self.data.n_slcs))],
+            x_domain=(self.left_w + self.middle_w, 1),
+            y_domain=(0, 1.0),
+            row=1,
+            col=3,
+            data=self.data,
+            theme=self.theme,
+        )
 
     def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
         """Construct a Slice Histogram for a given parameter from a list of slices."""
@@ -238,24 +259,6 @@ class SliceHistogram(RootPlot):
         )
 
         # Axis ids are one of Plotly's design failures. No easy way to extract them from the layout.
-        self.joiningSegments = JoiningSegments(
-            axis_ids=[2],
-            x_domain=(self.left_w, self.left_w + self.middle_w),
-            y_domain=(0, 1.0),
-            row=1,
-            col=2,
-            data=self.data,
-            theme=backfillz.theme,
-        )
-        self.densityPlots = DensityPlots(
-            axis_ids=[n + 3 for n in reversed(range(self.data.n_slcs))],
-            x_domain=(self.left_w + self.middle_w, 1),
-            y_domain=(0, 1.0),
-            row=1,
-            col=3,
-            data=self.data,
-            theme=backfillz.theme,
-        )
 
     def layout(self) -> go.Figure:
         n_slcs: int = self.data.n_slcs
@@ -284,7 +287,7 @@ class SliceHistogram(RootPlot):
         return fig
 
     def add_titles(self, fig: go.Figure) -> None:
-        self.densityPlots.add_title(fig)
+        self.density_plots.add_title(fig)
         self.trace_plot.add_title(fig)
         self.add_title(fig)
 
