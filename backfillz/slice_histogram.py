@@ -191,19 +191,39 @@ class DensityPlots(VerticalSubplots):
             for n, slc in enumerate(self.data.slcs)
         ]
 
+    def add_title(self, fig: go.Figure):
+        annotate(
+            fig, 16, self.top_left, 'left', 'bottom', 0.03,  # oof -- adjust for x-axis
+            "Density Plots for Slices"
+        )
+
 
 class SliceHistogram(RootPlot):
     """Top-level plot, for a given parameter."""
 
     data: ParameterSlices
     theme: BackfillzTheme
-    tracePlot: TracePlot
-    joiningSegments: JoiningSegments
-    densityPlots: DensityPlots
+    left_w = 0.4  # width of trace plot
+    middle_w = 0.2  # width of joining segments
 
     @property
     def plots(self) -> List[Plot]:
-        return [self.tracePlot, self.joiningSegments, self.densityPlots]
+        return [self.trace_plot, self.joiningSegments, self.densityPlots]
+
+    @property
+    def trace_plot(self):
+        return TracePlot(
+            axis_ids=[None],
+            x_domain=(0, self.left_w),
+            y_domain=(0, 1.0),
+            row=1,
+            col=1,
+            data=self.data,
+            theme=self.theme,
+        )
+
+    joiningSegments: JoiningSegments
+    densityPlots: DensityPlots
 
     def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
         """Construct a Slice Histogram for a given parameter from a list of slices."""
@@ -215,22 +235,11 @@ class SliceHistogram(RootPlot):
             max_sample=np.amax(backfillz.mcmc_samples[param]),
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
-        left_w = 0.4        # width of trace plot
-        middle_w = 0.2      # width of joining segments
 
         # Axis ids are one of Plotly's design failures. No easy way to extract them from the layout.
-        self.tracePlot = TracePlot(
-            axis_ids=[None],
-            x_domain=(0, left_w),
-            y_domain=(0, 1.0),
-            row=1,
-            col=1,
-            data=self.data,
-            theme=backfillz.theme,
-        )
         self.joiningSegments = JoiningSegments(
             axis_ids=[2],
-            x_domain=(left_w, left_w + middle_w),
+            x_domain=(self.left_w, self.left_w + self.middle_w),
             y_domain=(0, 1.0),
             row=1,
             col=2,
@@ -239,7 +248,7 @@ class SliceHistogram(RootPlot):
         )
         self.densityPlots = DensityPlots(
             axis_ids=[n + 3 for n in reversed(range(self.data.n_slcs))],
-            x_domain=(left_w + middle_w, 1),
+            x_domain=(self.left_w + self.middle_w, 1),
             y_domain=(0, 1.0),
             row=1,
             col=3,
@@ -274,12 +283,9 @@ class SliceHistogram(RootPlot):
         return fig
 
     def add_titles(self, fig: go.Figure) -> None:
+        self.densityPlots.add_title(fig)
         annotate(
-            fig, 16, self.densityPlots.top_left, 'left', 'bottom', 0.03,  # oof -- adjust for x-axis
-            "Density Plots for Slices"
-        )
-        annotate(
-            fig, 16, self.tracePlot.top_left, 'left', 'bottom', None,
+            fig, 16, self.trace_plot.top_left, 'left', 'bottom', None,
             "Trace Plot With Slices"
         )
         annotate(
