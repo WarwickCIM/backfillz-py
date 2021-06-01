@@ -199,6 +199,7 @@ class DensityPlots(VerticalSubplots):
         annotate(fig, 16, self.top_left, 'left', 'bottom', 0.03, "Density Plots for Slices")
 
 
+@dataclass
 class SliceHistogram(RootPlot):
     """Top-level plot, for a given parameter."""
 
@@ -206,10 +207,6 @@ class SliceHistogram(RootPlot):
     theme: BackfillzTheme
     left_w = 0.4  # width of trace plot
     middle_w = 0.2  # width of joining segments
-
-    def __init__(self, theme: BackfillzTheme, data: ParameterSlices):
-        self.theme = theme
-        self.data = data
 
     @property
     def plots(self) -> List[Plot]:
@@ -298,6 +295,6 @@ class SliceHistogram(RootPlot):
                 max_sample=np.amax(backfillz.mcmc_samples[param]),
                 min_sample=np.amin(backfillz.mcmc_samples[param]),
             )
-            SliceHistogram(backfillz.theme, data).render()
+            SliceHistogram(data, backfillz.theme).render()
 
         backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
