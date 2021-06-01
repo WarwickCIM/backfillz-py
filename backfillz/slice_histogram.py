@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from dataclasses import dataclass
 from math import ceil, floor
 from typing import List, Literal, Optional, Tuple
@@ -9,7 +10,7 @@ from plotly.subplots import make_subplots  # type: ignore
 import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import annotate, LeafPlot, Plot, scale, segment, VerticalSubplots
+from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, segment, VerticalSubplots
 from backfillz.theme import BackfillzTheme
 
 
@@ -192,7 +193,7 @@ class DensityPlots(VerticalSubplots):
         ]
 
 
-class SliceHistogram:
+class SliceHistogram(RootPlot):
     """Top-level plot, for a given parameter."""
 
     data: ParameterSlices
@@ -290,13 +291,6 @@ class SliceHistogram:
             fig, 14, (1, -0.03), 'right', 'top', None,  # adjust for x-axis
             "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
-
-    def render(self) -> None:
-        """Create fig and render subplots."""
-        fig: go.Figure = self.layout()
-        for plot in self.plots:
-            plot.render(fig)
-        fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:

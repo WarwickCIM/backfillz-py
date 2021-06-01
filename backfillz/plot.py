@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Tuple
 
@@ -137,3 +138,23 @@ class VerticalSubplots(Plot):
         """Render subplots into fig."""
         for n, plot in enumerate(self.plots):
             plot.render(fig)
+
+
+class RootPlot:
+    """Top-level plot."""
+
+    @property
+    @abstractmethod
+    def plots(self) -> List[Plot]:
+        pass
+
+    @abstractmethod
+    def layout(self) -> go.Figure:
+        pass
+
+    def render(self) -> None:
+        """Create fig and render subplots."""
+        fig: go.Figure = self.layout()
+        for plot in self.plots:
+            plot.render(fig)
+        fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
