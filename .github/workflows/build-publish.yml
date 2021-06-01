@@ -7,13 +7,13 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
-          python-version: 3.9
+          python-version: 3.9.5
       - name: Install poetry
         run: pip install poetry
       - name: Install dependencies
@@ -22,14 +22,11 @@ jobs:
         run: poetry run flake8 backfillz/ tests/
       - name: Check type hinting with mypy
         run: poetry run mypy --strict --config-file=mypy.ini backfillz/
-      - name: Install coda
-        run: |
-          echo "install.packages(\"coda\", repos=\"https://cran.rstudio.com\")" | R --no-save
       - name: Unit & coverage test with pytest
         run: cd tests && poetry run pytest --no-cov # disable coverage for now
 
   docs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs:
         build
     steps:
@@ -41,7 +38,7 @@ jobs:
       - run: mkdocs gh-deploy --force
 
   publish:
-    runs-on: macos-10.15 # ubuntu-20.04
+    runs-on: ubuntu-20.04
     needs:
         docs
     if: github.ref == 'refs/heads/release'

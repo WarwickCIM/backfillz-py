@@ -6,16 +6,11 @@ import numpy as np
 import pandas as pd  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
-from rpy2.robjects import numpy2ri  # type: ignore
-from rpy2.robjects.packages import importr  # type: ignore
 import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
 from backfillz.plot import LeafPlot, Plot, scale, segment, VerticalSubplots
 from backfillz.theme import BackfillzTheme
-
-coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
-numpy2ri.activate()
 
 
 @dataclass
@@ -197,85 +192,18 @@ class DensityPlots(VerticalSubplots):
         ]
 
 
-@dataclass
-class RafteryLewisPlot(LeafPlot):
-    """Raftery-Lewis plot for a chain."""
-
-    n_chain: int
-
-    def render(self, fig: go.Figure) -> None:
-        fig.add_trace(self.plot(), self.row, self.col)
-        fig.add_trace(self.warning_cross(), self.row, self.col)
-
-    def plot(self) -> go.Scatter:
-        return go.Scatter(
-            x=list(range(0, self.data.n_iter)),
-            y=self.data.chains[self.n_chain],
-            line=dict(color=self.theme.palette[self.n_chain])
-        )
-
-    def warning_cross(self) -> go.Scatter:
-        """Singleton scatterplot to render X if iterations fall short of required sample size."""
-        return go.Scatter(
-            x=[self.required_sample_size],
-            y=[0],
-            mode='text',
-            text=['X' if self.required_sample_size > self.data.n_iter else ''],
-            textposition='middle center',
-            cliponaxis=False  # ensure visible
-        )
-
-    @property
-    def required_sample_size(self) -> int:
-        """N component of resmatrix component of result of raftery.diag R function."""
-        result = coda.raftery_diag(self.data.chains[self.n_chain])
-        resmatrix = result[1][0]
-        return int(resmatrix[1])  # N is a float, but represents an iteration count
-
-    @property
-    def xaxis_props(self) -> Props:
-        return dict(
-            visible=False,
-            range=[0, max(self.data.n_iter, self.required_sample_size)]
-        )
-
-    @property
-    def yaxis_props(self) -> Props:
-        return dict(visible=False)
-
-
-class RafteryLewisPlots(VerticalSubplots):
-    """Bottom component: one Raftery-Lewis plot per chain."""
-
-    def make_plots(self) -> List[Plot]:
-        return [
-            RafteryLewisPlot(
-                axis_ids=[self.axis_ids[n]],
-                x_domain=self.x_domain,
-                y_domain=segment(self.y_domain, self.data.n_chains, n),
-                data=self.data,
-                theme=self.theme,
-                n_chain=n,
-                row=self.row + self.data.n_chains - 1 - n,
-                col=self.col
-            )
-            for n, _ in enumerate(self.data.chains)
-        ]
-
-
 class SliceHistogram:
     """Top-level plot, for a given parameter."""
 
     data: ParameterSlices
     theme: BackfillzTheme
     tracePlot: TracePlot
-    rafteryLewisPlots: RafteryLewisPlots
     joiningSegments: JoiningSegments
     densityPlots: DensityPlots
 
     @property
     def plots(self) -> List[Plot]:
-        return [self.tracePlot, self.joiningSegments, self.densityPlots, self.rafteryLewisPlots]
+        return [self.tracePlot, self.joiningSegments, self.densityPlots]
 
     def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
         """Construct a Slice Histogram for a given parameter from a list of slices."""
@@ -287,8 +215,6 @@ class SliceHistogram:
             max_sample=np.amax(backfillz.mcmc_samples[param]),
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
-        lower_h = 0.2       # height of Raftery-Lewis section
-        lower_margin = 0.4
         left_w = 0.4        # width of trace plot
         middle_w = 0.2      # width of joining segments
 
@@ -296,7 +222,7 @@ class SliceHistogram:
         self.tracePlot = TracePlot(
             axis_ids=[None],
             x_domain=(0, left_w),
-            y_domain=(lower_h, 1.0),
+            y_domain=(0, 1.0),
             row=1,
             col=1,
             data=self.data,
@@ -305,7 +231,7 @@ class SliceHistogram:
         self.joiningSegments = JoiningSegments(
             axis_ids=[2],
             x_domain=(left_w, left_w + middle_w),
-            y_domain=(lower_h, 1.0),
+            y_domain=(0, 1.0),
             row=1,
             col=2,
             data=self.data,
@@ -314,18 +240,9 @@ class SliceHistogram:
         self.densityPlots = DensityPlots(
             axis_ids=[n + 3 for n in reversed(range(self.data.n_slcs))],
             x_domain=(left_w + middle_w, 1),
-            y_domain=(lower_h, 1.0),
+            y_domain=(0, 1.0),
             row=1,
             col=3,
-            data=self.data,
-            theme=backfillz.theme,
-        )
-        self.rafteryLewisPlots = RafteryLewisPlots(
-            axis_ids=[n + 3 + len(slcs) for n in reversed(range(self.data.n_chains))],
-            x_domain=(0, left_w),
-            y_domain=(0, lower_h * (1 - lower_margin)),
-            row=self.data.n_slcs + 1,
-            col=1,
             data=self.data,
             theme=backfillz.theme,
         )
@@ -370,11 +287,7 @@ class SliceHistogram:
             "Trace Plot With Slices"
         )
         annotate(
-            fig, 14, (0, 0), 'left', 'top', None,
-            "Raftery-Lewis Diagnostic"
-        )
-        annotate(
-            fig, 14, (1, 0), 'right', 'top', None,
+            fig, 14, (1, -0.03), 'right', 'top', None,
             "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
 
