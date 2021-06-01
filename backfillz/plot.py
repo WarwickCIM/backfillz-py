@@ -48,7 +48,7 @@ class Plot:
         return self.x_domain[0], self.y_domain[1]
 
 
-class Subplot(Plot):
+class LeafPlot(Plot):
     """A leaf subplot."""
 
     @property

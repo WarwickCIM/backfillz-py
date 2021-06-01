@@ -11,14 +11,14 @@ from rpy2.robjects.packages import importr  # type: ignore
 import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, Slice, Slices, ParameterSlices, Props
-from backfillz.plot import Plot, scale, segment, Subplot, VerticalSubplots
+from backfillz.plot import LeafPlot, Plot, scale, segment, VerticalSubplots
 
 coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
 numpy2ri.activate()
 
 
 @dataclass
-class TracePlot(Subplot):
+class TracePlot(LeafPlot):
     """Left-hand component."""
 
     def render(self, fig: go.Figure) -> None:
@@ -60,7 +60,7 @@ class TracePlot(Subplot):
 
 
 @dataclass
-class JoiningSegments(Subplot):
+class JoiningSegments(LeafPlot):
     """Middle component."""
 
     def render(self, fig: go.Figure) -> None:
@@ -115,7 +115,7 @@ class JoiningSegments(Subplot):
 
 
 @dataclass
-class DensityPlot(Subplot):
+class DensityPlot(LeafPlot):
     """Histogram for a slice (aggregating all chains) plus density plot for each chain."""
 
     slc: Slice
@@ -197,7 +197,7 @@ class DensityPlots(VerticalSubplots):
 
 
 @dataclass
-class RafteryLewisPlot(Subplot):
+class RafteryLewisPlot(LeafPlot):
     """Raftery-Lewis plot for a chain."""
 
     n_chain: int
