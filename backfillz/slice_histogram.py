@@ -9,7 +9,7 @@ from plotly.subplots import make_subplots  # type: ignore
 import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import LeafPlot, Plot, scale, segment, VerticalSubplots
+from backfillz.plot import annotate, LeafPlot, Plot, scale, segment, VerticalSubplots
 from backfillz.theme import BackfillzTheme
 
 
@@ -297,29 +297,6 @@ class SliceHistogram:
         for plot in self.plots:
             plot.render(fig)
         fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
-
-
-def annotate(
-    fig: go.Figure,
-    font_size: int,
-    at: Tuple[float, float],
-    xanchor: Literal['left', 'right'],
-    yanchor: Literal['top', 'bottom'],
-    y_adjust: Optional[float],  # additional normalised offet of text relative to plot
-    text: str,
-) -> None:
-    """Add an annotation to supplied figure, with supplied arguments in addition to some default settings."""
-    fig.add_annotation(
-        xref='paper',
-        yref='paper',
-        showarrow=False,
-        font=dict(size=font_size),
-        x=at[0],
-        y=at[1] + (0 if y_adjust is None else y_adjust),
-        xanchor=xanchor,
-        yanchor=yanchor,
-        text=text,
-    )
 
 
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:

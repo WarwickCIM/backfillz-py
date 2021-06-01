@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Literal, Optional, Tuple
 
 import plotly.graph_objects as go  # type: ignore
 
@@ -21,6 +21,29 @@ def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
     start, end = domain
     width = (end - start) / n
     return start + m * width, start + (m + 1) * width
+
+
+def annotate(
+    fig: go.Figure,
+    font_size: int,
+    at: Tuple[float, float],
+    xanchor: Literal['left', 'right'],
+    yanchor: Literal['top', 'bottom'],
+    y_adjust: Optional[float],  # additional normalised offet of text relative to plot
+    text: str,
+) -> None:
+    """Add an annotation to supplied figure, with supplied arguments in addition to some default settings."""
+    fig.add_annotation(
+        xref='paper',
+        yref='paper',
+        showarrow=False,
+        font=dict(size=font_size),
+        x=at[0],
+        y=at[1] + (0 if y_adjust is None else y_adjust),
+        xanchor=xanchor,
+        yanchor=yanchor,
+        text=text,
+    )
 
 
 @dataclass
