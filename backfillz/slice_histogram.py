@@ -274,6 +274,10 @@ class SliceHistogram:
     joiningSegments: JoiningSegments
     densityPlots: DensityPlots
 
+    @property
+    def plots(self) -> List[Plot]:
+        return [self.tracePlot, self.joiningSegments, self.densityPlots, self.rafteryLewisPlots]
+
     def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
         """Construct a Slice Histogram for a given parameter from a list of slices."""
         self.theme = backfillz.theme
@@ -351,10 +355,8 @@ class SliceHistogram:
             print_grid=True,
         )
 
-        self.tracePlot.layout_axes(fig)
-        self.densityPlots.layout_axes(fig)
-        self.joiningSegments.layout_axes(fig)
-        self.rafteryLewisPlots.layout_axes(fig)
+        for plot in self.plots:
+            plot.layout_axes(fig)
 
         self.add_titles(fig)
         return fig
@@ -378,12 +380,10 @@ class SliceHistogram:
         )
 
     def render(self) -> None:
-        """Create fig and render subplots at appropriate rows/columns."""
+        """Create fig and render subplots"""
         fig: go.Figure = self.layout()
-        self.tracePlot.render(fig)
-        self.rafteryLewisPlots.render(fig)
-        self.joiningSegments.render(fig)
-        self.densityPlots.render(fig)
+        for plot in self.plots:
+            plot.render(fig)
         fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
 
 
