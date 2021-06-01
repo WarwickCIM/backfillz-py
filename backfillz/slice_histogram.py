@@ -285,11 +285,6 @@ class SliceHistogram(RootPlot):
 
         return fig
 
-    def add_titles(self, fig: go.Figure) -> None:
-        self.density_plots.add_title(fig)
-        self.trace_plot.add_title(fig)
-        self.add_title(fig)
-
     def add_title(self, fig: go.Figure) -> None:
         annotate(
             fig, 14, (1, -0.03), 'right', 'top', None,  # adjust for x-axis

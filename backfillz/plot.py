@@ -161,6 +161,10 @@ class RootPlot:
     def add_titles(self, fig: go.Figure) -> None:
         pass
 
+    @abstractmethod
+    def add_title(self, fig: go.Figure) -> None:
+        pass
+
     def render(self) -> None:
         """Create fig and render subplots."""
         fig: go.Figure = self.layout()
@@ -168,7 +172,9 @@ class RootPlot:
         for plot in self.plots:
             plot.layout_axes(fig)
 
-        self.add_titles(fig)
+        for plot in self.plots:
+            plot.add_title(fig)
+        self.add_title(fig)
 
         for plot in self.plots:
             plot.render(fig)
