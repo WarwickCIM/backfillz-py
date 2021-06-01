@@ -10,16 +10,16 @@ from rpy2.robjects import numpy2ri  # type: ignore
 from rpy2.robjects.packages import importr  # type: ignore
 import scipy.stats as stats  # type: ignore
 
-from backfillz.core import Backfillz, HistoryEntry, HistoryEvent
-from backfillz.plot \
-    import ChartData, Plot, Props, scale, segment, Slice, Slices, Subplot, VerticalSubplots
+from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
+from backfillz.plot import LeafPlot, Plot, scale, segment, VerticalSubplots
+from backfillz.theme import BackfillzTheme
 
 coda = importr("coda")  # use R for raftery.diag; might be a better diagnostic in PyMC3
 numpy2ri.activate()
 
 
 @dataclass
-class TracePlot(Subplot):
+class TracePlot(LeafPlot):
     """Left-hand component."""
 
     def render(self, fig: go.Figure) -> None:
@@ -34,7 +34,7 @@ class TracePlot(Subplot):
             go.Scatter(
                 x=chain,
                 y=list(range(0, self.data.n_iter)),
-                line=dict(color=self.data.theme.palette[n])
+                line=dict(color=self.theme.palette[n])
             )
             for n, chain in enumerate(self.data.chains)
         ]
@@ -46,7 +46,7 @@ class TracePlot(Subplot):
                 x=[self.data.min_sample] * 2 + [self.data.max_sample] * 2 + [self.data.min_sample],
                 y=scale(self.data.n_iter, [slc.lower, slc.upper, slc.upper, slc.lower, slc.lower]),
                 mode='lines',
-                line=dict(width=2, color=self.data.theme.fg_colour),
+                line=dict(width=2, color=self.theme.fg_colour),
             )
             for slc in self.data.slcs
         ]
@@ -61,7 +61,7 @@ class TracePlot(Subplot):
 
 
 @dataclass
-class JoiningSegments(Subplot):
+class JoiningSegments(LeafPlot):
     """Middle component."""
 
     def render(self, fig: go.Figure) -> None:
@@ -76,7 +76,7 @@ class JoiningSegments(Subplot):
                 x=[0, 1, 1, 0],
                 y=scale(self.data.n_iter, [slc.lower, lower, upper, slc.upper]),
                 mode='lines',
-                line=dict(color=self.data.theme.fg_colour, width=1),
+                line=dict(color=self.theme.fg_colour, width=1),
                 fill='toself',
                 fillcolor='rgba(240,240,240,255)'
             )
@@ -116,7 +116,7 @@ class JoiningSegments(Subplot):
 
 
 @dataclass
-class DensityPlot(Subplot):
+class DensityPlot(LeafPlot):
     """Histogram for a slice (aggregating all chains) plus density plot for each chain."""
 
     slc: Slice
@@ -140,8 +140,8 @@ class DensityPlot(Subplot):
             x=[x for xs in chain_slices for x in xs],
             xbins=dict(start=floor(self.data.min_sample), end=ceil(self.data.max_sample), size=1),
             marker=dict(
-                color=self.data.theme.bg_colour,
-                line=dict(color=self.data.theme.fg_colour, width=1)
+                color=self.theme.bg_colour,
+                line=dict(color=self.theme.fg_colour, width=1)
             ),
             histnorm='probability'
         )
@@ -154,7 +154,7 @@ class DensityPlot(Subplot):
                 x=x,
                 y=stats.kde.gaussian_kde(chain_slices[n])(x),
                 mode='lines',
-                line=dict(width=2, color=self.data.theme.palette[n]),
+                line=dict(width=2, color=self.theme.palette[n]),
             )
             for n in range(0, self.data.n_chains)
         ]
@@ -187,6 +187,7 @@ class DensityPlots(VerticalSubplots):
                 x_domain=self.x_domain,
                 y_domain=segment(self.y_domain, self.data.n_slcs, n),
                 data=self.data,
+                theme=self.theme,
                 slc=slc,
                 n_slc=n,
                 row=self.row + self.data.n_slcs - 1 - n,
@@ -197,7 +198,7 @@ class DensityPlots(VerticalSubplots):
 
 
 @dataclass
-class RafteryLewisPlot(Subplot):
+class RafteryLewisPlot(LeafPlot):
     """Raftery-Lewis plot for a chain."""
 
     n_chain: int
@@ -210,7 +211,7 @@ class RafteryLewisPlot(Subplot):
         return go.Scatter(
             x=list(range(0, self.data.n_iter)),
             y=self.data.chains[self.n_chain],
-            line=dict(color=self.data.theme.palette[self.n_chain])
+            line=dict(color=self.theme.palette[self.n_chain])
         )
 
     def warning_cross(self) -> go.Scatter:
@@ -253,6 +254,7 @@ class RafteryLewisPlots(VerticalSubplots):
                 x_domain=self.x_domain,
                 y_domain=segment(self.y_domain, self.data.n_chains, n),
                 data=self.data,
+                theme=self.theme,
                 n_chain=n,
                 row=self.row + self.data.n_chains - 1 - n,
                 col=self.col
@@ -264,22 +266,24 @@ class RafteryLewisPlots(VerticalSubplots):
 class SliceHistogram:
     """Top-level plot, for a given parameter."""
 
-    backfillz: Backfillz
-    data: ChartData
+    data: ParameterSlices
+    theme: BackfillzTheme
     tracePlot: TracePlot
     rafteryLewisPlots: RafteryLewisPlots
     joiningSegments: JoiningSegments
     densityPlots: DensityPlots
 
+    @property
+    def plots(self) -> List[Plot]:
+        return [self.tracePlot, self.joiningSegments, self.densityPlots, self.rafteryLewisPlots]
+
     def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
         """Construct a Slice Histogram for a given parameter from a list of slices."""
-        self.backfillz = backfillz
-        chains: np.ndarray = backfillz.iter_chains(param)
-        self.data = ChartData(
-            theme=backfillz.theme,
+        self.theme = backfillz.theme
+        self.data = ParameterSlices(
             slcs=slcs,
             param=param,
-            chains=chains,
+            chains=backfillz.iter_chains(param),
             max_sample=np.amax(backfillz.mcmc_samples[param]),
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
@@ -295,7 +299,8 @@ class SliceHistogram:
             y_domain=(lower_h, 1.0),
             row=1,
             col=1,
-            data=self.data
+            data=self.data,
+            theme=backfillz.theme,
         )
         self.joiningSegments = JoiningSegments(
             axis_ids=[2],
@@ -303,7 +308,8 @@ class SliceHistogram:
             y_domain=(lower_h, 1.0),
             row=1,
             col=2,
-            data=self.data
+            data=self.data,
+            theme=backfillz.theme,
         )
         self.densityPlots = DensityPlots(
             axis_ids=[n + 3 for n in reversed(range(self.data.n_slcs))],
@@ -311,7 +317,8 @@ class SliceHistogram:
             y_domain=(lower_h, 1.0),
             row=1,
             col=3,
-            data=self.data
+            data=self.data,
+            theme=backfillz.theme,
         )
         self.rafteryLewisPlots = RafteryLewisPlots(
             axis_ids=[n + 3 + len(slcs) for n in reversed(range(self.data.n_chains))],
@@ -319,7 +326,8 @@ class SliceHistogram:
             y_domain=(0, lower_h * (1 - lower_margin)),
             row=self.data.n_slcs + 1,
             col=1,
-            data=self.data
+            data=self.data,
+            theme=backfillz.theme,
         )
 
     def layout(self) -> go.Figure:
@@ -327,7 +335,7 @@ class SliceHistogram:
         layout: go.Layout = go.Layout(
             title=f"Trace slice histogram of {self.data.param}",
             titlefont=dict(size=30),
-            plot_bgcolor=self.data.theme.bg_colour,
+            plot_bgcolor=self.theme.bg_colour,
             showlegend=False,
         )
         fig: go.Figure = go.Figure(layout=layout)
@@ -346,10 +354,8 @@ class SliceHistogram:
             print_grid=True,
         )
 
-        self.tracePlot.layout_axes(fig)
-        self.densityPlots.layout_axes(fig)
-        self.joiningSegments.layout_axes(fig)
-        self.rafteryLewisPlots.layout_axes(fig)
+        for plot in self.plots:
+            plot.layout_axes(fig)
 
         self.add_titles(fig)
         return fig
@@ -373,12 +379,10 @@ class SliceHistogram:
         )
 
     def render(self) -> None:
-        """Create fig and render subplots at appropriate rows/columns."""
+        """Create fig and render subplots."""
         fig: go.Figure = self.layout()
-        self.tracePlot.render(fig)
-        self.rafteryLewisPlots.render(fig)
-        self.joiningSegments.render(fig)
-        self.densityPlots.render(fig)
+        for plot in self.plots:
+            plot.render(fig)
         fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
 
 
@@ -408,11 +412,10 @@ def annotate(
 def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
     """Plot a slice histogram."""
     params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
-    slice_list: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
-    slices: Slices = {param: slice_list for param in params}
+    slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
 
     for param in params:
         # Assume scalar parameter for now; what about vectors?
-        SliceHistogram(backfillz, slices[param], param).render()
+        SliceHistogram(backfillz, slcs, param).render()
 
     backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))

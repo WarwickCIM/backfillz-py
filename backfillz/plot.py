@@ -1,28 +1,14 @@
-from abc import abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import plotly.graph_objects as go  # type: ignore
 
+from backfillz.core import ParameterSlices, Props
 from backfillz.theme import BackfillzTheme
 
 
-@dataclass
-class Slice:
-    """A slice of an MCMC trace."""
-
-    lower: float
-    upper: float
-
-
-Param = str
-Slices = Dict[Param, List[Slice]]
-
 # ints assigned as axis id suffixes by Plotly; omitted for first subplot
 AxisId = Optional[int]
-AxisIds = Tuple[AxisId, AxisId]
-Props = Dict[str, Any]
 
 
 def scale(factor: float, xs: List[float]) -> List[float]:
@@ -38,31 +24,6 @@ def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
 
 
 @dataclass
-class ChartData:
-    """The MCMC data being presented."""
-
-    theme: BackfillzTheme
-    slcs: List[Slice]
-    param: str
-    chains: np.ndarray
-    max_sample: float
-    min_sample: float
-
-    @property
-    def n_chains(self) -> int:
-        return int(self.chains.shape[0])
-
-    @property
-    def n_iter(self) -> int:
-        """Return number of MCMC iterations per chain."""
-        return int(self.chains.shape[1])
-
-    @property
-    def n_slcs(self) -> int:
-        return len(self.slcs)
-
-
-@dataclass
 class Plot:
     """Base class providing common subplot functionality."""
 
@@ -71,7 +32,8 @@ class Plot:
     y_domain: Tuple[float, float]  # top/bottom edges normalised to [0, 1]
     row: int
     col: int
-    data: ChartData
+    data: ParameterSlices
+    theme: BackfillzTheme
 
     def layout_axes(self, fig: go.Figure) -> None:
         pass
@@ -85,8 +47,7 @@ class Plot:
         return self.x_domain[0], self.y_domain[1]
 
 
-@dataclass
-class Subplot(Plot):
+class LeafPlot(Plot):
     """A leaf subplot."""
 
     @property
@@ -94,11 +55,11 @@ class Subplot(Plot):
         return dict(
             showgrid=False,
             zeroline=False,
-            linecolor=self.data.theme.fg_colour,
+            linecolor=self.theme.fg_colour,
             ticks='outside',
             tickwidth=1,
             ticklen=5,
-            tickcolor=self.data.theme.fg_colour,
+            tickcolor=self.theme.fg_colour,
             fixedrange=True,  # disable selection zoom
         )
 
@@ -130,26 +91,16 @@ class Subplot(Plot):
         return dict()
 
 
+@dataclass
 class VerticalSubplots(Plot):
     """A collection of vertically arranged subplots."""
 
-    plots: List[Plot]  # @cached_property would be nice but Mypy doesn't support it properly
+    plots: List[Plot] = field(init=False)
 
-    def __init__(
-        self,
-        axis_ids: List[AxisId],
-        x_domain: Tuple[float, float],
-        y_domain: Tuple[float, float],
-        row: int,
-        col: int,
-        data: ChartData
-    ):
-        super().__init__(
-            axis_ids=axis_ids, x_domain=x_domain, y_domain=y_domain, row=row, col=col, data=data
-        )
+    def __post_init__(self) -> None:
         self.plots = self.make_plots()
 
-    @abstractmethod
+    # want #abstractmethod but MyPy doesn't support abstract data classes
     def make_plots(self) -> List[Plot]:
         """My subplots."""
         pass
