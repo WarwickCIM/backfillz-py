@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
@@ -21,7 +21,6 @@ Slices = Dict[Param, List[Slice]]
 
 # ints assigned as axis id suffixes by Plotly; omitted for first subplot
 AxisId = Optional[int]
-AxisIds = Tuple[AxisId, AxisId]
 Props = Dict[str, Any]
 
 
@@ -85,7 +84,6 @@ class Plot:
         return self.x_domain[0], self.y_domain[1]
 
 
-@dataclass
 class Subplot(Plot):
     """A leaf subplot."""
 
@@ -130,18 +128,14 @@ class Subplot(Plot):
         return dict()
 
 
-@dataclass
+@dataclass  # type: ignore[misc]
 class VerticalSubplots(Plot):
     """A collection of vertically arranged subplots."""
 
-    _plots: Optional[List[Plot]] = None
+    plots: List[Plot] = field(init=False)
 
-    # Want @cached_property but Mypy doesn't seem to support it properly.
-    @property
-    def plots(self) -> List[Plot]:
-        if self._plots is None:
-            self._plots = self.make_plots()
-        return self._plots
+    def __post_init__(self) -> None:
+        self.plots = self.make_plots()
 
     @abstractmethod
     def make_plots(self) -> List[Plot]:

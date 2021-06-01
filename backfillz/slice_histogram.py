@@ -306,7 +306,7 @@ class SliceHistogram:
             row=1,
             col=2,
             data=self.data,
-            theme = backfillz.theme,
+            theme=backfillz.theme,
         )
         self.densityPlots = DensityPlots(
             axis_ids=[n + 3 for n in reversed(range(self.data.n_slcs))],
@@ -324,7 +324,7 @@ class SliceHistogram:
             row=self.data.n_slcs + 1,
             col=1,
             data=self.data,
-            theme = backfillz.theme,
+            theme=backfillz.theme,
         )
 
     def layout(self) -> go.Figure:
