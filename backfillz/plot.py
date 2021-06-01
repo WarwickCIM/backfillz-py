@@ -158,10 +158,6 @@ class RootPlot:
         pass
 
     @abstractmethod
-    def add_titles(self, fig: go.Figure) -> None:
-        pass
-
-    @abstractmethod
     def add_title(self, fig: go.Figure) -> None:
         pass
 
