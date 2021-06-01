@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import List, Literal, Optional, Tuple
+from typing import List
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -194,7 +194,7 @@ class DensityPlots(VerticalSubplots):
             for n, slc in enumerate(self.data.slcs)
         ]
 
-    def add_title(self, fig: go.Figure):
+    def add_title(self, fig: go.Figure) -> None:
         # oof -- adjust for x-axis
         annotate(fig, 16, self.top_left, 'left', 'bottom', 0.03, "Density Plots for Slices")
 
@@ -212,7 +212,7 @@ class SliceHistogram(RootPlot):
         return [self.trace_plot, self.joining_segments, self.density_plots]
 
     @property
-    def trace_plot(self):
+    def trace_plot(self) -> TracePlot:
         return TracePlot(
             axis_ids=[None],
             x_domain=(0, self.left_w),

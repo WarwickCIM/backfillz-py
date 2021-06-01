@@ -59,11 +59,16 @@ class Plot:
     data: ParameterSlices
     theme: BackfillzTheme
 
+    # want @abstractmethod but MyPy doesn't support abstract methods in data classes
     def layout_axes(self, fig: go.Figure) -> None:
         pass
 
+    # want @abstractmethod but MyPy doesn't support abstract methods in data classes
     def render(self, fig: go.Figure) -> None:
         """Render me into fig."""
+        pass
+
+    def add_title(self, fig: go.Figure) -> None:
         pass
 
     @property
