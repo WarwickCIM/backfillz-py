@@ -207,6 +207,10 @@ class SliceHistogram(RootPlot):
     left_w = 0.4  # width of trace plot
     middle_w = 0.2  # width of joining segments
 
+    def __init__(self, theme: BackfillzTheme, data: ParameterSlices):
+        self.theme = theme
+        self.data = data
+
     @property
     def plots(self) -> List[Plot]:
         return [self.trace_plot, self.joining_segments, self.density_plots]
@@ -245,16 +249,6 @@ class SliceHistogram(RootPlot):
             col=3,
             data=self.data,
             theme=self.theme,
-        )
-
-    def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
-        self.theme = backfillz.theme
-        self.data = ParameterSlices(
-            slcs=slcs,
-            param=param,
-            chains=backfillz.iter_chains(param),
-            max_sample=np.amax(backfillz.mcmc_samples[param]),
-            min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
 
     def layout(self) -> go.Figure:
@@ -297,6 +291,13 @@ class SliceHistogram(RootPlot):
 
         for param in params:
             # Assume scalar parameter for now; what about vectors?
-            SliceHistogram(backfillz, slcs, param).render()
+            data = ParameterSlices(
+                slcs=slcs,
+                param=param,
+                chains=backfillz.iter_chains(param),
+                max_sample=np.amax(backfillz.mcmc_samples[param]),
+                min_sample=np.amin(backfillz.mcmc_samples[param]),
+            )
+            SliceHistogram(backfillz.theme, data).render()
 
         backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
