@@ -21,14 +21,22 @@ def test_sample_fit() -> None:
 
 
 def test_plot_slice_histogram() -> None:
-    """Slice histogram plot is correctly generated."""
+    """Slice histogram plot is generated without error."""
     stan = generate_fit()
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(demo_1, False)
     SliceHistogram.plot(backfillz)
+
+
+def test_trace_dial() -> None:
+    """Trace dial plot is generated without error."""
+    stan = generate_fit()
+    backfillz = Backfillz(stan.fit)
+    backfillz.set_theme(demo_1, False)
     TraceDial.plot(backfillz)
 
 
 if __name__ == '__main__':
     test_sample_fit()
     test_plot_slice_histogram()
+    test_trace_dial()
