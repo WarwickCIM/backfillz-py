@@ -1,18 +1,24 @@
 from dataclasses import dataclass
-from backfillz.core import Backfillz, ParameterSlices
-from backfillz.plot import LeafPlot, RootPlot, VerticalSubplots
-from backfillz.theme import BackfillzTheme
 
 import plotly.graph_objects as go  # type: ignore
+from typing import List
+
+from backfillz.core import Backfillz, ParameterSlices
+from backfillz.plot import LeafPlot, Plot, RootPlot, VerticalSubplots
+from backfillz.theme import BackfillzTheme
 
 
 @dataclass
 class DialPlot(LeafPlot):
+    """Trace dial plot on the left."""
+
     pass
 
 
 @dataclass
 class Histograms(VerticalSubplots):
+    """Histograms in the top-right quadrant, one for each of the two slices."""
+
     pass
 
 
@@ -24,7 +30,7 @@ class TraceDial(RootPlot):
     theme: BackfillzTheme
 
     @property
-    def plots(self):
+    def plots(self) -> List[Plot]:
         return [self.dial_plot, self.histograms]
 
     @property

@@ -4,8 +4,8 @@ from tests.generate_sample_fit import generate_fit, Stan
 
 from backfillz.core import Backfillz
 from backfillz.slice_histogram import SliceHistogram
-from backfillz.trace_dial import TraceDial
 from backfillz.theme import demo_1
+from backfillz.trace_dial import TraceDial
 
 
 def test_sample_fit() -> None:
