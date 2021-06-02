@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import Any, Dict, List, Literal, Optional, Set,  Tuple
 
 import plotly.graph_objects as go  # type: ignore
+from plotly.subplots import make_subplots  # type: ignore
 
 from backfillz.core import ParameterSlices, Props
 from backfillz.theme import BackfillzTheme
@@ -15,6 +16,13 @@ class AbstractMethodError(NotImplementedError):
 
 # ints assigned as axis id suffixes by Plotly; omitted for first subplot
 AxisId = Optional[int]
+
+
+def cols(xss: List[List[object]]) -> int:
+    """For a rectangular list of lists, the length of the inner lists."""
+    ns: Set[int] = set(map(len, xss))
+    assert len(ns) == 1
+    return min(ns)
 
 
 def scale(factor: float, xs: List[float]) -> List[float]:
@@ -160,7 +168,7 @@ class RootPlot:
     def plots(self) -> List[Plot]:
         raise AbstractMethodError()
 
-    def configure_grid(self, fig: go.Figure) -> None:
+    def configure_grid(self, fig: go.Figure) -> List[List[object]]:
         raise AbstractMethodError()
 
     @property
@@ -181,7 +189,17 @@ class RootPlot:
             )
         )
 
-        self.configure_grid(fig)
+        specs: List[List[object]] = self.configure_grid(fig)
+
+        make_subplots(
+            rows=len(specs),
+            cols=cols(specs),
+            figure=fig,
+            specs=specs,
+            horizontal_spacing=0,
+            vertical_spacing=0,
+            print_grid=True,
+        )
 
         for plot in self.plots:
             plot.layout_axes(fig)

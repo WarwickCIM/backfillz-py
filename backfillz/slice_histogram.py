@@ -4,11 +4,10 @@ from typing import List
 
 import numpy as np
 import plotly.graph_objects as go  # type: ignore
-from plotly.subplots import make_subplots  # type: ignore
 import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, segment, VerticalSubplots
+from backfillz.plot import annotate, cols, LeafPlot, Plot, RootPlot, scale, segment, VerticalSubplots
 
 
 @dataclass
@@ -245,19 +244,10 @@ class SliceHistogram(RootPlot):
             theme=self.theme,
         )
 
-    def configure_grid(self, fig: go.Figure) -> None:
-        specs: List[List[object]] = \
-            [[dict(rowspan=self.data.n_slcs), dict(rowspan=self.data.n_slcs), dict()]] + \
+    def configure_grid(self, fig: go.Figure) -> List[List[object]]:
+        return (
+            [[dict(rowspan=self.data.n_slcs), dict(rowspan=self.data.n_slcs), dict()]] +
             [[None, None, dict()] for _ in self.data.slcs[1:]]
-
-        make_subplots(
-            rows=self.data.n_slcs,
-            cols=3,
-            figure=fig,
-            specs=specs,
-            horizontal_spacing=0,
-            vertical_spacing=0,
-            print_grid=True,
         )
 
     @property
