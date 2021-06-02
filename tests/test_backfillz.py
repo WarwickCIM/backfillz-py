@@ -4,7 +4,7 @@ import pytest
 from tests.generate_sample_fit import generate_fit, Stan
 
 from backfillz.core import Backfillz
-from backfillz.slice_histogram import SliceHistogram
+from backfillz.trace_slice_histogram import TraceSliceHistogram
 from backfillz.theme import demo_1
 from backfillz.trace_dial import TraceDial
 
@@ -26,11 +26,11 @@ def test_sample_fit(stan: Stan) -> None:
     assert expected_stan.equal(stan)
 
 
-def test_plot_slice_histogram(stan: Stan) -> None:
+def test_trace_slice_histogram(stan: Stan) -> None:
     """Slice histogram plot is generated without error."""
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(demo_1, False)
-    SliceHistogram.plot(backfillz)
+    TraceSliceHistogram.plot(backfillz)
 
 
 def test_trace_dial(stan: Stan) -> None:

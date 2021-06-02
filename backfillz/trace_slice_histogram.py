@@ -112,8 +112,8 @@ class JoiningSegments(LeafPlot):
 
 
 @dataclass
-class SliceHistogram(RootPlot):
-    """Top-level plot, for a given parameter."""
+class TraceSliceHistogram(RootPlot):
+    """Trace slice histogram plot for a given parameter."""
 
     data: ParameterSlices
     left_w = 0.4  # width of trace plot
@@ -189,6 +189,6 @@ class SliceHistogram(RootPlot):
                 max_sample=np.amax(backfillz.mcmc_samples[param]),
                 min_sample=np.amin(backfillz.mcmc_samples[param]),
             )
-            SliceHistogram(backfillz.theme, data).render()
+            TraceSliceHistogram(backfillz.theme, data).render()
 
         backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
