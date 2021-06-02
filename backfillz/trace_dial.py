@@ -1,7 +1,7 @@
 from dataclasses import dataclass
+from typing import List
 
 import plotly.graph_objects as go  # type: ignore
-from typing import List
 
 from backfillz.core import Backfillz, ParameterSlices
 from backfillz.plot import LeafPlot, Plot, RootPlot, VerticalSubplots
