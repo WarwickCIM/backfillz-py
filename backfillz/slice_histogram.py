@@ -63,12 +63,15 @@ class TracePlot(LeafPlot):
 class JoiningSegments(LeafPlot):
     """Middle component."""
 
+    def plot_elements(self) -> List[BaseTraceType]:
+        return self.segments + [self.y_labels]
+
     def render(self, fig: go.Figure) -> None:
-        for seg in self.segments():
-            fig.add_trace(seg, self.row, self.col)
-        fig.add_trace(self.y_labels(), self.row, self.col)
+        for el in self.plot_elements():
+            fig.add_trace(el, self.row, self.col)
 
     # one per slice
+    @property
     def segments(self) -> List[go.Scatter]:
         return [
             go.Scatter(
@@ -84,6 +87,7 @@ class JoiningSegments(LeafPlot):
         ]
 
     # one numerical marker per slice delimiter
+    @property
     def y_labels(self) -> go.Scatter:
         y = self.slice_delimiters
         return go.Scatter(
@@ -121,10 +125,12 @@ class DensityPlot(LeafPlot):
     slc: Slice
     n_slc: int
 
+    def plot_elements(self) -> List[BaseTraceType]:
+        return [self.histo] + self.chain_plots
+
     def render(self, fig: go.Figure) -> None:
-        fig.add_trace(self.histo, self.row, self.col)
-        for chain_plot in self.chain_plots:
-            fig.add_trace(chain_plot, self.row, self.col)
+        for el in self.plot_elements():
+            fig.add_trace(el, self.row, self.col)
 
     @property
     def histo(self) -> go.Histogram:
