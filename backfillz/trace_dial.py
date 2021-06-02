@@ -24,9 +24,6 @@ class Histograms(VerticalSubplots):
     def make_plots(self) -> List[Plot]:
         return []
 
-    def render(self, fig: go.Figure) -> None:
-        pass
-
 
 @dataclass
 class TraceDial(RootPlot):
