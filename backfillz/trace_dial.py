@@ -59,7 +59,7 @@ class TraceDial(RootPlot):
             theme=self.theme,
         )
 
-    def layout(self, layout: go.Layout) -> go.Figure:
+    def configure_grid(self, layout: go.Layout) -> go.Figure:
         pass
 
     @property

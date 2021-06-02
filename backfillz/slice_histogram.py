@@ -245,7 +245,7 @@ class SliceHistogram(RootPlot):
             theme=self.theme,
         )
 
-    def layout(self, fig: go.Figure) -> None:
+    def configure_grid(self, fig: go.Figure) -> None:
         specs: List[List[object]] = \
             [[dict(rowspan=self.data.n_slcs), dict(rowspan=self.data.n_slcs), dict()]] + \
             [[None, None, dict()] for _ in self.data.slcs[1:]]

@@ -160,7 +160,7 @@ class RootPlot:
     def plots(self) -> List[Plot]:
         raise AbstractMethodError()
 
-    def layout(self, fig: go.Figure) -> None:
+    def configure_grid(self, fig: go.Figure) -> None:
         raise AbstractMethodError()
 
     @property
@@ -181,7 +181,7 @@ class RootPlot:
             )
         )
 
-        self.layout(fig)
+        self.configure_grid(fig)
 
         for plot in self.plots:
             plot.layout_axes(fig)
