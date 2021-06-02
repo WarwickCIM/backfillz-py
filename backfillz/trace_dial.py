@@ -6,7 +6,8 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Slice
-from backfillz.plot import LeafPlot, Plot, RootPlot, Specs, VerticalSubplots
+from backfillz.slice_histograms import SliceHistograms
+from backfillz.plot import LeafPlot, Plot, RootPlot, Specs
 from backfillz.theme import BackfillzTheme
 
 
@@ -23,14 +24,6 @@ class DialPlot(LeafPlot):
             direction='clockwise',
             sort=False
         )]
-
-
-@dataclass
-class Histograms(VerticalSubplots):
-    """Histograms in the top-right quadrant, one for each of the two slices."""
-
-    def make_plots(self) -> List[Plot]:
-        return []
 
 
 @dataclass
@@ -58,9 +51,9 @@ class TraceDial(RootPlot):
         )
 
     @property
-    def histograms(self) -> Histograms:
-        return Histograms(
-            axis_ids=[2, 3],
+    def histograms(self) -> SliceHistograms:
+        return SliceHistograms(
+            axis_ids=[None, 2],
             x_domain=(0, 1.0),
             y_domain=(0, 1.0),
             row=1,
@@ -70,10 +63,11 @@ class TraceDial(RootPlot):
         )
 
     def grid_specs(self, layout: go.Layout) -> Specs:
-        return ([
-            [dict(rowspan=len(self.data.slcs), type='domain'), dict()],  # upper quadrants
-            [None, None]                                                 # lower quadrants
-        ])
+        return (
+            [[dict(rowspan=len(self.data.slcs), type='domain'), dict()]] +  # upper quadrants
+            [[None, dict()] for _ in self.data.slcs[1:]] +
+            [[None, None]]                                                 # lower quadrants
+        )
 
     @property
     def title(self) -> str:
