@@ -203,7 +203,6 @@ class SliceHistogram(RootPlot):
     """Top-level plot, for a given parameter."""
 
     data: ParameterSlices
-    theme: BackfillzTheme
     left_w = 0.4  # width of trace plot
     middle_w = 0.2  # width of joining segments
 
@@ -247,22 +246,13 @@ class SliceHistogram(RootPlot):
             theme=self.theme,
         )
 
-    def layout(self) -> go.Figure:
-        n_slcs: int = self.data.n_slcs
-        layout: go.Layout = go.Layout(
-            title=f"Trace slice histogram of {self.data.param}",
-            titlefont=dict(size=30),
-            plot_bgcolor=self.theme.bg_colour,
-            showlegend=False,
-        )
-        fig: go.Figure = go.Figure(layout=layout)
+    def layout(self, fig: go.Figure) -> None:
         specs: List[List[object]] = \
-            [[dict(rowspan=n_slcs), dict(rowspan=n_slcs), dict()]] + \
-            [[None, None, dict()] for _ in self.data.slcs[1:]] + \
-            [[dict(), None, None] for _ in self.data.chains]
+            [[dict(rowspan=self.data.n_slcs), dict(rowspan=self.data.n_slcs), dict()]] + \
+            [[None, None, dict()] for _ in self.data.slcs[1:]]
 
         make_subplots(
-            rows=n_slcs + self.data.n_chains,  # density plots + Raftery-Lewis plots
+            rows=self.data.n_slcs,
             cols=3,
             figure=fig,
             specs=specs,
@@ -271,7 +261,9 @@ class SliceHistogram(RootPlot):
             print_grid=True,
         )
 
-        return fig
+    @property
+    def title(self) -> str:
+        return f"Trace slice histogram of {self.data.param}"
 
     def add_title(self, fig: go.Figure) -> None:
         annotate(
@@ -293,6 +285,6 @@ class SliceHistogram(RootPlot):
                 max_sample=np.amax(backfillz.mcmc_samples[param]),
                 min_sample=np.amin(backfillz.mcmc_samples[param]),
             )
-            SliceHistogram(data, backfillz.theme).render()
+            SliceHistogram(backfillz.theme, data).render()
 
         backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))

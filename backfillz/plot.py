@@ -147,8 +147,12 @@ class VerticalSubplots(Plot):
             plot.render(fig)
 
 
+# Should consolidate some of the commonality with Plot.
+@dataclass
 class RootPlot:
     """Top-level plot container."""
+
+    theme: BackfillzTheme
 
     @property
     @abstractmethod
@@ -156,7 +160,12 @@ class RootPlot:
         pass
 
     @abstractmethod
-    def layout(self) -> go.Figure:
+    def layout(self, fig: go.Figure) -> None:
+        pass
+
+    @property
+    @abstractmethod
+    def title(self) -> str:
         pass
 
     @abstractmethod
@@ -165,7 +174,16 @@ class RootPlot:
 
     def render(self) -> None:
         """Create fig and render subplots."""
-        fig: go.Figure = self.layout()
+        fig: go.Figure = go.Figure(
+            layout=go.Layout(
+                title=self.title,
+                titlefont=dict(size=30),
+                plot_bgcolor=self.theme.bg_colour,
+                showlegend=False,
+            )
+        )
+
+        self.layout(fig)
 
         for plot in self.plots:
             plot.layout_axes(fig)

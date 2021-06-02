@@ -59,8 +59,12 @@ class TraceDial(RootPlot):
             theme=self.theme,
         )
 
-    def layout(self) -> go.Figure:
+    def layout(self, layout: go.Layout) -> go.Figure:
         pass
+
+    @property
+    def title(self) -> str:
+        return f"Trace slice histogram of {self.data.param}"
 
     def add_title(self, fig: go.Figure) -> None:
         pass
@@ -69,7 +73,7 @@ class TraceDial(RootPlot):
     def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
         slcs: List[Slice] = [Slice(0.0, 0.04), Slice(0.4, 1)]  # how to decide
         param: str = backfillz.params[0]  # pick first parameter for now (mu)
-        data: ParameterSlices = ParameterSlices(
+        ParameterSlices(
             slcs=slcs,
             param=param,
             chains=backfillz.iter_chains(param),
@@ -77,5 +81,5 @@ class TraceDial(RootPlot):
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
 
-        TraceDial(data, backfillz.theme).render()
+#        TraceDial(backfillz.theme, data).render()
         backfillz.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
