@@ -16,7 +16,7 @@ class DialPlot(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return []
+        return [go.Pie(values=[25, 67, 8], hole=.3)]
 
 
 @dataclass
@@ -46,7 +46,7 @@ class TraceDial(RootPlot):
             x_domain=(0.5, 1.0),
             y_domain=(0.5, 1.0),
             row=1,
-            col=2,
+            col=1,
             data=self.data,
             theme=self.theme,
         )
@@ -58,15 +58,15 @@ class TraceDial(RootPlot):
             x_domain=(0, 1.0),
             y_domain=(0, 1.0),
             row=1,
-            col=1,
+            col=2,
             data=self.data,
             theme=self.theme,
         )
 
     def grid_specs(self, layout: go.Layout) -> Specs:
         return ([
-            [dict(rowspan=len(self.data.slcs)), dict()],  # upper quadrants
-            [None, None]                                  # lower quadrants
+            [dict(rowspan=len(self.data.slcs), type='domain'), dict()],  # upper quadrants
+            [None, None]                                                 # lower quadrants
         ])
 
     @property
