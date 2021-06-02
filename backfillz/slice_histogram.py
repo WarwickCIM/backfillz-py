@@ -76,7 +76,7 @@ class JoiningSegments(LeafPlot):
                 fillcolor='rgba(240,240,240,255)'
             )
             for n, slc in enumerate(self.data.slcs, start=1)
-            for lower, upper in [((n - 1) / self.data.n_slcs, n / self.data.n_slcs)]
+            for lower, upper in [((n - 1) / len(self.data.slcs), n / len(self.data.slcs))]
         ]
 
     # one numerical marker per slice delimiter
@@ -123,7 +123,7 @@ class DensityPlot(LeafPlot):
                 n,
                 floor(self.slc.lower * self.data.n_iter):floor(self.slc.upper * self.data.n_iter)
             ]
-            for n in range(0, self.data.n_chains)
+            for n, _ in enumerate(self.data.chains)
         ]
 
         fig.add_trace(self.histo(chain_slices), self.row, self.col)
@@ -151,14 +151,14 @@ class DensityPlot(LeafPlot):
                 mode='lines',
                 line=dict(width=2, color=self.theme.palette[n]),
             )
-            for n in range(0, self.data.n_chains)
+            for n, _ in enumerate(self.data.chains)
         ]
 
     @property
     def xaxis_props(self) -> Props:
-        bottom, top = self.n_slc == 0, self.n_slc == self.data.n_slcs - 1
+        bottom, top = self.n_slc == 0, self.n_slc == len(self.data.slcs) - 1
         # single slice requires special treatment; haven't figured out how to mirror tick labels
-        if self.data.n_slcs == 1:
+        if len(self.data.slcs) == 1:
             return dict(mirror='ticks')
         elif bottom:
             return dict()
@@ -180,12 +180,12 @@ class DensityPlots(VerticalSubplots):
             DensityPlot(
                 axis_ids=[self.axis_ids[n]],
                 x_domain=self.x_domain,
-                y_domain=segment(self.y_domain, self.data.n_slcs, n),
+                y_domain=segment(self.y_domain, len(self.data.slcs), n),
                 data=self.data,
                 theme=self.theme,
                 slc=slc,
                 n_slc=n,
-                row=self.row + self.data.n_slcs - 1 - n,
+                row=self.row + len(self.data.slcs) - 1 - n,
                 col=self.col,
             )
             for n, slc in enumerate(self.data.slcs)
@@ -235,7 +235,7 @@ class SliceHistogram(RootPlot):
     @property
     def density_plots(self) -> DensityPlots:
         return DensityPlots(
-            axis_ids=[n + 3 for n in reversed(range(self.data.n_slcs))],
+            axis_ids=[n + 3 for n in reversed(range(0, len(self.data.slcs)))],
             x_domain=(self.left_w + self.middle_w, 1),
             y_domain=(0, 1.0),
             row=1,
@@ -246,7 +246,7 @@ class SliceHistogram(RootPlot):
 
     def grid_specs(self, fig: go.Figure) -> Specs:
         return (
-            [[dict(rowspan=self.data.n_slcs), dict(rowspan=self.data.n_slcs), dict()]] +
+            [[dict(rowspan=len(self.data.slcs)), dict(rowspan=len(self.data.slcs)), dict()]] +
             [[None, None, dict()] for _ in self.data.slcs[1:]]
         )
 

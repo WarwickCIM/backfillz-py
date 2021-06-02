@@ -63,8 +63,8 @@ class TraceDial(RootPlot):
 
     def grid_specs(self, layout: go.Layout) -> Specs:
         return ([
-            [dict(rowspan=self.data.n_slcs), dict()],  # upper quadrants
-            [None, None]                               # lower quadrants
+            [dict(rowspan=len(self.data.slcs)), dict()],  # upper quadrants
+            [None, None]                                  # lower quadrants
         ])
 
     @property

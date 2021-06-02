@@ -100,14 +100,6 @@ class ParameterSlices:
     min_sample: float
 
     @property
-    def n_chains(self) -> int:
-        return int(self.chains.shape[0])
-
-    @property
     def n_iter(self) -> int:
         """Return number of MCMC iterations per chain."""
         return int(self.chains.shape[1])
-
-    @property
-    def n_slcs(self) -> int:
-        return len(self.slcs)
