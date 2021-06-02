@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 
 import numpy as np
-from plotly.basedatatypes import BaseTraceType
+from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Slice

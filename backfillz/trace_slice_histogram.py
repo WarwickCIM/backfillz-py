@@ -7,7 +7,7 @@ import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
 from backfillz.density_plots import DensityPlots
-from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, segment, Specs, VerticalSubplots
+from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, Specs
 
 
 @dataclass

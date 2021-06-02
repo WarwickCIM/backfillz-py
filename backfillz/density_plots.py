@@ -3,7 +3,7 @@ from math import ceil, floor
 from typing import List
 
 import numpy as np
-from plotly.basedatatypes import BaseTraceType
+from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 import scipy.stats as stats  # type: ignore
 
