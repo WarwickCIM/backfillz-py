@@ -71,7 +71,7 @@ class TraceDial(RootPlot):
 
     @property
     def title(self) -> str:
-        return f"Trace slice histogram of {self.data.param}"
+        return f"Pretzel plot for {self.data.param}"
 
     def add_title(self, fig: go.Figure) -> None:
         pass
