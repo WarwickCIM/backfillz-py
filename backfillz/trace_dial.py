@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List
 
 import numpy as np
+from plotly.basedatatypes import BaseTraceType
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Slice
@@ -13,8 +14,9 @@ from backfillz.theme import BackfillzTheme
 class DialPlot(LeafPlot):
     """Trace dial plot on the left."""
 
-    def render(self, fig: go.Figure) -> None:
-        pass
+    @property
+    def plot_elements(self) -> List[BaseTraceType]:
+        return []
 
 
 @dataclass
