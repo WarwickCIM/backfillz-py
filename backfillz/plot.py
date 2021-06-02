@@ -170,7 +170,7 @@ class RootPlot:
     def plots(self) -> List[Plot]:
         raise AbstractMethodError()
 
-    def configure_grid(self, fig: go.Figure) -> Specs:
+    def grid_specs(self, fig: go.Figure) -> Specs:
         raise AbstractMethodError()
 
     @property
@@ -191,7 +191,7 @@ class RootPlot:
             )
         )
 
-        specs: Specs = self.configure_grid(fig)
+        specs: Specs = self.grid_specs(fig)
 
         make_subplots(
             rows=len(specs),

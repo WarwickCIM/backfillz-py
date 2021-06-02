@@ -13,14 +13,19 @@ from backfillz.theme import BackfillzTheme
 class DialPlot(LeafPlot):
     """Trace dial plot on the left."""
 
-    pass
+    def render(self, fig: go.Figure) -> None:
+        pass
 
 
 @dataclass
 class Histograms(VerticalSubplots):
     """Histograms in the top-right quadrant, one for each of the two slices."""
 
-    pass
+    def make_plots(self) -> List[Plot]:
+        return []
+
+    def render(self, fig: go.Figure) -> None:
+        pass
 
 
 @dataclass
@@ -59,8 +64,11 @@ class TraceDial(RootPlot):
             theme=self.theme,
         )
 
-    def configure_grid(self, layout: go.Layout) -> Specs:
-        pass
+    def grid_specs(self, layout: go.Layout) -> Specs:
+        return ([
+            [dict(rowspan=self.data.n_slcs), dict()],  # upper quadrants
+            [None, None]                               # lower quadrants
+        ])
 
     @property
     def title(self) -> str:
@@ -73,7 +81,7 @@ class TraceDial(RootPlot):
     def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
         slcs: List[Slice] = [Slice(0.0, 0.04), Slice(0.4, 1)]  # how to decide
         param: str = backfillz.params[0]  # pick first parameter for now (mu)
-        ParameterSlices(
+        data: ParameterSlices = ParameterSlices(
             slcs=slcs,
             param=param,
             chains=backfillz.iter_chains(param),
@@ -81,5 +89,5 @@ class TraceDial(RootPlot):
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
 
-#        TraceDial(backfillz.theme, data).render()
+        TraceDial(backfillz.theme, data).render()
         backfillz.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
