@@ -16,7 +16,13 @@ class DialPlot(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [go.Pie(values=[25, 67, 8], hole=.3)]
+        burn_in_end: float = self.data.slcs[0].upper
+        return [go.Pie(
+            values=[0.25, (1 - burn_in_end) * 0.75, burn_in_end * 0.75],
+            hole=.3,
+            direction='clockwise',
+            sort=False
+        )]
 
 
 @dataclass
