@@ -6,8 +6,8 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.density_plots import DensityPlots
 from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, Specs
+from backfillz.slice_histograms import DensityPlots
 
 
 @dataclass

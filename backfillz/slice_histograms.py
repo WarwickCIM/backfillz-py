@@ -12,7 +12,7 @@ from backfillz.plot import annotate, LeafPlot, Plot, segment, VerticalSubplots
 
 
 @dataclass
-class DensityPlot(LeafPlot):
+class SliceHistogram(LeafPlot):
     """Histogram for a slice (aggregating all chains) plus density plot for each chain."""
 
     slc: Slice
@@ -72,7 +72,7 @@ class DensityPlots(VerticalSubplots):
 
     def make_plots(self) -> List[Plot]:
         return [
-            DensityPlot(
+            SliceHistogram(
                 axis_ids=[self.axis_ids[n]],
                 x_domain=self.x_domain,
                 y_domain=segment(self.y_domain, len(self.data.slcs), n),
