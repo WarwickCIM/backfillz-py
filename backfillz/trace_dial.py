@@ -24,12 +24,6 @@ class DialPlot(LeafPlot2):
             direction='clockwise',
             sort=False,
             domain=dict(x=self.x_domain, y=self.y_domain)
-        ), go.Pie(
-            values=[0.4, 0.3, 0.3],
-            hole=.3,
-            direction='clockwise',
-            sort=False,
-            domain=dict(x=(0.25, 1), y=(0.25, 1))
         )]
 
 
@@ -49,8 +43,8 @@ class TraceDial(RootPlot):
         return DialPlot(
             axis_ids=[None],
             # entire root plot:
-            x_domain=(0.0, 0.25),
-            y_domain=(0.0, 0.25),
+            x_domain=(0.0, 1),
+            y_domain=(0.0, 1),
             row=1,
             col=1,
             data=self.data,
