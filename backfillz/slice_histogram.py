@@ -3,6 +3,7 @@ from math import ceil, floor
 from typing import List
 
 import numpy as np
+from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 import scipy.stats as stats  # type: ignore
 
@@ -14,13 +15,15 @@ from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, segment, S
 class TracePlot(LeafPlot):
     """Left-hand component."""
 
+    def plot_elements(self) -> List[BaseTraceType]:
+        return self.traces + self.boxes
+
     def render(self, fig: go.Figure) -> None:
-        for trace in self.traces():
-            fig.add_trace(trace, self.row, self.col)
-        for box in self.boxes():
-            fig.add_trace(box, self.row, self.col)
+        for el in self.plot_elements():
+            fig.add_trace(el, self.row, self.col)
 
     # one per chain
+    @property
     def traces(self) -> List[go.Scatter]:
         return [
             go.Scatter(
@@ -32,6 +35,7 @@ class TracePlot(LeafPlot):
         ]
 
     # one per slice
+    @property
     def boxes(self) -> List[go.Scatter]:
         return [
             go.Scatter(
@@ -118,19 +122,12 @@ class DensityPlot(LeafPlot):
     n_slc: int
 
     def render(self, fig: go.Figure) -> None:
-        chain_slices: List[np.ndarray] = [
-            self.data.chains[
-                n,
-                floor(self.slc.lower * self.data.n_iter):floor(self.slc.upper * self.data.n_iter)
-            ]
-            for n, _ in enumerate(self.data.chains)
-        ]
-
-        fig.add_trace(self.histo(chain_slices), self.row, self.col)
-        for chain_plot in self.chain_plots(chain_slices):
+        fig.add_trace(self.histo, self.row, self.col)
+        for chain_plot in self.chain_plots:
             fig.add_trace(chain_plot, self.row, self.col)
 
-    def histo(self, chain_slices: List[np.ndarray]) -> go.Histogram:
+    @property
+    def histo(self) -> go.Histogram:
         return go.Histogram(
             x=[x for xs in self.data.chain_slices(self.slc) for x in xs],
             xbins=dict(start=floor(self.data.min_sample), end=ceil(self.data.max_sample), size=1),
@@ -142,7 +139,8 @@ class DensityPlot(LeafPlot):
         )
 
     # non-parametric KDE, smoothed with a Gaussian kernel; one per chain
-    def chain_plots(self, chain_slices: List[np.ndarray]) -> List[go.Scatter]:
+    @property
+    def chain_plots(self) -> List[go.Scatter]:
         x = np.linspace(self.data.min_sample, self.data.max_sample, 200)
         chain_slices = self.data.chain_slices(self.slc)
         return [

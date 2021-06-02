@@ -1,6 +1,8 @@
+from abc import abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Set, Tuple
 
+from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
 
@@ -93,6 +95,10 @@ class Plot:
 
 class LeafPlot(Plot):
     """A leaf subplot."""
+
+    @property
+    def plot_elements(self) -> List[BaseTraceType]:
+        raise AbstractMethodError()
 
     @property
     def axis_defaults(self) -> Dict[str, Any]:
