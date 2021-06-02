@@ -8,12 +8,16 @@ from backfillz.theme import demo_1
 from backfillz.trace_dial import TraceDial
 
 
+class TestBackfillz:
+    stan: Stan
+
+
 def test_sample_fit() -> None:
     """Backfillz object can be created."""
     stan = generate_fit()
+    Backfillz(stan.fit)
     file = "expected_backfillz"
 #    stan.save(file)
-    Backfillz(stan.fit)
     expected_stan = Stan.load(file)
     print(str(expected_stan))
     print(str(stan))
