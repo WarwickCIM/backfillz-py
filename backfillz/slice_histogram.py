@@ -9,7 +9,6 @@ import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
 from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, segment, VerticalSubplots
-from backfillz.theme import BackfillzTheme
 
 
 @dataclass

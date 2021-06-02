@@ -8,6 +8,11 @@ from backfillz.core import ParameterSlices, Props
 from backfillz.theme import BackfillzTheme
 
 
+# MyPy doesn't support abstract data classes yet (https://github.com/python/mypy/issues/5374).
+class AbstractMethodError(NotImplementedError):
+    pass
+
+
 # ints assigned as axis id suffixes by Plotly; omitted for first subplot
 AxisId = Optional[int]
 
@@ -155,22 +160,18 @@ class RootPlot:
     theme: BackfillzTheme
 
     @property
-    @abstractmethod
     def plots(self) -> List[Plot]:
-        pass
+        raise AbstractMethodError()
 
-    @abstractmethod
     def layout(self, fig: go.Figure) -> None:
-        pass
+        raise AbstractMethodError()
 
     @property
-    @abstractmethod
     def title(self) -> str:
-        pass
+        raise AbstractMethodError()
 
-    @abstractmethod
     def add_title(self, fig: go.Figure) -> None:
-        pass
+        raise AbstractMethodError()
 
     def render(self) -> None:
         """Create fig and render subplots."""
