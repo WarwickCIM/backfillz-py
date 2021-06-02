@@ -15,6 +15,7 @@ class HistoryEvent(Enum):
 
     OBJECT_CREATION = 1
     SLICE_HISTOGRAM = 2
+    TRACE_DIAL = 3
 
 
 class HistoryEntry:

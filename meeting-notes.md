@@ -1,5 +1,26 @@
 # Meeting notes
 
+# 10 June May 2021
+
+## Progress on trace dial plot
+
+## To discuss
+- How do we decide where "burn in" ends? 
+
+# 27 May 2021
+
+## Progress on trace slice histogram plot
+- no new progress to report (first pass complete)
+
+## Design topics
+- Saving history in Backfillz object, use cases:
+ - summary of plots I’ve done so far (as show method)
+ - recall a particular plot
+ - save/load Backfillz object
+
+## On the horizon
+- example notebooks, showing usage of Backfillz library + history object 
+
 # 13 May 2021
 
 ## Progress on trace slice histogram plot

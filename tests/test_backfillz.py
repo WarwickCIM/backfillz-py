@@ -11,6 +11,7 @@ from backfillz.trace_dial import TraceDial
 
 @pytest.fixture(scope='session')
 def stan() -> Stan:
+    """Stan model shared by all tests."""
     return generate_fit()
 
 
