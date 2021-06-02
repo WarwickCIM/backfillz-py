@@ -145,6 +145,22 @@ class LeafPlot(Plot):
         return dict()
 
 
+# EXPERIMENTAL -- trying to support subplots which are not of type "xy", such as pie charts.
+class LeafPlot2(Plot):
+    """A leaf subplot of "domain" type, i.e. with no axes."""
+
+    @property
+    def plot_elements(self) -> List[BaseTraceType]:
+        raise AbstractMethodError()
+
+    def render(self, fig: go.Figure) -> None:
+        for el in self.plot_elements:
+            fig.add_trace(el)
+
+    def layout_axes(self, fig: go.Figure) -> None:
+        pass
+
+
 @dataclass
 class VerticalSubplots(Plot):
     """A collection of vertically arranged subplots."""

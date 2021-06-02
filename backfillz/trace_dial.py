@@ -6,13 +6,13 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Slice
+from backfillz.plot import LeafPlot2, Plot, RootPlot, Specs
 from backfillz.slice_histograms import SliceHistograms
-from backfillz.plot import LeafPlot, Plot, RootPlot, Specs
 from backfillz.theme import BackfillzTheme
 
 
 @dataclass
-class DialPlot(LeafPlot):
+class DialPlot(LeafPlot2):
     """Trace dial plot on the left."""
 
     @property
@@ -22,7 +22,14 @@ class DialPlot(LeafPlot):
             values=[0.25, (1 - burn_in_end) * 0.75, burn_in_end * 0.75],
             hole=.3,
             direction='clockwise',
-            sort=False
+            sort=False,
+            domain=dict(x=self.x_domain, y=self.y_domain)
+        ), go.Pie(
+            values=[0.4, 0.3, 0.3],
+            hole=.3,
+            direction='clockwise',
+            sort=False,
+            domain=dict(x=(0.25, 1), y=(0.25, 1))
         )]
 
 
@@ -41,9 +48,9 @@ class TraceDial(RootPlot):
     def dial_plot(self) -> DialPlot:
         return DialPlot(
             axis_ids=[None],
-            # top-right quadrant:
-            x_domain=(0.5, 1.0),
-            y_domain=(0.5, 1.0),
+            # entire root plot:
+            x_domain=(0.0, 0.25),
+            y_domain=(0.0, 0.25),
             row=1,
             col=1,
             data=self.data,
@@ -54,8 +61,9 @@ class TraceDial(RootPlot):
     def histograms(self) -> SliceHistograms:
         return SliceHistograms(
             axis_ids=[None, 2],
-            x_domain=(0, 1.0),
-            y_domain=(0, 1.0),
+            # top-right quadrant:
+            x_domain=(0.5, 1.0),
+            y_domain=(0.5, 1.0),
             row=1,
             col=2,
             data=self.data,
