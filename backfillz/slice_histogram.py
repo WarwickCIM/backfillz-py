@@ -132,7 +132,7 @@ class DensityPlot(LeafPlot):
 
     def histo(self, chain_slices: List[np.ndarray]) -> go.Histogram:
         return go.Histogram(
-            x=[x for xs in chain_slices for x in xs],
+            x=[x for xs in self.data.chain_slices(self.slc) for x in xs],
             xbins=dict(start=floor(self.data.min_sample), end=ceil(self.data.max_sample), size=1),
             marker=dict(
                 color=self.theme.bg_colour,
@@ -144,6 +144,7 @@ class DensityPlot(LeafPlot):
     # non-parametric KDE, smoothed with a Gaussian kernel; one per chain
     def chain_plots(self, chain_slices: List[np.ndarray]) -> List[go.Scatter]:
         x = np.linspace(self.data.min_sample, self.data.max_sample, 200)
+        chain_slices = self.data.chain_slices(self.slc)
         return [
             go.Scatter(
                 x=x,

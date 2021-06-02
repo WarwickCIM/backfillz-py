@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from math import floor
 import sys
 from typing import Any, Dict, List
 
@@ -103,3 +104,13 @@ class ParameterSlices:
     def n_iter(self) -> int:
         """Return number of MCMC iterations per chain."""
         return int(self.chains.shape[1])
+
+    def chain_slices(self, slc: Slice) -> List[np.ndarray]:
+        """The specified slice of each chain."""
+        return [
+            self.chains[
+                n,
+                floor(slc.lower * self.n_iter):floor(slc.upper * self.n_iter)
+            ]
+            for n, _ in enumerate(self.chains)
+        ]
