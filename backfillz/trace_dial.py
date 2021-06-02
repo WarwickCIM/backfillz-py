@@ -2,27 +2,36 @@ from dataclasses import dataclass
 from typing import List
 
 import numpy as np
+from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Slice
-from backfillz.plot import LeafPlot, Plot, RootPlot, Specs, VerticalSubplots
+from backfillz.plot import LeafPlot2, Plot, RootPlot, Specs
+from backfillz.slice_histograms import SliceHistograms
 from backfillz.theme import BackfillzTheme
 
 
 @dataclass
-class DialPlot(LeafPlot):
+class DialPlot(LeafPlot2):
     """Trace dial plot on the left."""
 
-    def render(self, fig: go.Figure) -> None:
-        pass
-
-
-@dataclass
-class Histograms(VerticalSubplots):
-    """Histograms in the top-right quadrant, one for each of the two slices."""
-
-    def make_plots(self) -> List[Plot]:
-        return []
+    @property
+    def plot_elements(self) -> List[BaseTraceType]:
+        burn_in_end: float = self.data.slcs[0].upper
+        return [go.Pie(
+            values=[0.25, (1 - burn_in_end) * 0.75, burn_in_end * 0.75],
+            hole=.3,
+            direction='clockwise',
+            sort=False,
+            domain=dict(x=self.x_domain, y=self.y_domain),
+            marker=dict(
+                colors=[
+                    'rgba(0, 204, 0, 0)',
+                    'rgb(255, 255, 0)',
+                    'rgb(118, 17, 195)',
+                ]
+            ),
+        )]
 
 
 @dataclass
@@ -40,6 +49,19 @@ class TraceDial(RootPlot):
     def dial_plot(self) -> DialPlot:
         return DialPlot(
             axis_ids=[None],
+            # entire root plot:
+            x_domain=(0.0, 1),
+            y_domain=(0.0, 1),
+            row=1,
+            col=1,
+            data=self.data,
+            theme=self.theme,
+        )
+
+    @property
+    def histograms(self) -> SliceHistograms:
+        return SliceHistograms(
+            axis_ids=[None, 2],
             # top-right quadrant:
             x_domain=(0.5, 1.0),
             y_domain=(0.5, 1.0),
@@ -49,27 +71,16 @@ class TraceDial(RootPlot):
             theme=self.theme,
         )
 
-    @property
-    def histograms(self) -> Histograms:
-        return Histograms(
-            axis_ids=[2, 3],
-            x_domain=(0, 1.0),
-            y_domain=(0, 1.0),
-            row=1,
-            col=1,
-            data=self.data,
-            theme=self.theme,
-        )
-
     def grid_specs(self, layout: go.Layout) -> Specs:
-        return ([
-            [dict(rowspan=len(self.data.slcs)), dict()],  # upper quadrants
-            [None, None]                                  # lower quadrants
-        ])
+        return (
+            [[dict(rowspan=len(self.data.slcs), type='domain'), dict()]] +  # upper quadrants
+            [[None, dict()] for _ in self.data.slcs[1:]] +
+            [[None, None]]                                                 # lower quadrants
+        )
 
     @property
     def title(self) -> str:
-        return f"Trace slice histogram of {self.data.param}"
+        return f"Pretzel plot for {self.data.param}"
 
     def add_title(self, fig: go.Figure) -> None:
         pass
