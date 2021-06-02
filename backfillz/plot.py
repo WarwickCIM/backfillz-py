@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Tuple
 
@@ -8,8 +7,9 @@ from backfillz.core import ParameterSlices, Props
 from backfillz.theme import BackfillzTheme
 
 
-# MyPy doesn't support abstract data classes yet (https://github.com/python/mypy/issues/5374).
 class AbstractMethodError(NotImplementedError):
+    """MyPy doesn't support abstract data classes yet (https://github.com/python/mypy/issues/5374)."""
+
     pass
 
 
@@ -66,14 +66,12 @@ class Plot:
     data: ParameterSlices
     theme: BackfillzTheme
 
-    # want @abstractmethod but MyPy doesn't support abstract methods in data classes
     def layout_axes(self, fig: go.Figure) -> None:
-        pass
+        raise AbstractMethodError()
 
-    # want @abstractmethod but MyPy doesn't support abstract methods in data classes
     def render(self, fig: go.Figure) -> None:
         """Render me into fig."""
-        pass
+        raise AbstractMethodError()
 
     def add_title(self, fig: go.Figure) -> None:
         pass
@@ -136,10 +134,9 @@ class VerticalSubplots(Plot):
     def __post_init__(self) -> None:
         self.plots = self.make_plots()
 
-    # want #abstractmethod but MyPy doesn't support abstract data classes
     def make_plots(self) -> List[Plot]:
         """My subplots."""
-        pass
+        raise AbstractMethodError()
 
     def layout_axes(self, fig: go.Figure) -> None:
         """Ask each subplot to configure its axes."""
