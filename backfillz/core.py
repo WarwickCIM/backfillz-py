@@ -64,6 +64,10 @@ class Backfillz:
             xss[n] = self.mcmc_samples[param][index][n * n_samples: (n + 1) * n_samples]
         return xss
 
+    @property
+    def params(self) -> List[str]:
+        return list(self.mcmc_samples.param_names)
+
     def set_theme(self, theme: BackfillzTheme, verbose: bool = True) -> None:
         """Set Backfillz theme."""
         if verbose:

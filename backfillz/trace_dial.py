@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+import numpy as np
 from typing import List
 
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.core import Backfillz, ParameterSlices
+from backfillz.core import Backfillz, ParameterSlices, Slice
 from backfillz.plot import LeafPlot, Plot, RootPlot, VerticalSubplots
 from backfillz.theme import BackfillzTheme
 
@@ -66,4 +67,14 @@ class TraceDial(RootPlot):
 
     @staticmethod
     def plot(backfillz: Backfillz) -> None:
+        slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
+        param: str = backfillz.params[0]  # pick first parameter for now (mu)
+        data = ParameterSlices(
+            slcs=slcs,
+            param=param,
+            chains=backfillz.iter_chains(param),
+            max_sample=np.amax(backfillz.mcmc_samples[param]),
+            min_sample=np.amin(backfillz.mcmc_samples[param]),
+        )
+        trace_dial: TraceDial = TraceDial(data, backfillz.theme)
         pass

@@ -283,10 +283,9 @@ class SliceHistogram(RootPlot):
     @staticmethod
     def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
         """Plot a slice histogram."""
-        params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
         slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
 
-        for param in params:
+        for param in backfillz.params[0:1]:  # just first param for now (mu)
             # Assume scalar parameter for now; what about vectors?
             data = ParameterSlices(
                 slcs=slcs,
