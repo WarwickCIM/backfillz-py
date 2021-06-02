@@ -1,5 +1,6 @@
 """Test module for backfillz."""
 
+import pytest
 from tests.generate_sample_fit import generate_fit, Stan
 
 from backfillz.core import Backfillz
@@ -8,13 +9,13 @@ from backfillz.theme import demo_1
 from backfillz.trace_dial import TraceDial
 
 
-class TestBackfillz:
-    stan: Stan
+@pytest.fixture(scope='session')
+def stan() -> Stan:
+    return generate_fit()
 
 
-def test_sample_fit() -> None:
+def test_sample_fit(stan: Stan) -> None:
     """Backfillz object can be created."""
-    stan = generate_fit()
     Backfillz(stan.fit)
     file = "expected_backfillz"
 #    stan.save(file)
@@ -24,23 +25,15 @@ def test_sample_fit() -> None:
     assert expected_stan.equal(stan)
 
 
-def test_plot_slice_histogram() -> None:
+def test_plot_slice_histogram(stan: Stan) -> None:
     """Slice histogram plot is generated without error."""
-    stan = generate_fit()
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(demo_1, False)
     SliceHistogram.plot(backfillz)
 
 
-def test_trace_dial() -> None:
+def test_trace_dial(stan: Stan) -> None:
     """Trace dial plot is generated without error."""
-    stan = generate_fit()
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(demo_1, False)
     TraceDial.plot(backfillz)
-
-
-if __name__ == '__main__':
-    test_sample_fit()
-    test_plot_slice_histogram()
-    test_trace_dial()
