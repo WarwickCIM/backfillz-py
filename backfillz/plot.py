@@ -84,6 +84,7 @@ class Plot:
         """Render me into fig."""
         raise AbstractMethodError()
 
+    # Needs a better name -- not always used for title.
     def add_title(self, fig: go.Figure) -> None:
         pass
 
