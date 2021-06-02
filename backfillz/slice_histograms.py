@@ -67,8 +67,8 @@ class SliceHistogram(LeafPlot):
         return dict(side='right', rangemode='nonnegative')
 
 
-class DensityPlots(VerticalSubplots):
-    """One density plot per slice."""
+class SliceHistograms(VerticalSubplots):
+    """One slice histogram per slice."""
 
     def make_plots(self) -> List[Plot]:
         return [

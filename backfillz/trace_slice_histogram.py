@@ -7,7 +7,7 @@ import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
 from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, Specs
-from backfillz.slice_histograms import DensityPlots
+from backfillz.slice_histograms import SliceHistograms
 
 
 @dataclass
@@ -148,8 +148,8 @@ class TraceSliceHistogram(RootPlot):
         )
 
     @property
-    def density_plots(self) -> DensityPlots:
-        return DensityPlots(
+    def density_plots(self) -> SliceHistograms:
+        return SliceHistograms(
             axis_ids=[n + 3 for n in reversed(range(0, len(self.data.slcs)))],
             x_domain=(self.left_w + self.middle_w, 1),
             y_domain=(0, 1.0),
