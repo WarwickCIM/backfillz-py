@@ -15,12 +15,9 @@ from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, segment, S
 class TracePlot(LeafPlot):
     """Left-hand component."""
 
+    @property
     def plot_elements(self) -> List[BaseTraceType]:
         return self.traces + self.boxes
-
-    def render(self, fig: go.Figure) -> None:
-        for el in self.plot_elements():
-            fig.add_trace(el, self.row, self.col)
 
     # one per chain
     @property
@@ -63,12 +60,9 @@ class TracePlot(LeafPlot):
 class JoiningSegments(LeafPlot):
     """Middle component."""
 
+    @property
     def plot_elements(self) -> List[BaseTraceType]:
         return self.segments + [self.y_labels]
-
-    def render(self, fig: go.Figure) -> None:
-        for el in self.plot_elements():
-            fig.add_trace(el, self.row, self.col)
 
     # one per slice
     @property
@@ -125,12 +119,9 @@ class DensityPlot(LeafPlot):
     slc: Slice
     n_slc: int
 
+    @property
     def plot_elements(self) -> List[BaseTraceType]:
         return [self.histo] + self.chain_plots
-
-    def render(self, fig: go.Figure) -> None:
-        for el in self.plot_elements():
-            fig.add_trace(el, self.row, self.col)
 
     @property
     def histo(self) -> go.Histogram:

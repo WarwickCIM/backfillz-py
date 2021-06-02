@@ -99,6 +99,10 @@ class LeafPlot(Plot):
     def plot_elements(self) -> List[BaseTraceType]:
         raise AbstractMethodError()
 
+    def render(self, fig: go.Figure) -> None:
+        for el in self.plot_elements:
+            fig.add_trace(el, self.row, self.col)
+
     @property
     def axis_defaults(self) -> Dict[str, Any]:
         return dict(
