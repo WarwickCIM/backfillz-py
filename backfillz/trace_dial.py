@@ -5,7 +5,7 @@ import numpy as np
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Slice
-from backfillz.plot import LeafPlot, Plot, RootPlot, VerticalSubplots
+from backfillz.plot import LeafPlot, Plot, RootPlot, Specs, VerticalSubplots
 from backfillz.theme import BackfillzTheme
 
 
@@ -59,7 +59,7 @@ class TraceDial(RootPlot):
             theme=self.theme,
         )
 
-    def configure_grid(self, layout: go.Layout) -> List[List[object]]:
+    def configure_grid(self, layout: go.Layout) -> Specs:
         pass
 
     @property

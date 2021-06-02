@@ -7,7 +7,7 @@ import plotly.graph_objects as go  # type: ignore
 import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import annotate, cols, LeafPlot, Plot, RootPlot, scale, segment, VerticalSubplots
+from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, segment, Specs, VerticalSubplots
 
 
 @dataclass
@@ -244,7 +244,7 @@ class SliceHistogram(RootPlot):
             theme=self.theme,
         )
 
-    def configure_grid(self, fig: go.Figure) -> List[List[object]]:
+    def configure_grid(self, fig: go.Figure) -> Specs:
         return (
             [[dict(rowspan=self.data.n_slcs), dict(rowspan=self.data.n_slcs), dict()]] +
             [[None, None, dict()] for _ in self.data.slcs[1:]]

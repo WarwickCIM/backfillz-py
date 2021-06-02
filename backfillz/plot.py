@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Literal, Optional, Set,  Tuple
+from typing import Any, Dict, List, Literal, Optional, Set, Tuple
 
 import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
@@ -16,10 +16,12 @@ class AbstractMethodError(NotImplementedError):
 
 # ints assigned as axis id suffixes by Plotly; omitted for first subplot
 AxisId = Optional[int]
+# Plotly subplot specs; 2D array of dictionaries
+Specs = List[List[object]]
 
 
-def cols(xss: List[List[object]]) -> int:
-    """For a rectangular list of lists, the length of the inner lists."""
+def cols(xss: Specs) -> int:
+    """Length of the inner lists."""
     ns: Set[int] = set(map(len, xss))
     assert len(ns) == 1
     return min(ns)
@@ -168,7 +170,7 @@ class RootPlot:
     def plots(self) -> List[Plot]:
         raise AbstractMethodError()
 
-    def configure_grid(self, fig: go.Figure) -> List[List[object]]:
+    def configure_grid(self, fig: go.Figure) -> Specs:
         raise AbstractMethodError()
 
     @property
@@ -189,7 +191,7 @@ class RootPlot:
             )
         )
 
-        specs: List[List[object]] = self.configure_grid(fig)
+        specs: Specs = self.configure_grid(fig)
 
         make_subplots(
             rows=len(specs),
