@@ -1,29 +1,26 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import List, Literal, Optional, Tuple
+from typing import List
 
 import numpy as np
-import pandas as pd  # type: ignore
+from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
-from plotly.subplots import make_subplots  # type: ignore
 import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import LeafPlot, Plot, scale, segment, VerticalSubplots
-from backfillz.theme import BackfillzTheme
+from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, segment, Specs, VerticalSubplots
 
 
 @dataclass
 class TracePlot(LeafPlot):
     """Left-hand component."""
 
-    def render(self, fig: go.Figure) -> None:
-        for trace in self.traces():
-            fig.add_trace(trace, self.row, self.col)
-        for box in self.boxes():
-            fig.add_trace(box, self.row, self.col)
+    @property
+    def plot_elements(self) -> List[BaseTraceType]:
+        return self.traces + self.boxes
 
     # one per chain
+    @property
     def traces(self) -> List[go.Scatter]:
         return [
             go.Scatter(
@@ -35,6 +32,7 @@ class TracePlot(LeafPlot):
         ]
 
     # one per slice
+    @property
     def boxes(self) -> List[go.Scatter]:
         return [
             go.Scatter(
@@ -54,17 +52,20 @@ class TracePlot(LeafPlot):
     def yaxis_props(self) -> Props:
         return dict(range=[0, self.data.n_iter])
 
+    def add_title(self, fig: go.Figure) -> None:
+        annotate(fig, 16, self.top_left, 'left', 'bottom', None, "Trace Plot With Slices")
+
 
 @dataclass
 class JoiningSegments(LeafPlot):
     """Middle component."""
 
-    def render(self, fig: go.Figure) -> None:
-        for seg in self.segments():
-            fig.add_trace(seg, self.row, self.col)
-        fig.add_trace(self.y_labels(), self.row, self.col)
+    @property
+    def plot_elements(self) -> List[BaseTraceType]:
+        return self.segments + [self.y_labels]
 
     # one per slice
+    @property
     def segments(self) -> List[go.Scatter]:
         return [
             go.Scatter(
@@ -76,10 +77,11 @@ class JoiningSegments(LeafPlot):
                 fillcolor='rgba(240,240,240,255)'
             )
             for n, slc in enumerate(self.data.slcs, start=1)
-            for lower, upper in [((n - 1) / self.data.n_slcs, n / self.data.n_slcs)]
+            for lower, upper in [((n - 1) / len(self.data.slcs), n / len(self.data.slcs))]
         ]
 
     # one numerical marker per slice delimiter
+    @property
     def y_labels(self) -> go.Scatter:
         y = self.slice_delimiters
         return go.Scatter(
@@ -117,22 +119,14 @@ class DensityPlot(LeafPlot):
     slc: Slice
     n_slc: int
 
-    def render(self, fig: go.Figure) -> None:
-        chain_slices: List[np.ndarray] = [
-            self.data.chains[
-                n,
-                floor(self.slc.lower * self.data.n_iter):floor(self.slc.upper * self.data.n_iter)
-            ]
-            for n in range(0, self.data.n_chains)
-        ]
+    @property
+    def plot_elements(self) -> List[BaseTraceType]:
+        return [self.histo] + self.chain_plots
 
-        fig.add_trace(self.histo(chain_slices), self.row, self.col)
-        for chain_plot in self.chain_plots(chain_slices):
-            fig.add_trace(chain_plot, self.row, self.col)
-
-    def histo(self, chain_slices: List[np.ndarray]) -> go.Histogram:
+    @property
+    def histo(self) -> go.Histogram:
         return go.Histogram(
-            x=[x for xs in chain_slices for x in xs],
+            x=[x for xs in self.data.chain_slices(self.slc) for x in xs],
             xbins=dict(start=floor(self.data.min_sample), end=ceil(self.data.max_sample), size=1),
             marker=dict(
                 color=self.theme.bg_colour,
@@ -142,8 +136,10 @@ class DensityPlot(LeafPlot):
         )
 
     # non-parametric KDE, smoothed with a Gaussian kernel; one per chain
-    def chain_plots(self, chain_slices: List[np.ndarray]) -> List[go.Scatter]:
+    @property
+    def chain_plots(self) -> List[go.Scatter]:
         x = np.linspace(self.data.min_sample, self.data.max_sample, 200)
+        chain_slices = self.data.chain_slices(self.slc)
         return [
             go.Scatter(
                 x=x,
@@ -151,14 +147,14 @@ class DensityPlot(LeafPlot):
                 mode='lines',
                 line=dict(width=2, color=self.theme.palette[n]),
             )
-            for n in range(0, self.data.n_chains)
+            for n, _ in enumerate(self.data.chains)
         ]
 
     @property
     def xaxis_props(self) -> Props:
-        bottom, top = self.n_slc == 0, self.n_slc == self.data.n_slcs - 1
+        bottom, top = self.n_slc == 0, self.n_slc == len(self.data.slcs) - 1
         # single slice requires special treatment; haven't figured out how to mirror tick labels
-        if self.data.n_slcs == 1:
+        if len(self.data.slcs) == 1:
             return dict(mirror='ticks')
         elif bottom:
             return dict()
@@ -180,155 +176,100 @@ class DensityPlots(VerticalSubplots):
             DensityPlot(
                 axis_ids=[self.axis_ids[n]],
                 x_domain=self.x_domain,
-                y_domain=segment(self.y_domain, self.data.n_slcs, n),
+                y_domain=segment(self.y_domain, len(self.data.slcs), n),
                 data=self.data,
                 theme=self.theme,
                 slc=slc,
                 n_slc=n,
-                row=self.row + self.data.n_slcs - 1 - n,
+                row=self.row + len(self.data.slcs) - 1 - n,
                 col=self.col,
             )
             for n, slc in enumerate(self.data.slcs)
         ]
 
+    def add_title(self, fig: go.Figure) -> None:
+        # oof -- adjust for x-axis
+        annotate(fig, 16, self.top_left, 'left', 'bottom', 0.03, "Density Plots for Slices")
 
-class SliceHistogram:
+
+@dataclass
+class SliceHistogram(RootPlot):
     """Top-level plot, for a given parameter."""
 
     data: ParameterSlices
-    theme: BackfillzTheme
-    tracePlot: TracePlot
-    joiningSegments: JoiningSegments
-    densityPlots: DensityPlots
+    left_w = 0.4  # width of trace plot
+    middle_w = 0.2  # width of joining segments
 
     @property
     def plots(self) -> List[Plot]:
-        return [self.tracePlot, self.joiningSegments, self.densityPlots]
+        return [self.trace_plot, self.joining_segments, self.density_plots]
 
-    def __init__(self, backfillz: Backfillz, slcs: List[Slice], param: str):
-        """Construct a Slice Histogram for a given parameter from a list of slices."""
-        self.theme = backfillz.theme
-        self.data = ParameterSlices(
-            slcs=slcs,
-            param=param,
-            chains=backfillz.iter_chains(param),
-            max_sample=np.amax(backfillz.mcmc_samples[param]),
-            min_sample=np.amin(backfillz.mcmc_samples[param]),
-        )
-        left_w = 0.4        # width of trace plot
-        middle_w = 0.2      # width of joining segments
-
-        # Axis ids are one of Plotly's design failures. No easy way to extract them from the layout.
-        self.tracePlot = TracePlot(
+    @property
+    def trace_plot(self) -> TracePlot:
+        return TracePlot(
             axis_ids=[None],
-            x_domain=(0, left_w),
+            x_domain=(0, self.left_w),
             y_domain=(0, 1.0),
             row=1,
             col=1,
             data=self.data,
-            theme=backfillz.theme,
+            theme=self.theme,
         )
-        self.joiningSegments = JoiningSegments(
+
+    @property
+    def joining_segments(self) -> JoiningSegments:
+        return JoiningSegments(
             axis_ids=[2],
-            x_domain=(left_w, left_w + middle_w),
+            x_domain=(self.left_w, self.left_w + self.middle_w),
             y_domain=(0, 1.0),
             row=1,
             col=2,
             data=self.data,
-            theme=backfillz.theme,
+            theme=self.theme,
         )
-        self.densityPlots = DensityPlots(
-            axis_ids=[n + 3 for n in reversed(range(self.data.n_slcs))],
-            x_domain=(left_w + middle_w, 1),
+
+    @property
+    def density_plots(self) -> DensityPlots:
+        return DensityPlots(
+            axis_ids=[n + 3 for n in reversed(range(0, len(self.data.slcs)))],
+            x_domain=(self.left_w + self.middle_w, 1),
             y_domain=(0, 1.0),
             row=1,
             col=3,
             data=self.data,
-            theme=backfillz.theme,
+            theme=self.theme,
         )
 
-    def layout(self) -> go.Figure:
-        n_slcs: int = self.data.n_slcs
-        layout: go.Layout = go.Layout(
-            title=f"Trace slice histogram of {self.data.param}",
-            titlefont=dict(size=30),
-            plot_bgcolor=self.theme.bg_colour,
-            showlegend=False,
-        )
-        fig: go.Figure = go.Figure(layout=layout)
-        specs: List[List[object]] = \
-            [[dict(rowspan=n_slcs), dict(rowspan=n_slcs), dict()]] + \
-            [[None, None, dict()] for _ in self.data.slcs[1:]] + \
-            [[dict(), None, None] for _ in self.data.chains]
-
-        make_subplots(
-            rows=n_slcs + self.data.n_chains,  # density plots + Raftery-Lewis plots
-            cols=3,
-            figure=fig,
-            specs=specs,
-            horizontal_spacing=0,
-            vertical_spacing=0,
-            print_grid=True,
+    def grid_specs(self, fig: go.Figure) -> Specs:
+        return (
+            [[dict(rowspan=len(self.data.slcs)), dict(rowspan=len(self.data.slcs)), dict()]] +
+            [[None, None, dict()] for _ in self.data.slcs[1:]]
         )
 
-        for plot in self.plots:
-            plot.layout_axes(fig)
+    @property
+    def title(self) -> str:
+        return f"Trace slice histogram of {self.data.param}"
 
-        self.add_titles(fig)
-        return fig
-
-    def add_titles(self, fig: go.Figure) -> None:
-        annotate(
-            fig, 16, self.densityPlots.top_left, 'left', 'bottom', 0.03,  # oof -- adjust for x-axis
-            "Density Plots for Slices"
-        )
-        annotate(
-            fig, 16, self.tracePlot.top_left, 'left', 'bottom', None,
-            "Trace Plot With Slices"
-        )
+    def add_title(self, fig: go.Figure) -> None:
         annotate(
             fig, 14, (1, -0.03), 'right', 'top', None,  # adjust for x-axis
             "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
 
-    def render(self) -> None:
-        """Create fig and render subplots."""
-        fig: go.Figure = self.layout()
-        for plot in self.plots:
-            plot.render(fig)
-        fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
+    @staticmethod
+    def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
+        """Plot a slice histogram."""
+        slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
 
+        for param in backfillz.params[0:1]:  # just first param for now (mu)
+            # Assume scalar parameter for now; what about vectors?
+            data = ParameterSlices(
+                slcs=slcs,
+                param=param,
+                chains=backfillz.iter_chains(param),
+                max_sample=np.amax(backfillz.mcmc_samples[param]),
+                min_sample=np.amin(backfillz.mcmc_samples[param]),
+            )
+            SliceHistogram(backfillz.theme, data).render()
 
-def annotate(
-    fig: go.Figure,
-    font_size: int,
-    at: Tuple[float, float],
-    xanchor: Literal['left', 'right'],
-    yanchor: Literal['top', 'bottom'],
-    y_adjust: Optional[float],  # additional normalised offet of text relative to plot
-    text: str,
-) -> None:
-    """Add an annotation to supplied figure, with supplied arguments in addition to some default settings."""
-    fig.add_annotation(
-        xref='paper',
-        yref='paper',
-        showarrow=False,
-        font=dict(size=font_size),
-        x=at[0],
-        y=at[1] + (0 if y_adjust is None else y_adjust),
-        xanchor=xanchor,
-        yanchor=yanchor,
-        text=text,
-    )
-
-
-def plot_slice_histogram(backfillz: Backfillz, save_plot: bool = False) -> None:
-    """Plot a slice histogram."""
-    params = pd.Series(backfillz.mcmc_samples.param_names[0:1])  # just first param for now
-    slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
-
-    for param in params:
-        # Assume scalar parameter for now; what about vectors?
-        SliceHistogram(backfillz, slcs, param).render()
-
-    backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
+        backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))

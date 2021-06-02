@@ -1,14 +1,31 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Literal, Optional, Set, Tuple
 
+from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
+from plotly.subplots import make_subplots  # type: ignore
 
 from backfillz.core import ParameterSlices, Props
 from backfillz.theme import BackfillzTheme
 
 
+class AbstractMethodError(NotImplementedError):
+    """MyPy doesn't support abstract data classes yet (https://github.com/python/mypy/issues/5374)."""
+
+    pass
+
+
 # ints assigned as axis id suffixes by Plotly; omitted for first subplot
 AxisId = Optional[int]
+# Plotly subplot specs; 2D array of dictionaries
+Specs = List[List[object]]
+
+
+def cols(xss: Specs) -> int:
+    """Length of the inner lists."""
+    ns: Set[int] = set(map(len, xss))
+    assert len(ns) == 1
+    return min(ns)
 
 
 def scale(factor: float, xs: List[float]) -> List[float]:
@@ -23,10 +40,35 @@ def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
     return start + m * width, start + (m + 1) * width
 
 
+def annotate(
+    fig: go.Figure,
+    font_size: int,
+    at: Tuple[float, float],
+    xanchor: Literal['left', 'right'],
+    yanchor: Literal['top', 'bottom'],
+    y_adjust: Optional[float],  # additional normalised offet of text relative to plot
+    text: str,
+) -> None:
+    """Add an annotation to supplied figure, with supplied arguments in addition to some default settings."""
+    fig.add_annotation(
+        xref='paper',
+        yref='paper',
+        showarrow=False,
+        font=dict(size=font_size),
+        x=at[0],
+        y=at[1] + (0 if y_adjust is None else y_adjust),
+        xanchor=xanchor,
+        yanchor=yanchor,
+        text=text,
+    )
+
+
 @dataclass
 class Plot:
     """Base class providing common subplot functionality."""
 
+    # Axis ids (and annotation ids) are a bit of a design disaster. Need hand-configuration to match
+    # assignment by Plotly.
     axis_ids: List[AxisId]
     x_domain: Tuple[float, float]  # left/right edges normalised to [0, 1]
     y_domain: Tuple[float, float]  # top/bottom edges normalised to [0, 1]
@@ -36,10 +78,14 @@ class Plot:
     theme: BackfillzTheme
 
     def layout_axes(self, fig: go.Figure) -> None:
-        pass
+        raise AbstractMethodError()
 
     def render(self, fig: go.Figure) -> None:
         """Render me into fig."""
+        raise AbstractMethodError()
+
+    # Needs a better name -- not always used for title.
+    def add_title(self, fig: go.Figure) -> None:
         pass
 
     @property
@@ -49,6 +95,14 @@ class Plot:
 
 class LeafPlot(Plot):
     """A leaf subplot."""
+
+    @property
+    def plot_elements(self) -> List[BaseTraceType]:
+        raise AbstractMethodError()
+
+    def render(self, fig: go.Figure) -> None:
+        for el in self.plot_elements:
+            fig.add_trace(el, self.row, self.col)
 
     @property
     def axis_defaults(self) -> Dict[str, Any]:
@@ -100,10 +154,9 @@ class VerticalSubplots(Plot):
     def __post_init__(self) -> None:
         self.plots = self.make_plots()
 
-    # want #abstractmethod but MyPy doesn't support abstract data classes
     def make_plots(self) -> List[Plot]:
         """My subplots."""
-        pass
+        raise AbstractMethodError()
 
     def layout_axes(self, fig: go.Figure) -> None:
         """Ask each subplot to configure its axes."""
@@ -114,3 +167,60 @@ class VerticalSubplots(Plot):
         """Render subplots into fig."""
         for n, plot in enumerate(self.plots):
             plot.render(fig)
+
+
+# Should consolidate some of the commonality with Plot.
+@dataclass
+class RootPlot:
+    """Top-level plot container."""
+
+    theme: BackfillzTheme
+
+    @property
+    def plots(self) -> List[Plot]:
+        raise AbstractMethodError()
+
+    def grid_specs(self, fig: go.Figure) -> Specs:
+        raise AbstractMethodError()
+
+    @property
+    def title(self) -> str:
+        raise AbstractMethodError()
+
+    def add_title(self, fig: go.Figure) -> None:
+        raise AbstractMethodError()
+
+    def render(self) -> None:
+        """Create fig and render subplots."""
+        fig: go.Figure = go.Figure(
+            layout=go.Layout(
+                title=self.title,
+                titlefont=dict(size=30),
+                plot_bgcolor=self.theme.bg_colour,
+                showlegend=False,
+            )
+        )
+
+        specs: Specs = self.grid_specs(fig)
+
+        make_subplots(
+            rows=len(specs),
+            cols=cols(specs),
+            figure=fig,
+            specs=specs,
+            horizontal_spacing=0,
+            vertical_spacing=0,
+            print_grid=True,
+        )
+
+        for plot in self.plots:
+            plot.layout_axes(fig)
+
+        for plot in self.plots:
+            plot.add_title(fig)
+        self.add_title(fig)
+
+        for plot in self.plots:
+            plot.render(fig)
+
+        fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))

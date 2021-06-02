@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from math import floor
 import sys
 from typing import Any, Dict, List
 
@@ -15,6 +16,7 @@ class HistoryEvent(Enum):
 
     OBJECT_CREATION = 1
     SLICE_HISTOGRAM = 2
+    TRACE_DIAL = 3
 
 
 class HistoryEntry:
@@ -64,6 +66,10 @@ class Backfillz:
             xss[n] = self.mcmc_samples[param][index][n * n_samples: (n + 1) * n_samples]
         return xss
 
+    @property
+    def params(self) -> List[str]:
+        return list(self.mcmc_samples.param_names)
+
     def set_theme(self, theme: BackfillzTheme, verbose: bool = True) -> None:
         """Set Backfillz theme."""
         if verbose:
@@ -95,14 +101,16 @@ class ParameterSlices:
     min_sample: float
 
     @property
-    def n_chains(self) -> int:
-        return int(self.chains.shape[0])
-
-    @property
     def n_iter(self) -> int:
         """Return number of MCMC iterations per chain."""
         return int(self.chains.shape[1])
 
-    @property
-    def n_slcs(self) -> int:
-        return len(self.slcs)
+    def chain_slices(self, slc: Slice) -> List[np.ndarray]:
+        """The specified slice of each chain."""
+        return [
+            self.chains[
+                n,
+                floor(slc.lower * self.n_iter):floor(slc.upper * self.n_iter)
+            ]
+            for n, _ in enumerate(self.chains)
+        ]
