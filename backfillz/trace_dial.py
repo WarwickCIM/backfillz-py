@@ -28,9 +28,9 @@ class DialPlot(LeafPlotNoAxes):
             domain=dict(x=self.x_domain, y=self.y_domain),
             marker=dict(
                 colors=[
-                    'rgba(0, 204, 0, 0)',
-                    'rgb(255, 255, 0)',
-                    'rgb(118, 17, 195)',
+                    'rgba(0, 0, 0, 0)',
+                    self.theme.bg_colour,  # not sure what colours to use here
+                    self.theme.mg_colour,
                 ]
             ),
             textinfo='none'
