@@ -169,12 +169,6 @@ class TraceSliceHistogram(RootPlot):
     def title(self) -> str:
         return f"Trace slice histogram of {self.data.param}"
 
-    def add_additional_titles(self, fig: go.Figure) -> None:
-        annotate(
-            fig, 14, (1, -0.03), 'right', 'top', None,  # adjust for x-axis
-            "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
-        )
-
     @staticmethod
     def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
         """Plot a slice histogram."""

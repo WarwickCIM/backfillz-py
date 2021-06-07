@@ -85,9 +85,6 @@ class TraceDial(RootPlot):
     def title(self) -> str:
         return f"Pretzel plot for {self.data.param}"
 
-    def add_additional_titles(self, fig: go.Figure) -> None:
-        pass
-
     @staticmethod
     def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
         slcs: List[Slice] = [Slice(0.0, 0.04), Slice(0.4, 1)]  # how to decide

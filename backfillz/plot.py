@@ -205,7 +205,10 @@ class RootPlot:
         raise AbstractMethodError()
 
     def add_additional_titles(self, fig: go.Figure) -> None:
-        raise AbstractMethodError()
+        annotate(
+            fig, 14, (1, -0.03), 'right', 'top', None,  # leave room for an x-axis, if needed
+            "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
+        )
 
     def render(self) -> None:
         """Create fig and render subplots."""
