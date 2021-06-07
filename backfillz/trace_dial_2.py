@@ -4,7 +4,7 @@ from typing import List
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
-import plotly.graph_objects as go
+import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, ParameterSlices, Props, Slice
 from backfillz.plot import Plot, RootPlot, segment, VerticalSubplots

@@ -26,6 +26,7 @@ jobs:
         run: cd tests && poetry run pytest --no-cov # disable coverage for now
 
   docs:
+    if: ${{ false }}  # mkdocs no longer pushes successfully to gh-pages -- disable for now
     runs-on: ubuntu-20.04
     needs:
         build
