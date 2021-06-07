@@ -5,7 +5,7 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Slice
+from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
 from backfillz.plot import LeafPlotNoAxes, Plot, RootPlot, segment, Specs, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
@@ -38,12 +38,25 @@ class DialPlot(LeafPlotNoAxes):
 
 
 @dataclass
-class TraceDialHistograms(VerticalSubplots):
+class TraceDialHistogram(SliceHistogram):
+    """Slice histogram for trace dial plot."""
+
+    @property
+    def xaxis_props(self) -> Props:
+        top = self.n_slc == len(self.data.slcs) - 1
+        if top:
+            return dict(side='top')
+        else:
+            return dict(visible=False)
+
+
+@dataclass
+class SliceHistograms(VerticalSubplots):
     """Two slice histograms, one for burn in, one for rest of chain."""
 
     def make_plots(self) -> List[Plot]:
         return [
-            SliceHistogram(
+            TraceDialHistogram(
                 axis_id=self.axis_ids[n],
                 x_domain=self.x_domain,
                 y_domain=segment(self.y_domain, len(self.data.slcs), n),
@@ -82,9 +95,9 @@ class TraceDial(RootPlot):
         )
 
     @property
-    def histograms(self) -> TraceDialHistograms:
+    def histograms(self) -> SliceHistograms:
         x_to_y: float = 0.865  # magic ratio that I don't know how to discover
-        return TraceDialHistograms(
+        return SliceHistograms(
             axis_ids=['', '2'],
             # top-right quadrant:
             x_domain=(0.5 + (x_to_y - 0.5) * DialPlot.hole_size, x_to_y),
