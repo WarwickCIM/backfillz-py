@@ -144,8 +144,8 @@ class LeafPlot(Plot):
         return dict()
 
 
-# EXPERIMENTAL -- trying to support subplots which are not of type "xy", such as pie charts.
-class LeafPlot2(Plot):
+@dataclass
+class LeafPlotNoAxes(Plot):
     """A leaf subplot of "domain" type, i.e. with no axes."""
 
     @property

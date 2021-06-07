@@ -6,13 +6,13 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Slice
-from backfillz.plot import LeafPlot2, Plot, RootPlot, Specs
+from backfillz.plot import LeafPlotNoAxes, Plot, RootPlot, Specs
 from backfillz.slice_histograms import SliceHistograms
 from backfillz.theme import BackfillzTheme
 
 
 @dataclass
-class DialPlot(LeafPlot2):
+class DialPlot(LeafPlotNoAxes):
     """Trace dial plot on the left."""
 
     hole_size: float = 0.3
