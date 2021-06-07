@@ -81,10 +81,6 @@ class Plot:
         """Render me into fig."""
         raise AbstractMethodError()
 
-    # Needs a better name -- not always used for title.
-    def add_additional_titles(self, fig: go.Figure) -> None:
-        pass
-
     @property
     def top_left(self) -> Tuple[float, float]:
         return self.x_domain[0], self.y_domain[1]
@@ -236,8 +232,6 @@ class RootPlot:
         for plot in self.plots:
             plot.layout_axes(fig)
 
-        for plot in self.plots:
-            plot.add_additional_titles(fig)
         self.add_additional_titles(fig)
 
         for plot in self.plots:

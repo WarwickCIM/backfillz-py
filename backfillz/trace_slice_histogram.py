@@ -51,9 +51,6 @@ class TracePlot(LeafPlot):
     def yaxis_props(self) -> Props:
         return dict(range=[0, self.data.n_iter])
 
-    def add_additional_titles(self, fig: go.Figure) -> None:
-        annotate(fig, 16, self.top_left, 'left', 'bottom', None, "Trace Plot With Slices")
-
 
 @dataclass
 class JoiningSegments(LeafPlot):
@@ -168,6 +165,12 @@ class TraceSliceHistogram(RootPlot):
     @property
     def title(self) -> str:
         return f"Trace slice histogram of {self.data.param}"
+
+    def add_additional_titles(self, fig: go.Figure) -> None:
+        super().add_additional_titles(fig)
+        annotate(fig, 16, self.trace_plot.top_left, 'left', 'bottom', None, "Trace Plot With Slices")
+        # oof -- adjust for x-axis
+        annotate(fig, 16, self.density_plots.top_left, 'left', 'bottom', 0.03, "Density Plots for Slices")
 
     @staticmethod
     def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
