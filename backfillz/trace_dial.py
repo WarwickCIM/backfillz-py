@@ -6,7 +6,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import LeafPlotNoAxes, Plot, RootPlot, segment, Specs, VerticalSubplots
+from backfillz.plot import alpha, LeafPlotNoAxes, Plot, RootPlot, segment, Specs, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
@@ -132,3 +132,30 @@ class TraceDial(RootPlot):
 
         TraceDial(backfillz.theme, data).render()
         backfillz.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
+
+
+@dataclass
+class DerivativeColours:
+    """Colours uniquely determined by a theme."""
+
+    theme: BackfillzTheme
+
+    @property
+    def trace_line(self) -> str:
+        return self.theme.text_font_colour
+
+    @property
+    def guide_lines(self) -> str:
+        return self.theme.fg_colour
+
+    @property
+    def inner_burn_segment(self) -> str:
+        return alpha(self.theme.mg_colour, self.theme.alpha + 0.2)
+
+    @property
+    def outer_burn_segment(self) -> str:
+        return alpha(self.theme.mg_colour, self.theme.alpha + 0.1)
+
+    @property
+    def remaining_segment(self) -> str:
+        return alpha(self.theme.mg_colour, self.theme.alpha - 0.3)

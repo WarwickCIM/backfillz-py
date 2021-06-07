@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Set, Tuple
 
 from plotly.basedatatypes import BaseTraceType  # type: ignore
+from plotly.colors import unlabel_rgb
 import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
 
@@ -38,6 +39,11 @@ def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
     start, end = domain
     width = (end - start) / n
     return start + m * width, start + (m + 1) * width
+
+
+def alpha(colour: str, a: float) -> str:
+    rgb: tuple[int, int, int] = unlabel_rgb(colour)
+    return f"rgb({rgb[0]},{rgb[1]},{rgb[2]},{a})"
 
 
 def annotate(
