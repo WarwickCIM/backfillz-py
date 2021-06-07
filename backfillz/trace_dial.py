@@ -43,8 +43,7 @@ class TraceDialHistogram(SliceHistogram):
 
     @property
     def xaxis_props(self) -> Props:
-        top = self.n_slc == len(self.data.slcs) - 1
-        if top:
+        if self.n_slc == len(self.data.slcs) - 1:
             return dict(side='top')
         else:
             return dict(visible=False)
