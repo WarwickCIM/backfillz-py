@@ -38,6 +38,11 @@ class DialPlot(LeafPlotNoAxes):
 
 
 @dataclass
+class TraceDialHistograms(SliceHistograms):
+    """Two slice histograms, one for burn in, one for rest of chain."""
+
+
+@dataclass
 class TraceDial(RootPlot):
     """Top-level plot, for a given parameter and chain."""
 
@@ -61,9 +66,9 @@ class TraceDial(RootPlot):
         )
 
     @property
-    def histograms(self) -> SliceHistograms:
+    def histograms(self) -> TraceDialHistograms:
         x_to_y: float = 0.865  # magic ratio that I don't know how to discover
-        return SliceHistograms(
+        return TraceDialHistograms(
             axis_ids=['', '2'],
             # top-right quadrant:
             x_domain=(0.5 + (x_to_y - 0.5) * DialPlot.hole_size, x_to_y),
