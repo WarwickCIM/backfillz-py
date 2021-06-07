@@ -6,8 +6,8 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Slice
-from backfillz.plot import LeafPlotNoAxes, Plot, RootPlot, Specs
-from backfillz.slice_histograms import SliceHistograms
+from backfillz.plot import LeafPlotNoAxes, Plot, RootPlot, segment, Specs, VerticalSubplots
+from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
 
@@ -38,8 +38,24 @@ class DialPlot(LeafPlotNoAxes):
 
 
 @dataclass
-class TraceDialHistograms(SliceHistograms):
+class TraceDialHistograms(VerticalSubplots):
     """Two slice histograms, one for burn in, one for rest of chain."""
+
+    def make_plots(self) -> List[Plot]:
+        return [
+            SliceHistogram(
+                axis_id=self.axis_ids[n],
+                x_domain=self.x_domain,
+                y_domain=segment(self.y_domain, len(self.data.slcs), n),
+                data=self.data,
+                theme=self.theme,
+                slc=slc,
+                n_slc=n,
+                row=self.row + len(self.data.slcs) - 1 - n,
+                col=self.col,
+            )
+            for n, slc in enumerate(self.data.slcs)
+        ]
 
 
 @dataclass

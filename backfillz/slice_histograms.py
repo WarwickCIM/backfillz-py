@@ -8,7 +8,7 @@ import plotly.graph_objects as go  # type: ignore
 import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Props, Slice
-from backfillz.plot import annotate, LeafPlot, Plot, segment, VerticalSubplots
+from backfillz.plot import LeafPlot
 
 
 @dataclass
@@ -67,23 +67,3 @@ class SliceHistogram(LeafPlot):
     @property
     def yaxis_props(self) -> Props:
         return dict(side='right', rangemode='nonnegative')
-
-
-class SliceHistograms(VerticalSubplots):
-    """One slice histogram per slice."""
-
-    def make_plots(self) -> List[Plot]:
-        return [
-            SliceHistogram(
-                axis_id=self.axis_ids[n],
-                x_domain=self.x_domain,
-                y_domain=segment(self.y_domain, len(self.data.slcs), n),
-                data=self.data,
-                theme=self.theme,
-                slc=slc,
-                n_slc=n,
-                row=self.row + len(self.data.slcs) - 1 - n,
-                col=self.col,
-            )
-            for n, slc in enumerate(self.data.slcs)
-        ]
