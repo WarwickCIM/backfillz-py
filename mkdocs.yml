@@ -2,7 +2,7 @@
 # Project Information
 site_name: backfillz-py
 site_author: Centre for Interdisciplinary Methodologies, University of Warwick
-site_description: MCMC visualisations package developed at the University of Warwick and supported by the Turing Institute.
+site_description: MCMC visualisations package developed at the University of Warwick and supported by The Alan Turing Institute.
 
 # Repository information
 repo_name: WarwickCIM/backfillz-py
