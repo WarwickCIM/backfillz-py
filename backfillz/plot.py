@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Set, Tuple
 
 from plotly.basedatatypes import BaseTraceType  # type: ignore
+from plotly.colors import unlabel_rgb  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
 
@@ -15,8 +16,8 @@ class AbstractMethodError(NotImplementedError):
     pass
 
 
-# ints assigned as axis id suffixes by Plotly; omitted for first subplot
-AxisId = Optional[int]
+# strings assigned as axis id suffixes by Plotly; empty for first subplot
+AxisId = str
 # Plotly subplot specs; 2D array of dictionaries
 Specs = List[List[object]]
 
@@ -40,6 +41,12 @@ def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
     return start + m * width, start + (m + 1) * width
 
 
+def alpha(colour: str, a: float) -> str:
+    """Add an alpha component to a colour represented as an RGB string."""
+    rgb: tuple[int, int, int] = unlabel_rgb(colour)
+    return f"rgb({rgb[0]},{rgb[1]},{rgb[2]},{a})"
+
+
 def annotate(
     fig: go.Figure,
     font_size: int,
@@ -48,6 +55,7 @@ def annotate(
     yanchor: Literal['top', 'bottom'],
     y_adjust: Optional[float],  # additional normalised offet of text relative to plot
     text: str,
+    textangle: int = 0,
 ) -> None:
     """Add an annotation to supplied figure, with supplied arguments in addition to some default settings."""
     fig.add_annotation(
@@ -60,6 +68,7 @@ def annotate(
         xanchor=xanchor,
         yanchor=yanchor,
         text=text,
+        textangle=textangle
     )
 
 
@@ -67,9 +76,6 @@ def annotate(
 class Plot:
     """Base class providing common subplot functionality."""
 
-    # Axis ids (and annotation ids) are a bit of a design disaster. Need hand-configuration to match
-    # assignment by Plotly.
-    axis_ids: List[AxisId]
     x_domain: Tuple[float, float]  # left/right edges normalised to [0, 1]
     y_domain: Tuple[float, float]  # top/bottom edges normalised to [0, 1]
     row: int
@@ -84,17 +90,17 @@ class Plot:
         """Render me into fig."""
         raise AbstractMethodError()
 
-    # Needs a better name -- not always used for title.
-    def add_title(self, fig: go.Figure) -> None:
-        pass
-
     @property
     def top_left(self) -> Tuple[float, float]:
         return self.x_domain[0], self.y_domain[1]
 
 
+@dataclass
 class LeafPlot(Plot):
     """A leaf subplot."""
+
+    # Axis ids (and annotation ids) need hand-configuration to match assignment by Plotly.
+    axis_id: AxisId
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
@@ -120,14 +126,12 @@ class LeafPlot(Plot):
     @property
     def xaxis_id(self) -> str:
         """My Plotly-assigned x-axis id."""
-        xaxis_id = self.axis_ids[0]
-        return 'xaxis' + ('' if xaxis_id is None else str(xaxis_id))
+        return 'xaxis' + self.axis_id
 
     @property
     def yaxis_id(self) -> str:
         """My Plotly-assigned y-axis id."""
-        yaxis_id = self.axis_ids[0]
-        return 'yaxis' + ('' if yaxis_id is None else str(yaxis_id))
+        return 'yaxis' + self.axis_id
 
     def layout_axes(self, fig: go.Figure) -> None:
         """Configure my x and y axis settings in fig."""
@@ -145,8 +149,8 @@ class LeafPlot(Plot):
         return dict()
 
 
-# EXPERIMENTAL -- trying to support subplots which are not of type "xy", such as pie charts.
-class LeafPlot2(Plot):
+@dataclass
+class LeafPlotNoAxes(Plot):
     """A leaf subplot of "domain" type, i.e. with no axes."""
 
     @property
@@ -165,6 +169,7 @@ class LeafPlot2(Plot):
 class VerticalSubplots(Plot):
     """A collection of vertically arranged subplots."""
 
+    axis_ids: List[AxisId]  # one per subplots
     plots: List[Plot] = field(init=False)
 
     def __post_init__(self) -> None:
@@ -201,10 +206,14 @@ class RootPlot:
 
     @property
     def title(self) -> str:
+        """Title for overall figure."""
         raise AbstractMethodError()
 
-    def add_title(self, fig: go.Figure) -> None:
-        raise AbstractMethodError()
+    def add_additional_titles(self, fig: go.Figure) -> None:
+        annotate(
+            fig, 14, (1, -0.03), 'right', 'top', None,  # leave room for an x-axis, if needed
+            "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
+        )
 
     def render(self) -> None:
         """Create fig and render subplots."""
@@ -232,9 +241,7 @@ class RootPlot:
         for plot in self.plots:
             plot.layout_axes(fig)
 
-        for plot in self.plots:
-            plot.add_title(fig)
-        self.add_title(fig)
+        self.add_additional_titles(fig)
 
         for plot in self.plots:
             plot.render(fig)

@@ -8,7 +8,7 @@ import plotly.graph_objects as go  # type: ignore
 import scipy.stats as stats  # type: ignore
 
 from backfillz.core import Props, Slice
-from backfillz.plot import annotate, LeafPlot, Plot, segment, VerticalSubplots
+from backfillz.plot import LeafPlot
 
 
 @dataclass
@@ -31,7 +31,7 @@ class SliceHistogram(LeafPlot):
                 color=self.theme.bg_colour,
                 line=dict(color=self.theme.fg_colour, width=1)
             ),
-            histnorm='probability'
+            histnorm='probability',
         )
 
     # non-parametric KDE, smoothed with a Gaussian kernel; one per chain
@@ -51,7 +51,8 @@ class SliceHistogram(LeafPlot):
 
     @property
     def xaxis_props(self) -> Props:
-        bottom, top = self.n_slc == 0, self.n_slc == len(self.data.slcs) - 1
+        bottom: bool = self.n_slc == 0
+        top: bool = self.n_slc == len(self.data.slcs) - 1
         # single slice requires special treatment; haven't figured out how to mirror tick labels
         if len(self.data.slcs) == 1:
             return dict(mirror='ticks')
@@ -65,27 +66,3 @@ class SliceHistogram(LeafPlot):
     @property
     def yaxis_props(self) -> Props:
         return dict(side='right', rangemode='nonnegative')
-
-
-class SliceHistograms(VerticalSubplots):
-    """One slice histogram per slice."""
-
-    def make_plots(self) -> List[Plot]:
-        return [
-            SliceHistogram(
-                axis_ids=[self.axis_ids[n]],
-                x_domain=self.x_domain,
-                y_domain=segment(self.y_domain, len(self.data.slcs), n),
-                data=self.data,
-                theme=self.theme,
-                slc=slc,
-                n_slc=n,
-                row=self.row + len(self.data.slcs) - 1 - n,
-                col=self.col,
-            )
-            for n, slc in enumerate(self.data.slcs)
-        ]
-
-    def add_title(self, fig: go.Figure) -> None:
-        # oof -- adjust for x-axis
-        annotate(fig, 16, self.top_left, 'left', 'bottom', 0.03, "Density Plots for Slices")

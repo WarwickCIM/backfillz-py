@@ -6,8 +6,8 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, Specs
-from backfillz.slice_histograms import SliceHistograms
+from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, segment, Specs, VerticalSubplots
+from backfillz.slice_histograms import SliceHistogram
 
 
 @dataclass
@@ -50,9 +50,6 @@ class TracePlot(LeafPlot):
     @property
     def yaxis_props(self) -> Props:
         return dict(range=[0, self.data.n_iter])
-
-    def add_title(self, fig: go.Figure) -> None:
-        annotate(fig, 16, self.top_left, 'left', 'bottom', None, "Trace Plot With Slices")
 
 
 @dataclass
@@ -112,6 +109,27 @@ class JoiningSegments(LeafPlot):
 
 
 @dataclass
+class SliceHistograms(VerticalSubplots):
+    """One slice histogram per slice."""
+
+    def make_plots(self) -> List[Plot]:
+        return [
+            SliceHistogram(
+                axis_id=self.axis_ids[n],
+                x_domain=self.x_domain,
+                y_domain=segment(self.y_domain, len(self.data.slcs), n),
+                data=self.data,
+                theme=self.theme,
+                slc=slc,
+                n_slc=n,
+                row=self.row + len(self.data.slcs) - 1 - n,
+                col=self.col,
+            )
+            for n, slc in enumerate(self.data.slcs)
+        ]
+
+
+@dataclass
 class TraceSliceHistogram(RootPlot):
     """Trace slice histogram plot for a given parameter."""
 
@@ -126,7 +144,7 @@ class TraceSliceHistogram(RootPlot):
     @property
     def trace_plot(self) -> TracePlot:
         return TracePlot(
-            axis_ids=[None],
+            axis_id='',
             x_domain=(0, self.left_w),
             y_domain=(0, 1.0),
             row=1,
@@ -138,7 +156,7 @@ class TraceSliceHistogram(RootPlot):
     @property
     def joining_segments(self) -> JoiningSegments:
         return JoiningSegments(
-            axis_ids=[2],
+            axis_id='2',
             x_domain=(self.left_w, self.left_w + self.middle_w),
             y_domain=(0, 1.0),
             row=1,
@@ -150,7 +168,7 @@ class TraceSliceHistogram(RootPlot):
     @property
     def density_plots(self) -> SliceHistograms:
         return SliceHistograms(
-            axis_ids=[n + 3 for n in reversed(range(0, len(self.data.slcs)))],
+            axis_ids=[str(n + 3) for n in reversed(range(0, len(self.data.slcs)))],
             x_domain=(self.left_w + self.middle_w, 1),
             y_domain=(0, 1.0),
             row=1,
@@ -169,11 +187,11 @@ class TraceSliceHistogram(RootPlot):
     def title(self) -> str:
         return f"Trace slice histogram of {self.data.param}"
 
-    def add_title(self, fig: go.Figure) -> None:
-        annotate(
-            fig, 14, (1, -0.03), 'right', 'top', None,  # adjust for x-axis
-            "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
-        )
+    def add_additional_titles(self, fig: go.Figure) -> None:
+        super().add_additional_titles(fig)
+        annotate(fig, 16, self.trace_plot.top_left, 'left', 'bottom', None, "Trace Plot With Slices")
+        # oof -- adjust for x-axis
+        annotate(fig, 16, self.density_plots.top_left, 'left', 'bottom', 0.03, "Density Plots for Slices")
 
     @staticmethod
     def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
