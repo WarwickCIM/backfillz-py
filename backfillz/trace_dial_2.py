@@ -119,11 +119,11 @@ class TraceDial2(RootPlot):
                     anchor='x3',
                 ),
                 polar=dict(
-                    sector=[0, 270],
+                    sector=[90, 360],
                     hole=0.3,
                     bgcolor=self.theme.bg_colour,
-                    radialaxis=dict(showgrid=False),
-                    angularaxis=dict(showgrid=False),
+                    radialaxis=dict(showgrid=False, angle=90),
+                    angularaxis=dict(showgrid=False, rotation=90),
                 )
             )
         )
