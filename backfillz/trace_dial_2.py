@@ -122,6 +122,8 @@ class TraceDial2(RootPlot):
                     sector=[0, 270],
                     hole=0.3,
                     bgcolor=self.theme.bg_colour,
+                    radialaxis=dict(showgrid=False),
+                    angularaxis=dict(showgrid=False),
                 )
             )
         )
