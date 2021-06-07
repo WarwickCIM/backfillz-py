@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Set, Tuple
 
 from plotly.basedatatypes import BaseTraceType  # type: ignore
-from plotly.colors import unlabel_rgb
+from plotly.colors import unlabel_rgb  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
 
@@ -42,6 +42,7 @@ def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
 
 
 def alpha(colour: str, a: float) -> str:
+    """Add an alpha component to a colour represented as an RGB string."""
     rgb: tuple[int, int, int] = unlabel_rgb(colour)
     return f"rgb({rgb[0]},{rgb[1]},{rgb[2]},{a})"
 
@@ -54,6 +55,7 @@ def annotate(
     yanchor: Literal['top', 'bottom'],
     y_adjust: Optional[float],  # additional normalised offet of text relative to plot
     text: str,
+    textangle: int = 0,
 ) -> None:
     """Add an annotation to supplied figure, with supplied arguments in addition to some default settings."""
     fig.add_annotation(
@@ -66,6 +68,7 @@ def annotate(
         xanchor=xanchor,
         yanchor=yanchor,
         text=text,
+        textangle=textangle
     )
 
 

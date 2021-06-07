@@ -4,8 +4,11 @@
 
 ## Progress on trace dial plot
 
-## To discuss
-- How do we decide where "burn in" ends? 
+## Questions
+- How do we decide where "burn in" ends?
+- What are the "polygons" in the R trace_dial plot?
+- What is "inner" vs "outer" burn segment?
+- What determines the colours used for burn-in and rest of sample?
 
 # 27 May 2021
 

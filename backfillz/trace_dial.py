@@ -6,7 +6,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import alpha, LeafPlotNoAxes, Plot, RootPlot, segment, Specs, VerticalSubplots
+from backfillz.plot import alpha, annotate, LeafPlotNoAxes, Plot, RootPlot, segment, Specs, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
@@ -118,6 +118,11 @@ class TraceDial(RootPlot):
     def title(self) -> str:
         return f"Pretzel plot for {self.data.param}"
 
+    def add_additional_titles(self, fig: go.Figure) -> None:
+        histos: List[Plot] = self.histograms.plots
+        annotate(fig, 16, histos[0].top_left, 'right', 'top', None, "Burn-in histogram", textangle=-90)
+        annotate(fig, 16, histos[1].top_left, 'right', 'top', None, "Sample histogram", textangle=-90)
+
     @staticmethod
     def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
         slcs: List[Slice] = [Slice(0.0, 0.04), Slice(0.4, 1)]  # how to decide
@@ -134,6 +139,7 @@ class TraceDial(RootPlot):
         backfillz.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
 
 
+# Haven't understood how to use these properties yet.
 @dataclass
 class DerivativeColours:
     """Colours uniquely determined by a theme."""
