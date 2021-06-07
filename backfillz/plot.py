@@ -67,8 +67,6 @@ def annotate(
 class Plot:
     """Base class providing common subplot functionality."""
 
-    # Axis ids (and annotation ids) need hand-configuration to match assignment by Plotly.
-    axis_ids: List[AxisId]
     x_domain: Tuple[float, float]  # left/right edges normalised to [0, 1]
     y_domain: Tuple[float, float]  # top/bottom edges normalised to [0, 1]
     row: int
@@ -92,8 +90,12 @@ class Plot:
         return self.x_domain[0], self.y_domain[1]
 
 
+@dataclass
 class LeafPlot(Plot):
     """A leaf subplot."""
+
+    # Axis ids (and annotation ids) need hand-configuration to match assignment by Plotly.
+    axis_id: AxisId
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
@@ -119,14 +121,12 @@ class LeafPlot(Plot):
     @property
     def xaxis_id(self) -> str:
         """My Plotly-assigned x-axis id."""
-        xaxis_id = self.axis_ids[0]
-        return 'xaxis' + ('' if xaxis_id is None else str(xaxis_id))
+        return 'xaxis' + ('' if self.axis_id is None else str(self.axis_id))
 
     @property
     def yaxis_id(self) -> str:
         """My Plotly-assigned y-axis id."""
-        yaxis_id = self.axis_ids[0]
-        return 'yaxis' + ('' if yaxis_id is None else str(yaxis_id))
+        return 'yaxis' + ('' if self.axis_id is None else str(self.axis_id))
 
     def layout_axes(self, fig: go.Figure) -> None:
         """Configure my x and y axis settings in fig."""
@@ -164,6 +164,7 @@ class LeafPlot2(Plot):
 class VerticalSubplots(Plot):
     """A collection of vertically arranged subplots."""
 
+    axis_ids: List[AxisId]  # one per subplots
     plots: List[Plot] = field(init=False)
 
     def __post_init__(self) -> None:

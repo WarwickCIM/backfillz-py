@@ -48,7 +48,6 @@ class TraceDial(RootPlot):
     @property
     def dial_plot(self) -> DialPlot:
         return DialPlot(
-            axis_ids=[None],
             # entire root plot:
             x_domain=(0.0, 1),
             y_domain=(0.0, 1),

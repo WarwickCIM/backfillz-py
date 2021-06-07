@@ -126,7 +126,7 @@ class TraceSliceHistogram(RootPlot):
     @property
     def trace_plot(self) -> TracePlot:
         return TracePlot(
-            axis_ids=[None],
+            axis_id=None,
             x_domain=(0, self.left_w),
             y_domain=(0, 1.0),
             row=1,
@@ -138,7 +138,7 @@ class TraceSliceHistogram(RootPlot):
     @property
     def joining_segments(self) -> JoiningSegments:
         return JoiningSegments(
-            axis_ids=[2],
+            axis_id=2,
             x_domain=(self.left_w, self.left_w + self.middle_w),
             y_domain=(0, 1.0),
             row=1,

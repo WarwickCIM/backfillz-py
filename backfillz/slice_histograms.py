@@ -75,7 +75,7 @@ class SliceHistograms(VerticalSubplots):
     def make_plots(self) -> List[Plot]:
         return [
             SliceHistogram(
-                axis_ids=[self.axis_ids[n]],
+                axis_id=self.axis_ids[n],
                 x_domain=self.x_domain,
                 y_domain=segment(self.y_domain, len(self.data.slcs), n),
                 data=self.data,
