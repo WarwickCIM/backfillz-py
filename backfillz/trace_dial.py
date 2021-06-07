@@ -85,7 +85,7 @@ class TraceDial(RootPlot):
     def title(self) -> str:
         return f"Pretzel plot for {self.data.param}"
 
-    def add_title(self, fig: go.Figure) -> None:
+    def add_additional_titles(self, fig: go.Figure) -> None:
         pass
 
     @staticmethod
