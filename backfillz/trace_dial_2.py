@@ -61,19 +61,6 @@ class TraceDial2(RootPlot):
 
     # one per chain
     @property
-    def traces(self) -> List[go.Scatter]:
-        return [
-            go.Scatter(
-                x=chain,
-                y=list(range(0, self.data.n_iter)),
-                line=dict(color=self.theme.palette[n]),
-                xaxis='x',
-                yaxis='y',
-            )
-            for n, chain in enumerate(self.data.chains)
-        ]
-
-    @property
     def polar_traces(self) -> List[go.Scatterpolar]:
         return [
             go.Scatterpolar(
@@ -130,6 +117,11 @@ class TraceDial2(RootPlot):
                 yaxis3=dict(
                     domain=[0.5, 0.75],
                     anchor='x3',
+                ),
+                polar=dict(
+                    sector=[0, 270],
+                    hole=0.3,
+                    bgcolor=self.theme.bg_colour,
                 )
             )
         )
