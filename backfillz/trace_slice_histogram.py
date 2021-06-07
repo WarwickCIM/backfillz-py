@@ -126,7 +126,7 @@ class TraceSliceHistogram(RootPlot):
     @property
     def trace_plot(self) -> TracePlot:
         return TracePlot(
-            axis_id=None,
+            axis_id='',
             x_domain=(0, self.left_w),
             y_domain=(0, 1.0),
             row=1,
@@ -138,7 +138,7 @@ class TraceSliceHistogram(RootPlot):
     @property
     def joining_segments(self) -> JoiningSegments:
         return JoiningSegments(
-            axis_id=2,
+            axis_id='2',
             x_domain=(self.left_w, self.left_w + self.middle_w),
             y_domain=(0, 1.0),
             row=1,
@@ -150,7 +150,7 @@ class TraceSliceHistogram(RootPlot):
     @property
     def density_plots(self) -> SliceHistograms:
         return SliceHistograms(
-            axis_ids=[n + 3 for n in reversed(range(0, len(self.data.slcs)))],
+            axis_ids=[str(n + 3) for n in reversed(range(0, len(self.data.slcs)))],
             x_domain=(self.left_w + self.middle_w, 1),
             y_domain=(0, 1.0),
             row=1,

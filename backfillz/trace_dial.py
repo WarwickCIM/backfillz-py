@@ -60,7 +60,7 @@ class TraceDial(RootPlot):
     @property
     def histograms(self) -> SliceHistograms:
         return SliceHistograms(
-            axis_ids=[None, 2],
+            axis_ids=['', '2'],
             # top-right quadrant:
             x_domain=(0.5, 1.0),
             y_domain=(0.5, 1.0),

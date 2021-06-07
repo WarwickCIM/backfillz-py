@@ -15,8 +15,8 @@ class AbstractMethodError(NotImplementedError):
     pass
 
 
-# ints assigned as axis id suffixes by Plotly; omitted for first subplot
-AxisId = Optional[int]
+# strings assigned as axis id suffixes by Plotly; empty for first subplot
+AxisId = str
 # Plotly subplot specs; 2D array of dictionaries
 Specs = List[List[object]]
 
@@ -121,12 +121,12 @@ class LeafPlot(Plot):
     @property
     def xaxis_id(self) -> str:
         """My Plotly-assigned x-axis id."""
-        return 'xaxis' + ('' if self.axis_id is None else str(self.axis_id))
+        return 'xaxis' + self.axis_id
 
     @property
     def yaxis_id(self) -> str:
         """My Plotly-assigned y-axis id."""
-        return 'yaxis' + ('' if self.axis_id is None else str(self.axis_id))
+        return 'yaxis' + self.axis_id
 
     def layout_axes(self, fig: go.Figure) -> None:
         """Configure my x and y axis settings in fig."""
