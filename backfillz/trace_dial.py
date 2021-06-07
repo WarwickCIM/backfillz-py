@@ -15,12 +15,14 @@ from backfillz.theme import BackfillzTheme
 class DialPlot(LeafPlot2):
     """Trace dial plot on the left."""
 
+    hole_size: float = 0.3
+
     @property
     def plot_elements(self) -> List[BaseTraceType]:
         burn_in_end: float = self.data.slcs[0].upper
         return [go.Pie(
             values=[0.25, (1 - burn_in_end) * 0.75, burn_in_end * 0.75],
-            hole=.3,
+            hole=DialPlot.hole_size,
             direction='clockwise',
             sort=False,
             domain=dict(x=self.x_domain, y=self.y_domain),
@@ -31,6 +33,7 @@ class DialPlot(LeafPlot2):
                     'rgb(118, 17, 195)',
                 ]
             ),
+            textinfo='none'
         )]
 
 
@@ -59,10 +62,11 @@ class TraceDial(RootPlot):
 
     @property
     def histograms(self) -> SliceHistograms:
+        x_to_y: float = 0.865  # magic ratio that I don't know how to discover
         return SliceHistograms(
             axis_ids=['', '2'],
             # top-right quadrant:
-            x_domain=(0.5, 1.0),
+            x_domain=(0.5 + (x_to_y - 0.5) * DialPlot.hole_size, x_to_y),
             y_domain=(0.5, 1.0),
             row=1,
             col=2,

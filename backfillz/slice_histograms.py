@@ -31,7 +31,7 @@ class SliceHistogram(LeafPlot):
                 color=self.theme.bg_colour,
                 line=dict(color=self.theme.fg_colour, width=1)
             ),
-            histnorm='probability'
+            histnorm='probability',
         )
 
     # non-parametric KDE, smoothed with a Gaussian kernel; one per chain
