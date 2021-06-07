@@ -82,7 +82,7 @@ class Plot:
         raise AbstractMethodError()
 
     # Needs a better name -- not always used for title.
-    def add_title(self, fig: go.Figure) -> None:
+    def add_additional_titles(self, fig: go.Figure) -> None:
         pass
 
     @property
@@ -201,9 +201,10 @@ class RootPlot:
 
     @property
     def title(self) -> str:
+        """Title for overall figure."""
         raise AbstractMethodError()
 
-    def add_title(self, fig: go.Figure) -> None:
+    def add_additional_titles(self, fig: go.Figure) -> None:
         raise AbstractMethodError()
 
     def render(self) -> None:
@@ -233,8 +234,8 @@ class RootPlot:
             plot.layout_axes(fig)
 
         for plot in self.plots:
-            plot.add_title(fig)
-        self.add_title(fig)
+            plot.add_additional_titles(fig)
+        self.add_additional_titles(fig)
 
         for plot in self.plots:
             plot.render(fig)

@@ -51,7 +51,7 @@ class TracePlot(LeafPlot):
     def yaxis_props(self) -> Props:
         return dict(range=[0, self.data.n_iter])
 
-    def add_title(self, fig: go.Figure) -> None:
+    def add_additional_titles(self, fig: go.Figure) -> None:
         annotate(fig, 16, self.top_left, 'left', 'bottom', None, "Trace Plot With Slices")
 
 

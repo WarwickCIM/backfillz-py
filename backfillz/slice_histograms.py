@@ -88,6 +88,6 @@ class SliceHistograms(VerticalSubplots):
             for n, slc in enumerate(self.data.slcs)
         ]
 
-    def add_title(self, fig: go.Figure) -> None:
+    def add_additional_titles(self, fig: go.Figure) -> None:
         # oof -- adjust for x-axis
         annotate(fig, 16, self.top_left, 'left', 'bottom', 0.03, "Density Plots for Slices")
