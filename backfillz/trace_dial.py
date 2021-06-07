@@ -19,8 +19,12 @@ class DialPlot(LeafPlotNoAxes):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
+        return [self.torus]
+
+    @property
+    def torus(self) -> go.Pie:
         burn_in_end: float = self.data.slcs[0].upper
-        return [go.Pie(
+        return go.Pie(
             values=[0.25, (1 - burn_in_end) * 0.75, burn_in_end * 0.75],
             hole=DialPlot.hole_size,
             direction='clockwise',
@@ -34,7 +38,7 @@ class DialPlot(LeafPlotNoAxes):
                 ]
             ),
             textinfo='none'
-        )]
+        )
 
 
 @dataclass
