@@ -57,10 +57,6 @@ class TraceDial2(RootPlot):
         return self.data.slcs[0].upper
 
     @property
-    def burn_in_end_iter(self) -> int:
-        return floor(self.data.n_iter * self.burn_in_end)
-
-    @property
     def title(self) -> str:
         return f"Pretzel plot for {self.data.param}"
 
@@ -132,7 +128,7 @@ class TraceDial2(RootPlot):
                 polar=dict(
                     sector=[90, 360],
                     hole=TraceDial2.hole_size,
-                    bgcolor='rgba(0,0,0,0)',  # self.theme.mg_colour,
+                    bgcolor=self.theme.mg_colour,
                     radialaxis=dict(showgrid=False, angle=90, tickangle=90, ticks='outside'),
                     angularaxis=dict(showgrid=False, rotation=90, showticklabels=False),
                     domain=dict(x=[0, 1]),
@@ -143,13 +139,6 @@ class TraceDial2(RootPlot):
 
         for el in self.plot_elements:
             fig.add_trace(el)
-
-        fig.add_shape(
-            type='circle',
-            xref='x', yref='y',
-            x0=0, y0=0, x1=1, y1=1,
-            line_color='LightSeaGreen',
-        )
 
         fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
 

@@ -41,11 +41,3 @@ def test_trace_dial(stan: Stan) -> None:
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(demo_1, False)
     TraceDial.plot(backfillz)
-
-
-# @pytest.mark.skip(reason="temporarily disable")
-def test_trace_dial_2(stan: Stan) -> None:
-    """Trace dial plot is generated without error."""
-    backfillz = Backfillz(stan.fit)
-    backfillz.set_theme(demo_1, False)
-    TraceDial2.plot(backfillz)
