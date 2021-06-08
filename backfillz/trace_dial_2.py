@@ -62,11 +62,25 @@ class TraceDial2(RootPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return self.polar_traces + [self.histogram]
+        return self.remainder + [self.histogram]
 
     # one trace per chain
     @property
-    def polar_traces(self) -> List[go.Scatterpolar]:
+    def burn_in_traces(self) -> List[go.Scatterpolar]:
+        burn_in_end: int = floor(self.data.n_iter * self.burn_in_end)
+        return [
+            go.Scatterpolar(
+                theta=[n / self.data.n_iter * 270 for n in range(0, burn_in_end)],
+                r=chain,
+                line=dict(color=self.theme.palette[n]),
+                subplot='polar',
+            )
+            for n, chain in enumerate(self.data.chains)
+        ]
+
+    # one trace per chain
+    @property
+    def remainder(self) -> List[go.Scatterpolar]:
         return [
             go.Scatterpolar(
                 theta=[n / self.data.n_iter * 270 for n in range(0, self.data.n_iter)],
