@@ -57,20 +57,23 @@ class TraceDial2(RootPlot):
         return self.data.slcs[0].upper
 
     @property
+    def burn_in_end_deg(self) -> int:
+        return floor(self.data.n_iter * self.burn_in_end)
+
+    @property
     def title(self) -> str:
         return f"Pretzel plot for {self.data.param}"
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return self.burn_in_traces + [self.histogram]
+        return self.burn_in_traces + self.remainder + [self.histogram]
 
     # one trace per chain
     @property
     def burn_in_traces(self) -> List[go.Scatterpolar]:
-        burn_in_end: int = floor(self.data.n_iter * self.burn_in_end)
         return [
             go.Scatterpolar(
-                theta=[n / self.data.n_iter * 270 for n in range(0, burn_in_end)],
+                theta=[n / self.data.n_iter * 270 for n in range(0, self.burn_in_end_deg)],
                 r=chain,
                 line=dict(color=self.theme.palette[n]),
                 subplot='polar',
@@ -83,10 +86,10 @@ class TraceDial2(RootPlot):
     def remainder(self) -> List[go.Scatterpolar]:
         return [
             go.Scatterpolar(
-                theta=[n / self.data.n_iter * 270 for n in range(0, self.data.n_iter)],
+                theta=[n / self.data.n_iter * 270 for n in range(self.burn_in_end_deg, self.data.n_iter)],
                 r=chain,
                 line=dict(color=self.theme.palette[n]),
-                subplot='polar',
+                subplot='polar2',
             )
             for n, chain in enumerate(self.data.chains)
         ]
@@ -139,11 +142,12 @@ class TraceDial2(RootPlot):
                     anchor='x3',
                 ),
                 polar=dict(
-                    sector=[90, 360],
+                    sector=[90, 90 + 270 * self.burn_in_end],
                     hole=TraceDial2.hole_size,
-                    bgcolor=self.theme.bg_colour,
+                    bgcolor=self.theme.mg_colour,
                     radialaxis=dict(showgrid=False, angle=90, tickangle=90, ticks='outside'),
                     angularaxis=dict(showgrid=False, rotation=90, showticklabels=False),
+                    domain=dict(x=[0, 1]),
                 ),
                 polar2=dict(
                     sector=[90, 360],
@@ -151,6 +155,7 @@ class TraceDial2(RootPlot):
                     bgcolor=self.theme.bg_colour,
                     radialaxis=dict(showgrid=False, angle=90, tickangle=90, ticks='outside'),
                     angularaxis=dict(showgrid=False, rotation=90, showticklabels=False),
+                    domain=dict(x=[0, 1]),
                 ),
             )
         )
