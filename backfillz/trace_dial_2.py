@@ -107,6 +107,7 @@ class TraceDial2(RootPlot):
                 xaxis=dict(
                     domain=[0, 1],
                     anchor='y',
+                    scaleanchor='y',
                 ),
                 yaxis=dict(
                     domain=[0, 1],
@@ -142,6 +143,13 @@ class TraceDial2(RootPlot):
 
         for el in self.plot_elements:
             fig.add_trace(el)
+
+        fig.add_shape(
+            type='circle',
+            xref='x', yref='y',
+            x0=0, y0=0, x1=1, y1=1,
+            line_color='LightSeaGreen',
+        )
 
         fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
 
