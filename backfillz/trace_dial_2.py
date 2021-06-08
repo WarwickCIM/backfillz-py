@@ -62,7 +62,7 @@ class TraceDial2(RootPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return self.remainder + [self.histogram]
+        return self.burn_in_traces + [self.histogram]
 
     # one trace per chain
     @property
