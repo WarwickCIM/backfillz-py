@@ -70,7 +70,7 @@ class TraceDialHistogram(SliceHistogram):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [self.histo([n]) for n, _ in enumerate(self.data.chains)]
+        return [self.histo([n], self.theme.palette[n], 5) for n, _ in enumerate(self.data.chains)]
 
     @property
     def xaxis_props(self) -> Props:

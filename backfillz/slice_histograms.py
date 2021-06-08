@@ -21,17 +21,17 @@ class SliceHistogram(LeafPlot):
     @property
     def plot_elements(self) -> List[BaseTraceType]:
         ns: List[int] = [n for n, _ in enumerate(self.data.chains)]
-        return [self.histo(ns)] + [self.chain_plot(n) for n in ns]
+        return [self.histo(ns, self.theme.fg_colour, 1)] + [self.chain_plot(n) for n in ns]
 
     # Histogram for any subset of the chains.
-    def histo(self, ns: List[int]) -> go.Histogram:
+    def histo(self, ns: List[int], color: str, bin_size: float) -> go.Histogram:
         chain_slices: List[np.ndarray] = self.data.chain_slices(self.slc)
         return go.Histogram(
             x=[x for n in ns for x in chain_slices[n]],
-            xbins=dict(start=floor(self.data.min_sample), end=ceil(self.data.max_sample), size=1),
+            xbins=dict(start=floor(self.data.min_sample), end=ceil(self.data.max_sample), size=bin_size),
             marker=dict(
                 color=self.theme.bg_colour,
-                line=dict(color=self.theme.fg_colour, width=1)
+                line=dict(color=color, width=1)
             ),
             histnorm='probability',
         )
