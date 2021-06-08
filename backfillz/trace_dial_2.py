@@ -53,6 +53,10 @@ class TraceDial2(RootPlot):
     hole_size: float = 0.3
 
     @property
+    def burn_in_end(self) -> float:
+        return self.data.slcs[0].upper
+
+    @property
     def title(self) -> str:
         return f"Pretzel plot for {self.data.param}"
 
