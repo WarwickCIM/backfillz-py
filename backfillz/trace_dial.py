@@ -69,6 +69,10 @@ class TraceDialHistogram(SliceHistogram):
     """Slice histogram for trace dial plot."""
 
     @property
+    def plot_elements(self) -> List[BaseTraceType]:
+        return [self.histo([n]) for n, _ in enumerate(self.data.chains)]
+
+    @property
     def xaxis_props(self) -> Props:
         if self.n_slc == len(self.data.slcs) - 1:
             return dict(side='top')
