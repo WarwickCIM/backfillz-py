@@ -50,6 +50,11 @@ class TraceDial2(RootPlot):
     """Top-level trace dial plot for a given parameter."""
 
     data: ParameterSlices
+    hole_size: float = 0.3
+
+    @property
+    def burn_in_end(self) -> float:
+        return self.data.slcs[0].upper
 
     @property
     def title(self) -> str:
@@ -59,7 +64,7 @@ class TraceDial2(RootPlot):
     def plot_elements(self) -> List[BaseTraceType]:
         return self.polar_traces + [self.histogram]
 
-    # one per chain
+    # one trace per chain
     @property
     def polar_traces(self) -> List[go.Scatterpolar]:
         return [
@@ -67,6 +72,7 @@ class TraceDial2(RootPlot):
                 theta=[n / self.data.n_iter * 270 for n in range(0, self.data.n_iter)],
                 r=chain,
                 line=dict(color=self.theme.palette[n]),
+                subplot='polar',
             )
             for n, chain in enumerate(self.data.chains)
         ]
@@ -97,6 +103,7 @@ class TraceDial2(RootPlot):
                 xaxis=dict(
                     domain=[0, 1],
                     anchor='y',
+                    scaleanchor='y',
                 ),
                 yaxis=dict(
                     domain=[0, 1],
@@ -120,11 +127,12 @@ class TraceDial2(RootPlot):
                 ),
                 polar=dict(
                     sector=[90, 360],
-                    hole=0.3,
-                    bgcolor=self.theme.bg_colour,
+                    hole=TraceDial2.hole_size,
+                    bgcolor=self.theme.mg_colour,
                     radialaxis=dict(showgrid=False, angle=90, tickangle=90, ticks='outside'),
                     angularaxis=dict(showgrid=False, rotation=90, showticklabels=False),
-                )
+                    domain=dict(x=[0, 1]),
+                ),
             )
         )
         print(fig.layout)

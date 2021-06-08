@@ -20,34 +20,32 @@ class SliceHistogram(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [self.histo] + self.chain_plots
+        ns: List[int] = [n for n, _ in enumerate(self.data.chains)]
+        return [self.histo(ns, self.theme.fg_colour, 1)] + [self.chain_plot(n) for n in ns]
 
-    @property
-    def histo(self) -> go.Histogram:
+    # Histogram for any subset of the chains.
+    def histo(self, ns: List[int], color: str, bin_size: float) -> go.Histogram:
+        chain_slices: List[np.ndarray] = self.data.chain_slices(self.slc)
         return go.Histogram(
-            x=[x for xs in self.data.chain_slices(self.slc) for x in xs],
-            xbins=dict(start=floor(self.data.min_sample), end=ceil(self.data.max_sample), size=1),
+            x=[x for n in ns for x in chain_slices[n]],
+            xbins=dict(start=floor(self.data.min_sample), end=ceil(self.data.max_sample), size=bin_size),
             marker=dict(
                 color=self.theme.bg_colour,
-                line=dict(color=self.theme.fg_colour, width=1)
+                line=dict(color=color, width=1)
             ),
             histnorm='probability',
         )
 
-    # non-parametric KDE, smoothed with a Gaussian kernel; one per chain
-    @property
-    def chain_plots(self) -> List[go.Scatter]:
+    # Non-parametric KDE, smoothed with a Gaussian kernel, for a given chain.
+    def chain_plot(self, n: int) -> go.Scatter:
         x = np.linspace(self.data.min_sample, self.data.max_sample, 200)
         chain_slices = self.data.chain_slices(self.slc)
-        return [
-            go.Scatter(
-                x=x,
-                y=stats.kde.gaussian_kde(chain_slices[n])(x),
-                mode='lines',
-                line=dict(width=2, color=self.theme.palette[n]),
-            )
-            for n, _ in enumerate(self.data.chains)
-        ]
+        return go.Scatter(
+            x=x,
+            y=stats.kde.gaussian_kde(chain_slices[n])(x),
+            mode='lines',
+            line=dict(width=2, color=self.theme.palette[n]),
+        )
 
     @property
     def xaxis_props(self) -> Props:
