@@ -20,29 +20,32 @@ class DialPlot(LeafPlotNoAxes):
     # Annoyingly, the torus is always drawn on top of the polar traces, so this approach won't work.
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [self.torus] + self.polar_traces
+        return self.polar_traces
 
     @property
-    def torus(self) -> go.Pie:
+    def torus(self) -> List[BaseTraceType]:
         burn_in_end: float = self.data.slcs[0].upper
-        return go.Pie(
-            values=[0.25, (1 - burn_in_end) * 0.75, burn_in_end * 0.75],
-            hole=DialPlot.hole_size,
-            direction='clockwise',
-            sort=False,
-            domain=dict(x=self.x_domain, y=self.y_domain),
-            marker=dict(
-                colors=[
-                    'rgba(0, 0, 0, 0)',
-                    self.theme.bg_colour,  # not sure what colours to use here
-                    self.theme.mg_colour,
-                ]
+        return [
+            go.Pie(
+                values=[0.25, (1 - burn_in_end) * 0.75, burn_in_end * 0.75],
+                hole=DialPlot.hole_size,
+                direction='clockwise',
+                sort=False,
+                domain=dict(x=self.x_domain, y=self.y_domain),
+                marker=dict(
+                    colors=[
+                        'rgba(0, 0, 0, 0)',
+                        self.theme.bg_colour,  # not sure what colours to use here
+                        self.theme.mg_colour,
+                    ]
+                ),
+                textinfo='none'
             ),
-            textinfo='none'
-        )
+        ]
 
     @property
     def polar_traces(self) -> List[go.Scatterpolar]:
+        circle_segments: range = range(0, 360)
         return [
             go.Scatterpolar(
                 theta=[n / self.data.n_iter * 270 for n in range(0, self.data.n_iter)],
@@ -51,6 +54,13 @@ class DialPlot(LeafPlotNoAxes):
                 subplot='polar',
             )
             for n, chain in enumerate(self.data.chains)
+        ] + [
+            go.Scatterpolar(
+                theta=list(circle_segments),
+                r=[(self.data.max_sample - self.data.min_sample) / 2 for _ in circle_segments],
+                line=dict(color=self.theme.mg_colour),
+                subplot='polar',
+            ),
         ]
 
 
@@ -128,7 +138,7 @@ class TraceDial(RootPlot):
         return (
             [[dict(rowspan=len(self.data.slcs), type='domain'), dict()]] +  # upper quadrants
             [[None, dict()] for _ in self.data.slcs[1:]] +
-            [[None, None]]                                                 # lower quadrants
+            [[None, None]]                                                  # lower quadrants
         )
 
     @property
@@ -136,6 +146,8 @@ class TraceDial(RootPlot):
         return f"Pretzel plot for {self.data.param}"
 
     def add_additional_titles(self, fig: go.Figure) -> None:
+        super().add_additional_titles(fig)
+
         #  Bit of a hack for now
         fig.update_layout(
             polar=dict(

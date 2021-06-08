@@ -34,20 +34,20 @@ class SliceHistogram(LeafPlot):
             histnorm='probability',
         )
 
-    # non-parametric KDE, smoothed with a Gaussian kernel; one per chain
     @property
     def chain_plots(self) -> List[go.Scatter]:
+        return [self.chain_plot(n) for n, _ in enumerate(self.data.chains)]
+
+    # Non-parametric KDE, smoothed with a Gaussian kernel, for a given chain.
+    def chain_plot(self, n: int) -> go.Scatter:
         x = np.linspace(self.data.min_sample, self.data.max_sample, 200)
         chain_slices = self.data.chain_slices(self.slc)
-        return [
-            go.Scatter(
-                x=x,
-                y=stats.kde.gaussian_kde(chain_slices[n])(x),
-                mode='lines',
-                line=dict(width=2, color=self.theme.palette[n]),
-            )
-            for n, _ in enumerate(self.data.chains)
-        ]
+        return go.Scatter(
+            x=x,
+            y=stats.kde.gaussian_kde(chain_slices[n])(x),
+            mode='lines',
+            line=dict(width=2, color=self.theme.palette[n]),
+        )
 
     @property
     def xaxis_props(self) -> Props:
