@@ -4,8 +4,13 @@
 
 ## Progress on trace dial plot
 
+- Polar trace plot (one per chain)
+- 
+
+## Implmentation challenges
+
 ## Questions
-- How do we decide where "burn in" ends?
+- How do we decide where burn-in ends?
 - What are the "polygons" in the R trace_dial plot?
 - What is "inner" vs "outer" burn segment?
 - What determines the colours used for burn-in and rest of sample?
