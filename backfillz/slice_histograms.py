@@ -13,13 +13,14 @@ from backfillz.plot import LeafPlot
 
 @dataclass
 class SliceHistogram(LeafPlot):
-    """Histogram for a slice (aggregating all chains) plus density plot for each chain."""
-
+    """Plot histograms for arbitrary subsets of the chains, plus (optionally) KDE plots for individual
+    chains."""
     slc: Slice
     n_slc: int
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
+        """Histogram for a slice (aggregating all chains) plus density plot for each chain."""
         ns: List[int] = [n for n, _ in enumerate(self.data.chains)]
         return [self.histo(ns, self.theme.fg_colour, 1)] + [self.chain_plot(n) for n in ns]
 

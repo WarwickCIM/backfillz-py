@@ -5,11 +5,19 @@
 ## Progress on trace dial plot
 
 - Polar trace plot (one per chain)
-- 
+- "Ring" plot (pie chart with hole)
+- Generalise histogram from first plot to one histogram per chain  
 
-## Implmentation challenges
+## Implementation to dos/challenges
 
-## Questions
+- Combine the two plots into a single chart (without z-order control). May need to draw the 
+  ring as a "shape" (using SVG Path object), as shapes can be positioned under traces.
+- Only colouring "upper edge" of histograms -- will
+- Setting width of histograms to be width of ring -- need aspect ratio of top-level plot but not clear
+  that this is available programatically. Alternative might be to force top-level plot to be a square.
+- Radial axis
+
+## Questions (mainly in relation to R version)
 - How do we decide where burn-in ends?
 - What are the "polygons" in the R trace_dial plot?
 - What is "inner" vs "outer" burn segment?

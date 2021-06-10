@@ -23,25 +23,23 @@ class DialPlot(LeafPlotNoAxes):
         return self.polar_traces
 
     @property
-    def ring(self) -> List[BaseTraceType]:
+    def ring(self) -> BaseTraceType:
         burn_in_end: float = self.data.slcs[0].upper
-        return [
-            go.Pie(
-                values=[0.25, (1 - burn_in_end) * 0.75, burn_in_end * 0.75],
-                hole=DialPlot.hole_size,
-                direction='clockwise',
-                sort=False,
-                domain=dict(x=self.x_domain, y=self.y_domain),
-                marker=dict(
-                    colors=[
-                        'rgba(0, 0, 0, 0)',
-                        self.theme.bg_colour,  # not sure what colours to use here
-                        self.theme.mg_colour,
-                    ]
-                ),
-                textinfo='none'
+        return go.Pie(
+            values=[0.25, (1 - burn_in_end) * 0.75, burn_in_end * 0.75],
+            hole=DialPlot.hole_size,
+            direction='clockwise',
+            sort=False,
+            domain=dict(x=self.x_domain, y=self.y_domain),
+            marker=dict(
+                colors=[
+                    'rgba(0, 0, 0, 0)',
+                    self.theme.bg_colour,  # not sure what colours to use here
+                    self.theme.mg_colour,
+                ]
             ),
-        ]
+            textinfo='none'
+        )
 
     @property
     def polar_traces(self) -> List[go.Scatterpolar]:
@@ -152,7 +150,7 @@ class TraceDial(RootPlot):
     def add_additional_titles(self, fig: go.Figure) -> None:
         super().add_additional_titles(fig)
 
-        #  Bit of a hack for now
+        # TODO: move to more appropriate place.
         fig.update_layout(
             polar=dict(
                 sector=[90, 360],
@@ -184,7 +182,7 @@ class TraceDial(RootPlot):
         backfillz.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
 
 
-# Haven't understood how to use these properties yet.
+# Not using these properties yet.
 @dataclass
 class DerivativeColours:
     """Colours uniquely determined by a theme."""
