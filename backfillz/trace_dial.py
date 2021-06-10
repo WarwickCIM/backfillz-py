@@ -17,13 +17,13 @@ class DialPlot(LeafPlotNoAxes):
 
     hole_size: float = 0.3
 
-    # Annoyingly, the "ring" is always drawn on top of the polar traces, so this approach won't work.
+    # Annoyingly, the "donut" is always drawn on top of the polar traces, so this approach won't work.
     @property
     def plot_elements(self) -> List[BaseTraceType]:
         return self.polar_traces
 
     @property
-    def ring(self) -> BaseTraceType:
+    def donut(self) -> BaseTraceType:
         burn_in_end: float = self.data.slcs[0].upper
         return go.Pie(
             values=[0.25, (1 - burn_in_end) * 0.75, burn_in_end * 0.75],

@@ -13,8 +13,8 @@ from backfillz.plot import LeafPlot
 
 @dataclass
 class SliceHistogram(LeafPlot):
-    """Plot histograms for arbitrary subsets of the chains, plus (optionally) KDE plots for individual
-    chains."""
+    """Plot histograms for arbitrary subsets of chains, plus optional KDE plots for individual chains."""
+
     slc: Slice
     n_slc: int
 

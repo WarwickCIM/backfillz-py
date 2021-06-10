@@ -18,7 +18,7 @@
 - Radial axis
 
 ## Questions (mainly in relation to R version)
-- How do we decide where burn-in ends?
+- How do we decide number of burn-in iterations?
 - What are the "polygons" in the R trace_dial plot?
 - What is "inner" vs "outer" burn segment?
 - What determines the colours used for burn-in and rest of sample?
