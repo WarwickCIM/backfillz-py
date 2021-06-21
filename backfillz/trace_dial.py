@@ -60,20 +60,25 @@ class DialPlot(LeafPlotNoAxes):
     def normalise_sample(self, y: float) -> float:
         return (y - self.data.min_sample) / (self.data.max_sample - self.data.min_sample)
 
+    def polar_trace(self, n: int) -> go.Scatter:
+        chain = self.data.chains[n]
+        xys = [
+            (math.cos(DialPlot.to_angular(self.normalise_iter(x))),
+             math.sin(DialPlot.to_radial(self.normalise_sample(y))))
+            for x, y in enumerate(chain)
+        ]
+        return go.Scatter(
+            x=[x for x, _ in xys],
+            y=[y for _, y in xys],
+            line=dict(color=self.theme.palette[n]),
+        )
+
     @property
     def polar_traces_2(self) -> List[go.Scatter]:
-        thetas = [DialPlot.to_angular(self.normalise_iter(n)) for n in range(0, self.data.n_iter)]
-        ys = [math.sin(theta) for theta in thetas]
-        xs = [math.cos(theta) for theta in thetas]
-        result = [
-            go.Scatter(
-                x=[math.cos(DialPlot.to_angular(self.normalise_iter(n))) for n in range(0, self.data.n_iter)],
-                y=[math.sin(DialPlot.to_radial(self.normalise_sample(y))) for y in chain],
-                line=dict(color=self.theme.palette[n])
-            )
-            for n, chain in enumerate(self.data.chains)
-        ]
-        return []
+        # thetas = [DialPlot.to_angular(self.normalise_iter(n)) for n in range(0, self.data.n_iter)]
+        # ys = [math.sin(theta) for theta in thetas]
+        # xs = [math.cos(theta) for theta in thetas]
+        return [self.polar_trace(n) for n, _ in enumerate(self.data.chains)]
 
     @property
     def polar_traces(self) -> List[go.Scatterpolar]:
