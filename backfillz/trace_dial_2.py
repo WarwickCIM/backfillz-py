@@ -16,7 +16,7 @@ class DialPlot(LeafPlot):
     """Trace dial plot on the left."""
 
     hole_size: float = 1 / 3
-    donut_start: float = 0.5 * math.pi
+    donut_start: float = 0  # 0.5 * math.pi
     donut_end: float = 2 * math.pi
 
     @property
@@ -45,8 +45,8 @@ class DialPlot(LeafPlot):
         xs = [x / len(chain) for x, _ in chain]     # normalise x coords
         ys = [y for _, y in chain]                  # y coords already normalised
         xs_ang = [DialPlot.to_angular(x) for x in xs]
-        xs_circ = [math.cos(x) for x in xs_ang]
-        ys_circ = [math.sin(x) for x in xs_ang]
+        xs_circ = [math.cos(x) for x in xs_ang + [xs_ang[0]]]
+        ys_circ = [math.sin(x) for x in xs_ang + [xs_ang[0]]]
         return go.Scatter(
             x=xs_circ,
             y=ys_circ,
