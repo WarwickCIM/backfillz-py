@@ -57,6 +57,9 @@ class DialPlot(LeafPlotNoAxes):
     def normalise_iter(self, n: int) -> float:
         return n / self.data.n_iter
 
+    def normalise_sample(self, y: float) -> float:
+        return (y - self.data.min_sample) / (self.data.max_sample - self.data.min_sample)
+
     @property
     def polar_traces_2(self) -> List[go.Scatter]:
         thetas = [DialPlot.to_angular(self.normalise_iter(n)) for n in range(0, self.data.n_iter)]
@@ -65,7 +68,7 @@ class DialPlot(LeafPlotNoAxes):
         result = [
             go.Scatter(
                 x=[DialPlot.to_angular(self.normalise_iter(n)) for n in range(0, self.data.n_iter)],
-                y=chain,
+                y=[DialPlot.to_radial(self.normalise_sample(y)) for y in chain],
                 line=dict(color=self.theme.palette[n])
             )
             for n, chain in enumerate(self.data.chains)
