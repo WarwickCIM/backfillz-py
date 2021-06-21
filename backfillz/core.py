@@ -96,7 +96,7 @@ class ParameterSlices:
 
     slcs: List[Slice]
     param: str
-    chains: np.ndarray
+    chains: np.ndarray  # shape is [n, n_iter] where n is number of chains
     max_sample: float
     min_sample: float
 

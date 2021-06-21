@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import math
 from typing import List
 
 import numpy as np
@@ -15,12 +16,14 @@ from backfillz.theme import BackfillzTheme
 class DialPlot(LeafPlotNoAxes):
     """Trace dial plot on the left."""
 
-    hole_size: float = 0.3
+    hole_size: float    = 0.3
+    donut_start: float  = 0.5 * math.pi
+    donut_end: float    = 2 * math.pi
 
     # Annoyingly, the "donut" is always drawn on top of the polar traces, so this approach won't work.
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [self.donut] + self.polar_traces
+        return [self.donut] + self.polar_traces + self.polar_traces_2
 
     @property
     def donut(self) -> BaseTraceType:
@@ -40,6 +43,18 @@ class DialPlot(LeafPlotNoAxes):
             ),
             textinfo='none'
         )
+
+    @staticmethod
+    def to_donut(x: float) -> float:
+        """Convert normalised x coordinate into angular coordinate in 3/4 circle."""
+        return DialPlot.donut_start + x * (DialPlot.donut_end - DialPlot.donut_start)
+
+    @property
+    def polar_traces_2(self) -> List[go.Scatter]:
+        thetas = [DialPlot.to_donut(n / self.data.n_iter) for n in range(0, self.data.n_iter)]
+        ys = [math.sin(theta) for theta in thetas]
+        xs = [math.cos(theta) for theta in thetas]
+        return []
 
     @property
     def polar_traces(self) -> List[go.Scatterpolar]:
