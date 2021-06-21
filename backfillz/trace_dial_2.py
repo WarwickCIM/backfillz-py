@@ -46,6 +46,9 @@ class DialPlot(LeafPlot):
              math.sin(DialPlot.to_radial(self.normalise_sample(y))))
             for x, y in enumerate(chain)
         ]
+        xys = [
+            (1, 0), (0, 1), (-1, 0), (0, -1), (1, 0)
+        ]
         return go.Scatter(
             x=[x for x, _ in xys],
             y=[y for _, y in xys],
@@ -71,6 +74,7 @@ class TraceDial(RootPlot):
     @property
     def dial_plot(self) -> DialPlot:
         return DialPlot(
+            axis_id='',
             # entire root plot:
             x_domain=(0.0, 1),
             y_domain=(0.0, 1),
@@ -81,11 +85,7 @@ class TraceDial(RootPlot):
         )
 
     def grid_specs(self, layout: go.Layout) -> Specs:
-        return (
-            [[dict(rowspan=len(self.data.slcs), type='domain'), dict()]] +  # upper quadrants
-            [[None, dict()] for _ in self.data.slcs[1:]] +
-            [[None, None]]                                                  # lower quadrants
-        )
+        return [[dict()]]  # single cell for now
 
     @property
     def title(self) -> str:
@@ -95,17 +95,7 @@ class TraceDial(RootPlot):
         super().add_additional_titles(fig)
 
         # TODO: move to more appropriate place.
-        fig.update_layout(
-            polar=dict(
-                sector=[90, 360],
-                hole=DialPlot.hole_size,
-                bgcolor='rgba(0,0,0,0)',
-                radialaxis=dict(showgrid=False, angle=90, tickangle=90, ticks='outside'),
-                angularaxis=dict(showgrid=False, rotation=90, showticklabels=False),
-                domain=dict(x=[0, 1]),
-            ),
-            barmode='overlay'
-        ),
+        fig.update_layout(barmode='overlay')
 
     @staticmethod
     def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
