@@ -7,9 +7,58 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import alpha, annotate, LeafPlotNoAxes, Plot, RootPlot, segment, Specs, VerticalSubplots
+from backfillz.plot import alpha, annotate, LeafPlot, LeafPlotNoAxes, Plot, RootPlot, segment, Specs, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
+
+
+@dataclass
+class DialPlot2(LeafPlot):
+    """Trace dial plot on the left."""
+
+    hole_size: float = 1 / 3
+    donut_start: float = 0.5 * math.pi
+    donut_end: float = 2 * math.pi
+
+    @property
+    def plot_elements(self) -> List[BaseTraceType]:
+        return self.polar_traces
+
+    @staticmethod
+    def to_angular(x: float) -> float:
+        """Normalised x coordinate as angular coordinate in 3/4 circle."""
+        return DialPlot2.donut_start + x * (DialPlot2.donut_end - DialPlot2.donut_start)
+
+    @staticmethod
+    def to_radial(y: float) -> float:
+        """Normalised y coordinate as radial coordinate along upper 2/3 of radius."""
+        return DialPlot2.hole_size + y * (1 - DialPlot2.hole_size)
+
+    def normalise_iter(self, n: int) -> float:
+        return n / self.data.n_iter
+
+    def normalise_sample(self, y: float) -> float:
+        return (y - self.data.min_sample) / (self.data.max_sample - self.data.min_sample)
+
+    def polar_trace(self, n: int) -> go.Scatter:
+        chain = self.data.chains[n]
+        xys = [
+            (math.cos(DialPlot2.to_angular(self.normalise_iter(x))),
+             math.sin(DialPlot2.to_radial(self.normalise_sample(y))))
+            for x, y in enumerate(chain)
+        ]
+        return go.Scatter(
+            x=[x for x, _ in xys],
+            y=[y for _, y in xys],
+            line=dict(color=self.theme.palette[n]),
+        )
+
+    @property
+    def polar_traces(self) -> List[go.Scatter]:
+        # thetas = [DialPlot.to_angular(self.normalise_iter(n)) for n in range(0, self.data.n_iter)]
+        # ys = [math.sin(theta) for theta in thetas]
+        # xs = [math.cos(theta) for theta in thetas]
+        return [self.polar_trace(n) for n, _ in enumerate(self.data.chains)]
 
 
 @dataclass
@@ -17,13 +66,11 @@ class DialPlot(LeafPlotNoAxes):
     """Trace dial plot on the left."""
 
     hole_size: float = 1 / 3
-    donut_start: float = 0.5 * math.pi
-    donut_end: float = 2 * math.pi
 
     # Annoyingly, the "donut" is always drawn on top of the polar traces, so this approach won't work.
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [self.donut] + self.polar_traces + self.polar_traces_2
+        return [self.donut] + self.polar_traces
 
     @property
     def donut(self) -> BaseTraceType:
@@ -43,42 +90,6 @@ class DialPlot(LeafPlotNoAxes):
             ),
             textinfo='none'
         )
-
-    @staticmethod
-    def to_angular(x: float) -> float:
-        """Normalised x coordinate as angular coordinate in 3/4 circle."""
-        return DialPlot.donut_start + x * (DialPlot.donut_end - DialPlot.donut_start)
-
-    @staticmethod
-    def to_radial(y: float) -> float:
-        """Normalised y coordinate as radial coordinate along upper 2/3 of radius."""
-        return DialPlot.hole_size + y * (1 - DialPlot.hole_size)
-
-    def normalise_iter(self, n: int) -> float:
-        return n / self.data.n_iter
-
-    def normalise_sample(self, y: float) -> float:
-        return (y - self.data.min_sample) / (self.data.max_sample - self.data.min_sample)
-
-    def polar_trace(self, n: int) -> go.Scatter:
-        chain = self.data.chains[n]
-        xys = [
-            (math.cos(DialPlot.to_angular(self.normalise_iter(x))),
-             math.sin(DialPlot.to_radial(self.normalise_sample(y))))
-            for x, y in enumerate(chain)
-        ]
-        return go.Scatter(
-            x=[x for x, _ in xys],
-            y=[y for _, y in xys],
-            line=dict(color=self.theme.palette[n]),
-        )
-
-    @property
-    def polar_traces_2(self) -> List[go.Scatter]:
-        # thetas = [DialPlot.to_angular(self.normalise_iter(n)) for n in range(0, self.data.n_iter)]
-        # ys = [math.sin(theta) for theta in thetas]
-        # xs = [math.cos(theta) for theta in thetas]
-        return [self.polar_trace(n) for n, _ in enumerate(self.data.chains)]
 
     @property
     def polar_traces(self) -> List[go.Scatterpolar]:
