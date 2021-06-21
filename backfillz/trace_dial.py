@@ -67,8 +67,8 @@ class DialPlot(LeafPlotNoAxes):
         xs = [math.cos(theta) for theta in thetas]
         result = [
             go.Scatter(
-                x=[DialPlot.to_angular(self.normalise_iter(n)) for n in range(0, self.data.n_iter)],
-                y=[DialPlot.to_radial(self.normalise_sample(y)) for y in chain],
+                x=[math.cos(DialPlot.to_angular(self.normalise_iter(n))) for n in range(0, self.data.n_iter)],
+                y=[math.sin(DialPlot.to_radial(self.normalise_sample(y))) for y in chain],
                 line=dict(color=self.theme.palette[n])
             )
             for n, chain in enumerate(self.data.chains)
