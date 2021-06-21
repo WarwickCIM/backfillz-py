@@ -20,7 +20,7 @@ class DialPlot(LeafPlotNoAxes):
     # Annoyingly, the "donut" is always drawn on top of the polar traces, so this approach won't work.
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return self.polar_traces
+        return [self.donut] + self.polar_traces
 
     @property
     def donut(self) -> BaseTraceType:
@@ -68,7 +68,7 @@ class TraceDialHistogram(SliceHistogram):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [self.histo([n], self.theme.palette[n], 5) for n, _ in enumerate(self.data.chains)]
+        return [self.histo([n], self.theme.palette[n], 1) for n, _ in enumerate(self.data.chains)]
 
     @property
     def xaxis_props(self) -> Props:
@@ -80,7 +80,7 @@ class TraceDialHistogram(SliceHistogram):
 
 @dataclass
 class SliceHistograms(VerticalSubplots):
-    """Two slice histograms, one for burn in, one for rest of chain."""
+    """Two slice histograms: one for burn in, one for rest of chain."""
 
     def make_plots(self) -> List[Plot]:
         return [
@@ -159,7 +159,8 @@ class TraceDial(RootPlot):
                 radialaxis=dict(showgrid=False, angle=90, tickangle=90, ticks='outside'),
                 angularaxis=dict(showgrid=False, rotation=90, showticklabels=False),
                 domain=dict(x=[0, 1]),
-            )
+            ),
+            barmode='overlay'
         ),
 
         histos: List[Plot] = self.histograms.plots

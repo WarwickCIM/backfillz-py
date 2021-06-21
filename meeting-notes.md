@@ -12,7 +12,7 @@
 
 - Combine the two plots into a single chart (without z-order control). May need to draw the 
   ring as a "shape" (using SVG Path object), as shapes can be positioned under traces.
-- Only colouring "upper edge" of histograms -- will
+- Colouring only "upper edge" of histogram (plot_histogram_lines?) -- currently colour entire plot
 - Setting width of histograms to be width of ring -- need aspect ratio of top-level plot but not clear
   that this is available programatically. Alternative might be to force top-level plot to be a square.
 - Radial axis
