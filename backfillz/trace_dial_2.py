@@ -16,12 +16,12 @@ class DialPlot(LeafPlot):
     """Trace dial plot on the left."""
 
     hole_size: float = 1 / 3
-    donut_start: float = 1.5 * math.pi
+    donut_start: float = 0.5 * math.pi
     donut_end: float = 2 * math.pi
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [DialPlot.circle_experiment()]
+        return [self.circle_experiment()]
 
     @property
     def xaxis_props(self) -> Props:
@@ -29,7 +29,7 @@ class DialPlot(LeafPlot):
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(range=[-1, 1])
+        return dict(range=[-1, 1], scaleanchor='x', scaleratio=1)
 
     @staticmethod
     def to_angular(x: float) -> float:
@@ -47,14 +47,13 @@ class DialPlot(LeafPlot):
     def normalise_sample(self, y: float) -> float:
         return (y - self.data.min_sample) / (self.data.max_sample - self.data.min_sample)
 
-    @staticmethod
-    def circle_experiment() -> go.Scatter:
-        chain = [(1, 1), (2, 1), (3, 1), (4, 1)]    # start with horizontal line
-        xs = [x / len(chain) for x, _ in chain]     # normalise x coords
-        ys = [y for _, y in chain]                  # y coords already normalised
+    def circle_experiment(self) -> go.Scatter:
+        chain = [(x, 1) for x, _ in enumerate(self.data.chains[0])] # start with horizontal line
+        xs = [x / (len(chain) - 1) for x, _ in chain]               # normalise x coords
+        ys = [y for _, y in chain]                                  # assume y already normalised
         xs_ang = [DialPlot.to_angular(x) for x in xs]
-        xs_circ = [math.cos(x) for x in xs_ang + [xs_ang[0]]]
-        ys_circ = [math.sin(x) for x in xs_ang + [xs_ang[0]]]
+        xs_circ = [math.cos(x) for x in xs_ang]
+        ys_circ = [math.sin(x) for x in xs_ang]
         return go.Scatter(
             x=xs_circ,
             y=ys_circ,
