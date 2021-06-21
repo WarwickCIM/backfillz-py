@@ -16,9 +16,9 @@ from backfillz.theme import BackfillzTheme
 class DialPlot(LeafPlotNoAxes):
     """Trace dial plot on the left."""
 
-    hole_size: float    = 0.3
-    donut_start: float  = 0.5 * math.pi
-    donut_end: float    = 2 * math.pi
+    hole_size: float = 1 / 3
+    donut_start: float = 0.5 * math.pi
+    donut_end: float = 2 * math.pi
 
     # Annoyingly, the "donut" is always drawn on top of the polar traces, so this approach won't work.
     @property
@@ -45,15 +45,31 @@ class DialPlot(LeafPlotNoAxes):
         )
 
     @staticmethod
-    def to_donut(x: float) -> float:
-        """Convert normalised x coordinate into angular coordinate in 3/4 circle."""
+    def to_angular(x: float) -> float:
+        """Normalised x coordinate as angular coordinate in 3/4 circle."""
         return DialPlot.donut_start + x * (DialPlot.donut_end - DialPlot.donut_start)
+
+    @staticmethod
+    def to_radial(y: float) -> float:
+        """Normalised y coordinate as radial coordinate along upper 2/3 of radius."""
+        return DialPlot.hole_size + y * (1 - DialPlot.hole_size)
+
+    def normalise_iter(self, n: int) -> float:
+        return n / self.data.n_iter
 
     @property
     def polar_traces_2(self) -> List[go.Scatter]:
-        thetas = [DialPlot.to_donut(n / self.data.n_iter) for n in range(0, self.data.n_iter)]
+        thetas = [DialPlot.to_angular(self.normalise_iter(n)) for n in range(0, self.data.n_iter)]
         ys = [math.sin(theta) for theta in thetas]
         xs = [math.cos(theta) for theta in thetas]
+        result = [
+            go.Scatter(
+                x=[DialPlot.to_angular(self.normalise_iter(n)) for n in range(0, self.data.n_iter)],
+                y=chain,
+                line=dict(color=self.theme.palette[n])
+            )
+            for n, chain in enumerate(self.data.chains)
+        ]
         return []
 
     @property
