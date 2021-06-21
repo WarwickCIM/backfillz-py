@@ -6,7 +6,7 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType
 import plotly.graph_objects as go
 
-from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Slice
+from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
 from backfillz.plot import LeafPlot, Plot, RootPlot, Specs
 from backfillz.theme import BackfillzTheme
 
@@ -16,12 +16,20 @@ class DialPlot(LeafPlot):
     """Trace dial plot on the left."""
 
     hole_size: float = 1 / 3
-    donut_start: float = 0  # 0.5 * math.pi
+    donut_start: float = 1.5 * math.pi
     donut_end: float = 2 * math.pi
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
         return [DialPlot.circle_experiment()]
+
+    @property
+    def xaxis_props(self) -> Props:
+        return dict(range=[-1, 1])
+
+    @property
+    def yaxis_props(self) -> Props:
+        return dict(range=[-1, 1])
 
     @staticmethod
     def to_angular(x: float) -> float:
