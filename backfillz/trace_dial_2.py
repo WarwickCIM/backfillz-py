@@ -181,7 +181,7 @@ class TraceDial:
             plot_bgcolor=self.theme.bg_colour,
             showlegend=False,
             barmode='overlay',
-            xaxis2=dict(domain=[0.5, 1], anchor='y2'),
+            xaxis2=dict(domain=[0.5 + DialPlot.hole_size / 2, 1], anchor='y2'),
             yaxis2=dict(domain=[0.5, 1], anchor='x2'),
         )
         fig = go.Figure(layout=layout)
