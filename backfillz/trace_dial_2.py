@@ -186,7 +186,8 @@ class TraceDial:
             )
         )
         fig = go.Figure(layout=layout)
-        fig.add_trace(trace1)
+        for el in self.dial_plot.plot_elements:
+            fig.add_trace(el)
         fig.add_trace(trace2)
         fig.show()
 #        plotly.iplot(fig, filename='simple-inset')
