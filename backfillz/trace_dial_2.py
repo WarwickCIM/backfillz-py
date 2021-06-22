@@ -162,8 +162,6 @@ class TraceDial:
         for plot in self.plots:
             plot.render(fig)
 
-#        fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
-
         trace1 = go.Scatter(
             x=[1, 2, 3],
             y=[4, 3, 2]
@@ -205,8 +203,7 @@ class TraceDial:
         ).plot_elements:
             fig.add_trace(trace)
 
-#        fig.add_trace(trace2)
-        fig.show()
+        fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
 
     @staticmethod
     def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
