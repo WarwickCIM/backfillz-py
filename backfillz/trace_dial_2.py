@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType
@@ -62,14 +62,19 @@ class DialPlot(LeafPlot):
             line=dict(color=self.theme.palette[n])
         )
 
+    @staticmethod
+    def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
+        xs_ang = [DialPlot.to_angular(x) for x in xs]
+        xs_circ = [math.cos(x) * ys[n] for n, x in enumerate(xs_ang)]
+        ys_circ = [math.sin(x) for _, x in enumerate(xs_ang)]
+        return xs_circ, ys_circ
+
     @property
     def donut(self) -> go.Scatter:
         xs = [x for x in range(0, 100)]
         ys = [1.0 for x in xs]
         xs = [x / (len(xs) - 1) for x in xs]                           # normalise x
-        xs_ang = [DialPlot.to_angular(x) for x in xs]
-        xs_circ = [math.cos(x) for _, x in enumerate(xs_ang)]
-        ys_circ = [math.sin(x) for _, x in enumerate(xs_ang)]
+        xs_circ, ys_circ = DialPlot.polar_plot(xs, ys)
         return go.Scatter(
             x=xs_circ,
             y=ys_circ,
