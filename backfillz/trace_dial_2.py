@@ -48,12 +48,12 @@ class DialPlot(LeafPlot):
         return (y - self.data.min_sample) / (self.data.max_sample - self.data.min_sample)
 
     def circle_experiment(self) -> go.Scatter:
-        chain = [(x, 1) for x, _ in enumerate(self.data.chains[0])] # start with horizontal line
-        xs = [x / (len(chain) - 1) for x, _ in chain]               # normalise x coords
-        ys = [y for _, y in chain]                                  # assume y already normalised
+        chain = [(x, y) for x, y in enumerate(self.data.chains[0])] # start with horizontal line
+        xs = [x / (len(chain) - 1) for x, _ in chain]               # normalise x
+        ys = [self.normalise_sample(y) for _, y in chain]                                  # normalise y
         xs_ang = [DialPlot.to_angular(x) for x in xs]
-        xs_circ = [math.cos(x) for x in xs_ang]
-        ys_circ = [math.sin(x) for x in xs_ang]
+        xs_circ = [math.cos(x) * ys[n] for n, x in enumerate(xs_ang)]
+        ys_circ = [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)]
         return go.Scatter(
             x=xs_circ,
             y=ys_circ,
