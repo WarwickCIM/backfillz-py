@@ -185,7 +185,9 @@ class TraceDial:
                 anchor='x2'
             )
         )
-        fig = go.Figure(data=data, layout=layout)
+        fig = go.Figure(layout=layout)
+        fig.add_trace(trace1)
+        fig.add_trace(trace2)
         fig.show()
 #        plotly.iplot(fig, filename='simple-inset')
 
