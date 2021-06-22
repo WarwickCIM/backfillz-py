@@ -21,7 +21,7 @@ class DialPlot(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [self.circle_experiment()]
+        return [trace for trace in self.polar_traces]  # type coonversion
 
     @property
     def xaxis_props(self) -> Props:
@@ -47,30 +47,17 @@ class DialPlot(LeafPlot):
     def normalise_sample(self, y: float) -> float:
         return (y - self.data.min_sample) / (self.data.max_sample - self.data.min_sample)
 
-    def circle_experiment(self) -> go.Scatter:
-        chain = [(x, y) for x, y in enumerate(self.data.chains[0])] # start with horizontal line
-        xs = [x / (len(chain) - 1) for x, _ in chain]               # normalise x
-        ys = [self.normalise_sample(y) for _, y in chain]                                  # normalise y
+    def polar_trace(self, n: int) -> go.Scatter:
+        chain = [(x, y) for x, y in enumerate(self.data.chains[n])]
+        xs = [x / (len(chain) - 1) for x, _ in chain]                           # normalise x
+        ys = [DialPlot.to_radial(self.normalise_sample(y)) for _, y in chain]   # normalise y
         xs_ang = [DialPlot.to_angular(x) for x in xs]
         xs_circ = [math.cos(x) * ys[n] for n, x in enumerate(xs_ang)]
         ys_circ = [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)]
         return go.Scatter(
             x=xs_circ,
             y=ys_circ,
-            line=dict(color='black')
-        )
-
-    def polar_trace(self, n: int) -> go.Scatter:
-        chain = self.data.chains[n]
-        xys = [
-            (math.cos(DialPlot.to_angular(self.normalise_iter(x))),
-             math.sin(DialPlot.to_radial(self.normalise_sample(y))))
-            for x, y in enumerate(chain)
-        ]
-        return go.Scatter(
-            x=[x for x, _ in xys],
-            y=[y for _, y in xys],
-            line=dict(color=self.theme.palette[n]),
+            line=dict(color=self.theme.palette[n])
         )
 
     @property
