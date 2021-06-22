@@ -105,7 +105,6 @@ class TraceDial(RootPlot):
     """Top-level plot, for a given parameter and chain."""
 
     data: ParameterSlices
-    theme: BackfillzTheme
 
     @property
     def plots(self) -> List[Plot]:
@@ -137,7 +136,7 @@ class TraceDial(RootPlot):
             theme=self.theme,
         )
 
-    def grid_specs(self, layout: go.Layout) -> Specs:
+    def grid_specs(self, fig: go.Figure) -> Specs:
         return (
             [[dict(rowspan=len(self.data.slcs), type='domain'), dict()]] +  # upper quadrants
             [[None, dict()] for _ in self.data.slcs[1:]] +
