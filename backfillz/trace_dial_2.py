@@ -176,16 +176,19 @@ class TraceDial:
         )
         data = [trace1, trace2]
         layout = go.Layout(
-            xaxis2=dict(
-                domain=[0.6, 0.95],
-                anchor='y2'
-            ),
-            yaxis2=dict(
-                domain=[0.6, 0.95],
-                anchor='x2'
-            )
+            title=self.title,
+            titlefont=dict(size=30),
+            plot_bgcolor=self.theme.bg_colour,
+            showlegend=False,
+            barmode='overlay',
+            xaxis2=dict(domain=[0.5, 1], anchor='y2'),
+            yaxis2=dict(domain=[0.5, 1], anchor='x2'),
         )
         fig = go.Figure(layout=layout)
+
+        for plot in self.plots:
+            plot.layout_axes(fig)
+
         for el in self.dial_plot.plot_elements:
             fig.add_trace(el)
         fig.add_trace(trace2)
