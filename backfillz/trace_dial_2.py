@@ -123,9 +123,6 @@ class TraceDial:
             theme=self.theme,
         )
 
-    def grid_specs(self, fig: go.Figure) -> Specs:
-        return [[dict()]]  # maybe don't need subfigs for this one
-
     @property
     def title(self) -> str:
         return f"Pretzel plot for {self.data.param}"
