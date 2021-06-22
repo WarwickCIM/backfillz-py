@@ -3,12 +3,11 @@ import math
 from typing import List, Tuple
 
 import numpy as np
-from plotly.basedatatypes import BaseTraceType
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots  # type: ignore
+from plotly.basedatatypes import BaseTraceType  # type: ignore
+import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import cols, LeafPlot, Plot, RootPlot, segment, Specs, VerticalSubplots
+from backfillz.plot import LeafPlot, Plot, segment, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
