@@ -193,7 +193,7 @@ class TraceDial:
             fig.add_trace(trace)
 
         for trace in SliceHistogram(
-            axis_id='3999',
+            axis_id='2',
             x_domain=(0.5, 1),
             y_domain=(0.75, 1),
             data=self.data,
