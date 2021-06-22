@@ -76,8 +76,8 @@ class DialPlot(LeafPlot):
         ys2 = [DialPlot.hole_size for x in xs]
         xs_circ2, ys_circ2 = DialPlot.polar_plot(xs, ys2)
         return go.Scatter(
-            x=xs_circ2,
-            y=ys_circ2,
+            x=xs_circ1 + xs_circ2,
+            y=ys_circ1 + ys_circ2,
             line=dict(color=self.theme.fg_colour)
         )
 
