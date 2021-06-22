@@ -189,11 +189,24 @@ class TraceDial:
         for plot in self.plots:
             plot.layout_axes(fig)
 
-        for el in self.dial_plot.plot_elements:
-            fig.add_trace(el)
-        fig.add_trace(trace2)
+        for trace in self.dial_plot.plot_elements:
+            fig.add_trace(trace)
+
+        for trace in SliceHistogram(
+            axis_id='3999',
+            x_domain=(0.5, 1),
+            y_domain=(0.75, 1),
+            data=self.data,
+            theme=self.theme,
+            slc=self.data.slcs[0],
+            n_slc=0,
+            row=49,
+            col=102,
+        ).plot_elements:
+            fig.add_trace(trace)
+
+#        fig.add_trace(trace2)
         fig.show()
-#        plotly.iplot(fig, filename='simple-inset')
 
     @staticmethod
     def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
