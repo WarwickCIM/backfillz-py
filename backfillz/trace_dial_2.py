@@ -23,7 +23,7 @@ class DialPlot(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [trace for trace in self.polar_traces]  # type coonversion
+        return [trace for trace in self.polar_traces] + [self.donut]  # type conversion
 
     @property
     def xaxis_props(self) -> Props:
@@ -60,6 +60,20 @@ class DialPlot(LeafPlot):
             x=xs_circ,
             y=ys_circ,
             line=dict(color=self.theme.palette[n])
+        )
+
+    @property
+    def donut(self) -> go.Scatter:
+        xs = [x for x in range(0, 100)]
+        ys = [1.0 for x in xs]
+        xs = [x / (len(xs) - 1) for x in xs]                           # normalise x
+        xs_ang = [DialPlot.to_angular(x) for x in xs]
+        xs_circ = [math.cos(x) for _, x in enumerate(xs_ang)]
+        ys_circ = [math.sin(x) for _, x in enumerate(xs_ang)]
+        return go.Scatter(
+            x=xs_circ,
+            y=ys_circ,
+            line=dict(color=self.theme.fg_colour)
         )
 
     @property
