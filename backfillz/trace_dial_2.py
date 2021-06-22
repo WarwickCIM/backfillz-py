@@ -132,47 +132,6 @@ class TraceDial:
 
     def render(self) -> None:
         """Create fig and render subplots."""
-        layout: go.Layout = go.Layout(
-            title=self.title,
-            titlefont=dict(size=30),
-            plot_bgcolor=self.theme.bg_colour,
-            showlegend=False,
-            barmode='overlay',
-            xaxis2=dict(domain=[0.5, 1], anchor='y2'),
-            yaxis2=dict(domain=[0.5, 1], anchor='x2')
-        )
-
-        fig: go.Figure = go.Figure(layout=layout)
-
-        specs: Specs = self.grid_specs(fig)
-
-        make_subplots(
-            rows=len(specs),
-            cols=cols(specs),
-            figure=fig,
-            specs=specs,
-            horizontal_spacing=0,
-            vertical_spacing=0,
-            print_grid=True,
-        )
-
-        for plot in self.plots:
-            plot.layout_axes(fig)
-
-        for plot in self.plots:
-            plot.render(fig)
-
-        trace1 = go.Scatter(
-            x=[1, 2, 3],
-            y=[4, 3, 2]
-        )
-        trace2 = go.Scatter(
-            x=[20, 30, 40],
-            y=[30, 40, 50],
-            xaxis='x2',
-            yaxis='y2'
-        )
-        data = [trace1, trace2]
         layout = go.Layout(
             title=self.title,
             titlefont=dict(size=30),
