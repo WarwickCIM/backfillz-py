@@ -143,14 +143,6 @@ class TraceDial:
         )
         fig = go.Figure(layout=layout)
 
-        fig.update_layout(
-            shapes=[dict(
-                type='path',
-                path="M 4,4 Q 6,0 8,4",
-                line_color='RoyalBlue',
-            )],
-        )
-
         for plot in self.plots:
             plot.layout_axes(fig)
 
