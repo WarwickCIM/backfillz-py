@@ -69,8 +69,8 @@ class DialPlot(LeafPlot):
 
     @property
     def donut(self) -> go.Scatter:
-        xs = [x for x in range(0, 100)]
-        ys1 = [1.0 for x in xs]
+        xs = [0] + [x for x in range(0, 100)]
+        ys1 = [DialPlot.hole_size] + [1.0 for _ in xs]
         xs = [x / (len(xs) - 1) for x in xs]                           # normalise x
         xs_circ1, ys_circ1 = DialPlot.polar_plot(xs, ys1)
         ys2 = [DialPlot.hole_size for x in xs]
