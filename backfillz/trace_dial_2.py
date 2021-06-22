@@ -49,25 +49,23 @@ class DialPlot(LeafPlot):
     def normalise_sample(self, y: float) -> float:
         return (y - self.data.min_sample) / (self.data.max_sample - self.data.min_sample)
 
+    @staticmethod
+    def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
+        xs_ang = [DialPlot.to_angular(x) for x in xs]
+        xs_circ = [math.cos(x) * ys[n] for n, x in enumerate(xs_ang)]
+        ys_circ = [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)]
+        return xs_circ, ys_circ
+
     def polar_trace(self, n: int) -> go.Scatter:
         chain = [(x, y) for x, y in enumerate(self.data.chains[n])]
         xs = [x / (len(chain) - 1) for x, _ in chain]                           # normalise x
         ys = [DialPlot.to_radial(self.normalise_sample(y)) for _, y in chain]   # normalise y
-        xs_ang = [DialPlot.to_angular(x) for x in xs]
-        xs_circ = [math.cos(x) * ys[n] for n, x in enumerate(xs_ang)]
-        ys_circ = [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)]
+        xs_circ, ys_circ = DialPlot.polar_plot(xs, ys)
         return go.Scatter(
             x=xs_circ,
             y=ys_circ,
             line=dict(color=self.theme.palette[n])
         )
-
-    @staticmethod
-    def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
-        xs_ang = [DialPlot.to_angular(x) for x in xs]
-        xs_circ = [math.cos(x) * ys[n] for n, x in enumerate(xs_ang)]
-        ys_circ = [math.sin(x) for _, x in enumerate(xs_ang)]
-        return xs_circ, ys_circ
 
     @property
     def donut(self) -> go.Scatter:
