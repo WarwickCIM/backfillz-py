@@ -63,7 +63,7 @@ class DialPlot(LeafPlot):
         return go.Scatter(
             x=xs_circ,
             y=ys_circ,
-            line=dict(color=self.theme.palette[n])
+            line=dict(color=self.theme.palette[n]),
         )
 
     @property
@@ -81,7 +81,9 @@ class DialPlot(LeafPlot):
         return go.Scatter(
             x=xs_circ1 + xs_circ2,
             y=ys_circ1 + ys_circ2,
-            line=dict(color=self.theme.fg_colour)
+            line=dict(color=self.theme.fg_colour),
+            fill='toself',
+            fillcolor='yellow',
         )
 
     @property
