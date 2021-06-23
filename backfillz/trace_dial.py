@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 import math
-from typing import List, Tuple
+from typing import cast, List, Sequence, Tuple
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import alpha, LeafPlot, Plot, segment, VerticalSubplots
+from backfillz.plot import alpha, annotate, LeafPlot, Plot, segment, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
@@ -25,8 +25,8 @@ class DialPlot(LeafPlot):
 
     @property
     def xaxis_props(self) -> Props:
-        # scaleanchor='y', scaleratio=1 would force an exact square/perfect circle, but then we can't
-        # set width of histograms correctly
+        # scaleanchor='y', scaleratio=1 would force an exact square/circle, but then can't
+        # set histogram widths correctly
         return dict(visible=False)
 
     @property
@@ -41,48 +41,44 @@ class DialPlot(LeafPlot):
 
     @staticmethod
     def to_radial(y: float) -> float:
-        """Normalised y coordinate as radial coordinate along upper 2/3 of radius."""
+        """Map a normalised y coordinate into upper 2/3 of radius."""
         return DialPlot.hole_size + y * (1 - DialPlot.hole_size)
 
-    def normalise_iter(self, n: int) -> float:
-        return n / self.data.n_iter
-
-    def normalise_sample(self, y: float) -> float:
-        return (y - self.data.min_sample) / (self.data.max_sample - self.data.min_sample)
+    # Bit inefficient for chains (we compute min/max rather than used the cached property on self.data).
+    @staticmethod
+    def normalise(xs: Sequence[float]) -> List[float]:
+        min_x: float = min(xs)
+        max_x: float = max(xs)
+        return [(x - min_x) / (max_x - min_x) for x in xs]
 
     @staticmethod
     def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
         xs_ang = [DialPlot.to_angular(x, DialPlot.donut_domain) for x in xs]
-        xs_circ = [math.cos(x) * ys[n] for n, x in enumerate(xs_ang)]
-        ys_circ = [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)]
-        return xs_circ, ys_circ
+        return ([math.cos(x) * ys[n] for n, x in enumerate(xs_ang)],
+                [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)])
 
     def polar_trace(self, n: int) -> go.Scatter:
         chain = [(x, y) for x, y in enumerate(self.data.chains[n])]
-        xs = [x / (len(chain) - 1) for x, _ in chain]                           # normalise x
-        ys = [DialPlot.to_radial(self.normalise_sample(y)) for _, y in chain]   # normalise y
+        xs = DialPlot.normalise([x for x, _ in chain])
+        ys = [DialPlot.to_radial(y) for y in DialPlot.normalise([y for _, y in chain])]
         xs_circ, ys_circ = DialPlot.polar_plot(xs, ys)
         return go.Scatter(
-            x=xs_circ,
-            y=ys_circ,
+            x=xs_circ, y=ys_circ,
             line=dict(color=self.theme.palette[n]),
         )
 
     @property
     def donut(self) -> go.Scatter:
-        xs1 = [0, *range(0, 100)]
-        ys1 = [DialPlot.hole_size] + [1.0] * 100
+        n_segments: int = 100
+        xs1 = [0] + [*range(0, n_segments)]
+        ys1 = [DialPlot.hole_size] + [1.0] * n_segments
         assert len(xs1) == len(ys1)
-        xs1 = [x / max(xs1) for x in xs1]
-        xs_circ1, ys_circ1 = DialPlot.polar_plot(xs1, ys1)
-        xs2 = [99, *range(99, -1, -1)]
-        ys2 = [1.0] + [DialPlot.hole_size] * 100
+        xs2 = [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
+        ys2 = [1.0] + [DialPlot.hole_size] * n_segments
         assert len(xs2) == len(ys2)
-        xs2 = [x / max(xs2) for x in xs2]
-        xs_circ2, ys_circ2 = DialPlot.polar_plot(xs2, ys2)
+        xs_circ, ys_circ = DialPlot.polar_plot(DialPlot.normalise(xs1 + xs2), ys1 + ys2)
         return go.Scatter(
-            x=xs_circ1 + xs_circ2,
-            y=ys_circ1 + ys_circ2,
+            x=xs_circ, y=ys_circ,
             line=dict(width=0),
             fill='toself',
             fillcolor=self.theme.mg_colour,
@@ -139,7 +135,7 @@ class TraceDial:
 
     @property
     def plots(self) -> List[Plot]:
-        return [self.dial_plot]
+        return [self.dial_plot, self.histograms]
 
     @property
     def dial_plot(self) -> DialPlot:
@@ -156,8 +152,8 @@ class TraceDial:
     @property
     def histograms(self) -> SliceHistograms:
         return SliceHistograms(
-            axis_ids=['', '2'],
-            x_domain=(0.5, 1.0),
+            axis_ids=['3', '2'],
+            x_domain=(0.5 + DialPlot.hole_size / 2, 1.0),
             y_domain=(0.5, 1.0),
             row=1,
             col=1,
@@ -177,33 +173,33 @@ class TraceDial:
             plot_bgcolor=self.theme.bg_colour,
             showlegend=False,
             barmode='overlay',
-            xaxis2=dict(domain=[0.5 + DialPlot.hole_size / 2, 1], anchor='y2'),
-            yaxis2=dict(domain=[0.75, 1], anchor='x2'),
+            xaxis2=dict(anchor='y2'),
+            yaxis2=dict(anchor='x2'),
+            xaxis3=dict(anchor='y3'),
+            yaxis3=dict(anchor='x3'),
             # plotting region won't be exactly square but best we can do to align histogram width with donut
-            width=800, height=800
+            width=800, height=800,
         )
         fig = go.Figure(layout=layout)
 
         for plot in self.plots:
             plot.layout_axes(fig)
 
+        self.add_additional_titles(fig)
+
         for trace in self.dial_plot.plot_elements:
             fig.add_trace(trace)
 
-        for trace in TraceDialHistogram(
-            axis_id='2',
-            x_domain=(0.5, 1),  # not relevant yet
-            y_domain=(0.75, 1),  # not relevant yet
-            data=self.data,
-            theme=self.theme,
-            slc=self.data.slcs[0],
-            n_slc=0,
-            row=49,  # not used
-            col=102,  # not used
-        ).plot_elements:
-            fig.add_trace(trace)
+        for histo in self.histograms.plots:
+            for trace in cast(LeafPlot, histo).plot_elements:
+                fig.add_trace(trace)
 
         fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
+
+    def add_additional_titles(self, fig: go.Figure) -> None:
+        histos: List[Plot] = self.histograms.plots
+        annotate(fig, 14, histos[0].top_left, 'right', 'top', None, "Burn-in histogram", textangle=-90)
+        annotate(fig, 14, histos[1].top_left, 'right', 'top', None, "Sample histogram", textangle=-90)
 
     @staticmethod
     def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
