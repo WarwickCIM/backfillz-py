@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import cast, List, Sequence, Tuple, Union
+from typing import cast, List, Sequence, Tuple
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
