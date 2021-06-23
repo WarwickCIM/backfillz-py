@@ -178,10 +178,10 @@ class TraceDial:
             plot_bgcolor=self.theme.bg_colour,
             showlegend=False,
             barmode='overlay',
-            xaxis2=dict(domain=[0.5 + DialPlot.hole_size / 2, 1], anchor='y2'),
-            yaxis2=dict(domain=[0.75, 1], anchor='x2'),
-            xaxis3=dict(domain=[0.5 + DialPlot.hole_size / 2, 1], anchor='y3'),
-            yaxis3=dict(domain=[0.5, 0.75], anchor='x3'),
+            xaxis2=dict(anchor='y2'),
+            yaxis2=dict(anchor='x2'),
+            xaxis3=dict(anchor='y3'),
+            yaxis3=dict(anchor='x3'),
             # plotting region won't be exactly square but best we can do to align histogram width with donut
             width=800, height=800,
         )
