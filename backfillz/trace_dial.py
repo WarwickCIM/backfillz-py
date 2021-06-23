@@ -140,7 +140,7 @@ class TraceDial:
 
     @property
     def plots(self) -> List[Plot]:
-        return [self.dial_plot]
+        return [self.dial_plot, self.histograms]
 
     @property
     def dial_plot(self) -> DialPlot:
@@ -157,8 +157,8 @@ class TraceDial:
     @property
     def histograms(self) -> SliceHistograms:
         return SliceHistograms(
-            axis_ids=['2', '3'],
-            x_domain=(0.5, 1.0),
+            axis_ids=['3', '2'],
+            x_domain=(0.5 + DialPlot.hole_size / 2, 1.0),
             y_domain=(0.5, 1.0),
             row=1,
             col=1,
