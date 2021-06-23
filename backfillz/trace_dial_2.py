@@ -92,12 +92,28 @@ class DialPlot(LeafPlot):
 
 
 @dataclass
+class TraceDialHistogram(SliceHistogram):
+    """Slice histogram for trace dial plot."""
+
+    @property
+    def plot_elements(self) -> List[BaseTraceType]:
+        return [self.histo([n], self.theme.palette[n], 1) for n, _ in enumerate(self.data.chains)]
+
+    @property
+    def xaxis_props(self) -> Props:
+        if self.n_slc == len(self.data.slcs) - 1:
+            return dict(side='top')
+        else:
+            return dict(visible=False)
+
+
+@dataclass
 class SliceHistograms(VerticalSubplots):
     """One slice histogram per slice."""
 
     def make_plots(self) -> List[Plot]:
         return [
-            SliceHistogram(
+            TraceDialHistogram(
                 axis_id=self.axis_ids[n],
                 x_domain=self.x_domain,
                 y_domain=segment(self.y_domain, len(self.data.slcs), n),
@@ -105,8 +121,8 @@ class SliceHistograms(VerticalSubplots):
                 theme=self.theme,
                 slc=slc,
                 n_slc=n,
-                row=1,
-                col=1,
+                row=self.row + len(self.data.slcs) - 1 - n,
+                col=self.col,
             )
             for n, slc in enumerate(self.data.slcs)
         ]
@@ -170,7 +186,7 @@ class TraceDial:
         for trace in self.dial_plot.plot_elements:
             fig.add_trace(trace)
 
-        for trace in SliceHistogram(
+        for trace in TraceDialHistogram(
             axis_id='2',
             x_domain=(0.5, 1),
             y_domain=(0.75, 1),
@@ -178,8 +194,8 @@ class TraceDial:
             theme=self.theme,
             slc=self.data.slcs[0],
             n_slc=0,
-            row=49,
-            col=102,
+            row=49,  # not used
+            col=102,  # not used
         ).plot_elements:
             fig.add_trace(trace)
 
