@@ -17,8 +17,7 @@ class DialPlot(LeafPlot):
     """Trace dial plot on the left."""
 
     hole_size: float = 1 / 3
-    donut_start: float = 0.5 * math.pi
-    donut_end: float = 2 * math.pi
+    donut_domain: Tuple[float, float] = 0.5 * math.pi, 2 * math.pi
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
@@ -33,9 +32,10 @@ class DialPlot(LeafPlot):
         return dict(range=[-1, 1])
 
     @staticmethod
-    def to_angular(x: float) -> float:
-        """Normalised x coordinate as angular coordinate in 3/4 circle."""
-        return DialPlot.donut_start + x * (DialPlot.donut_end - DialPlot.donut_start)
+    def to_angular(x: float, domain: Tuple[float, float]) -> float:
+        """Normalised x coordinate as angular coordinate in specified portion of unit circle."""
+        start, end = domain
+        return start + x * (end - start)
 
     @staticmethod
     def to_radial(y: float) -> float:
@@ -50,7 +50,7 @@ class DialPlot(LeafPlot):
 
     @staticmethod
     def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
-        xs_ang = [DialPlot.to_angular(x) for x in xs]
+        xs_ang = [DialPlot.to_angular(x, DialPlot.donut_domain) for x in xs]
         xs_circ = [math.cos(x) * ys[n] for n, x in enumerate(xs_ang)]
         ys_circ = [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)]
         return xs_circ, ys_circ
