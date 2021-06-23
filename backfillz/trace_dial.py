@@ -48,6 +48,12 @@ class DialPlot(LeafPlot):
         return (y - self.data.min_sample) / (self.data.max_sample - self.data.min_sample)
 
     @staticmethod
+    def normalise(xs: List[float]) -> List[float]:
+        min_x: float = min(xs)
+        max_x: float = max(xs)
+        return [(x - min_x) / (max_x - min_x) for x in xs]
+
+    @staticmethod
     def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
         xs_ang = [DialPlot.to_angular(x, DialPlot.donut_domain) for x in xs]
         return ([math.cos(x) * ys[n] for n, x in enumerate(xs_ang)],
@@ -55,7 +61,7 @@ class DialPlot(LeafPlot):
 
     def polar_trace(self, n: int) -> go.Scatter:
         chain = [(x, y) for x, y in enumerate(self.data.chains[n])]
-        xs = [x / (len(chain) - 1) for x, _ in chain]                           # normalise x
+        xs = DialPlot.normalise([x for x, _ in chain])                          # normalise x
         ys = [DialPlot.to_radial(self.normalise_sample(y)) for _, y in chain]   # normalise y
         xs_circ, ys_circ = DialPlot.polar_plot(xs, ys)
         return go.Scatter(
