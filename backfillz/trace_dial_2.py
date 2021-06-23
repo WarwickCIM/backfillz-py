@@ -21,7 +21,7 @@ class DialPlot(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [trace for trace in self.polar_traces] + [self.donut]  # type conversion
+        return [self.donut] + [trace for trace in self.polar_traces]  # type conversion
 
     @property
     def xaxis_props(self) -> Props:
@@ -83,7 +83,7 @@ class DialPlot(LeafPlot):
             y=ys_circ1 + ys_circ2,
             line=dict(color=self.theme.fg_colour),
             fill='toself',
-            fillcolor='yellow',
+            fillcolor=self.theme.mg_colour,
         )
 
     @property

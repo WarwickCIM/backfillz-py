@@ -58,7 +58,7 @@ class Backfillz:
             HistoryEntry(HistoryEvent.OBJECT_CREATION, False)
         ]
 
-    def iter_chains(self, param: str, index: int = 0) -> np.ndarray:
+    def iter_chains(self, param: str, index: int = 0) -> np.ndarray[np.ndarray[float]]:
         """Return the (n_chains x n_samples) matrix of draws for a given parameter."""
         n_chains, n_samples = self.mcmc_samples.num_chains, self.mcmc_samples.num_samples
         xss = np.zeros((n_chains, n_samples))
