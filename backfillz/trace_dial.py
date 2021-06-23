@@ -180,8 +180,10 @@ class TraceDial:
             barmode='overlay',
             xaxis2=dict(domain=[0.5 + DialPlot.hole_size / 2, 1], anchor='y2'),
             yaxis2=dict(domain=[0.75, 1], anchor='x2'),
+            xaxis3=dict(domain=[0.5 + DialPlot.hole_size / 2, 1], anchor='y3'),
+            yaxis3=dict(domain=[0.5, 0.75], anchor='x3'),
             # plotting region won't be exactly square but best we can do to align histogram width with donut
-            width=800, height=800
+            width=800, height=800,
         )
         fig = go.Figure(layout=layout)
 
@@ -193,6 +195,19 @@ class TraceDial:
 
         for trace in TraceDialHistogram(
             axis_id='2',
+            x_domain=(0.5, 1),  # not relevant yet
+            y_domain=(0.75, 1),  # not relevant yet
+            data=self.data,
+            theme=self.theme,
+            slc=self.data.slcs[1],
+            n_slc=1,
+            row=49,  # not used
+            col=102,  # not used
+        ).plot_elements:
+            fig.add_trace(trace)
+
+        for trace in TraceDialHistogram(
+            axis_id='3',
             x_domain=(0.5, 1),  # not relevant yet
             y_domain=(0.75, 1),  # not relevant yet
             data=self.data,
