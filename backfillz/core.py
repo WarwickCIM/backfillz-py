@@ -59,7 +59,7 @@ class Backfillz:
         ]
 
     def iter_chains(self, param: str, index: int = 0) -> np.ndarray:
-        """Return the (n_chains x n_samples) matrix of draws for a given parameter."""
+        """Return (n_chains × n_samples) matrix of draws for a given parameter."""
         n_chains, n_samples = self.mcmc_samples.num_chains, self.mcmc_samples.num_samples
         xss = np.zeros((n_chains, n_samples))
         for n in range(0, n_chains):
@@ -96,7 +96,7 @@ class ParameterSlices:
 
     slcs: List[Slice]
     param: str
-    chains: np.ndarray
+    chains: np.ndarray  # shape is [n, n_iter] where n is number of chains
     max_sample: float
     min_sample: float
 

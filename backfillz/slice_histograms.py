@@ -35,6 +35,8 @@ class SliceHistogram(LeafPlot):
                 line=dict(color=color, width=1)
             ),
             histnorm='probability',
+            xaxis='x' + self.axis_id,
+            yaxis='y' + self.axis_id,
         )
 
     # Non-parametric KDE, smoothed with a Gaussian kernel, for a given chain.
@@ -46,6 +48,8 @@ class SliceHistogram(LeafPlot):
             y=stats.kde.gaussian_kde(chain_slices[n])(x),
             mode='lines',
             line=dict(width=2, color=self.theme.palette[n]),
+            xaxis='x' + self.axis_id,
+            yaxis='y' + self.axis_id,
         )
 
     @property

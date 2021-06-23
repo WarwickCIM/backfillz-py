@@ -15,6 +15,7 @@ def stan() -> Stan:
     return generate_fit()
 
 
+# @pytest.mark.skip(reason="temporarily disable")
 def test_sample_fit(stan: Stan) -> None:
     """Backfillz object can be created."""
     Backfillz(stan.fit)
