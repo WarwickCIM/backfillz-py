@@ -1,65 +1,96 @@
 from dataclasses import dataclass
-from typing import List
+import math
+from typing import List, Tuple
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import alpha, annotate, LeafPlotNoAxes, Plot, RootPlot, segment, Specs, VerticalSubplots
+from backfillz.plot import alpha, LeafPlot, Plot, segment, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
 
 @dataclass
-class DialPlot(LeafPlotNoAxes):
+class DialPlot(LeafPlot):
     """Trace dial plot on the left."""
 
     hole_size: float = 1 / 3
+    donut_domain: Tuple[float, float] = 0.5 * math.pi, 2 * math.pi
 
-    # Annoyingly, the "donut" is always drawn on top of the polar traces, so this approach won't work.
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [self.donut] + self.polar_traces
+        return [self.donut] + [trace for trace in self.polar_traces]  # type conversion
 
     @property
-    def donut(self) -> BaseTraceType:
-        burn_in_end: float = self.data.slcs[0].upper
-        return go.Pie(
-            values=[0.25, (1 - burn_in_end) * 0.75, burn_in_end * 0.75],
-            hole=DialPlot.hole_size,
-            direction='clockwise',
-            sort=False,
-            domain=dict(x=self.x_domain, y=self.y_domain),
-            marker=dict(
-                colors=[
-                    'rgba(0, 0, 0, 0)',
-                    self.theme.bg_colour,  # not sure what colours to use here
-                    self.theme.mg_colour,
-                ]
-            ),
-            textinfo='none'
+    def xaxis_props(self) -> Props:
+        # scaleanchor='y', scaleratio=1 would force an exact square/perfect circle, but then we can't
+        # set width of histograms correctly
+        return dict(visible=False)
+
+    @property
+    def yaxis_props(self) -> Props:
+        return dict(range=[-1, 1], visible=False)
+
+    @staticmethod
+    def to_angular(x: float, domain: Tuple[float, float]) -> float:
+        """Normalised x coordinate as angular coordinate in specified portion of unit circle."""
+        start, end = domain
+        return start + x * (end - start)
+
+    @staticmethod
+    def to_radial(y: float) -> float:
+        """Normalised y coordinate as radial coordinate along upper 2/3 of radius."""
+        return DialPlot.hole_size + y * (1 - DialPlot.hole_size)
+
+    def normalise_iter(self, n: int) -> float:
+        return n / self.data.n_iter
+
+    def normalise_sample(self, y: float) -> float:
+        return (y - self.data.min_sample) / (self.data.max_sample - self.data.min_sample)
+
+    @staticmethod
+    def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
+        xs_ang = [DialPlot.to_angular(x, DialPlot.donut_domain) for x in xs]
+        xs_circ = [math.cos(x) * ys[n] for n, x in enumerate(xs_ang)]
+        ys_circ = [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)]
+        return xs_circ, ys_circ
+
+    def polar_trace(self, n: int) -> go.Scatter:
+        chain = [(x, y) for x, y in enumerate(self.data.chains[n])]
+        xs = [x / (len(chain) - 1) for x, _ in chain]                           # normalise x
+        ys = [DialPlot.to_radial(self.normalise_sample(y)) for _, y in chain]   # normalise y
+        xs_circ, ys_circ = DialPlot.polar_plot(xs, ys)
+        return go.Scatter(
+            x=xs_circ,
+            y=ys_circ,
+            line=dict(color=self.theme.palette[n]),
         )
 
     @property
-    def polar_traces(self) -> List[go.Scatterpolar]:
-        circle_segments: range = range(0, 360)
-        return [
-            go.Scatterpolar(
-                theta=[n / self.data.n_iter * 270 for n in range(0, self.data.n_iter)],
-                r=chain,
-                line=dict(color=self.theme.palette[n]),
-                subplot='polar',
-            )
-            for n, chain in enumerate(self.data.chains)
-        ] + [
-            go.Scatterpolar(
-                theta=list(circle_segments),
-                r=[(self.data.max_sample - self.data.min_sample) / 2 for _ in circle_segments],
-                line=dict(color=self.theme.mg_colour),
-                subplot='polar',
-            ),
-        ]
+    def donut(self) -> go.Scatter:
+        xs1 = [0, *range(0, 100)]
+        ys1 = [DialPlot.hole_size] + [1.0] * 100
+        assert len(xs1) == len(ys1)
+        xs1 = [x / max(xs1) for x in xs1]
+        xs_circ1, ys_circ1 = DialPlot.polar_plot(xs1, ys1)
+        xs2 = [99, *range(99, -1, -1)]
+        ys2 = [1.0] + [DialPlot.hole_size] * 100
+        assert len(xs2) == len(ys2)
+        xs2 = [x / max(xs2) for x in xs2]
+        xs_circ2, ys_circ2 = DialPlot.polar_plot(xs2, ys2)
+        return go.Scatter(
+            x=xs_circ1 + xs_circ2,
+            y=ys_circ1 + ys_circ2,
+            line=dict(width=0),
+            fill='toself',
+            fillcolor=self.theme.mg_colour,
+        )
+
+    @property
+    def polar_traces(self) -> List[go.Scatter]:
+        return [self.polar_trace(n) for n, _ in enumerate(self.data.chains)]
 
 
 @dataclass
@@ -80,7 +111,7 @@ class TraceDialHistogram(SliceHistogram):
 
 @dataclass
 class SliceHistograms(VerticalSubplots):
-    """Two slice histograms: one for burn in, one for rest of chain."""
+    """One slice histogram per slice."""
 
     def make_plots(self) -> List[Plot]:
         return [
@@ -100,19 +131,20 @@ class SliceHistograms(VerticalSubplots):
 
 
 @dataclass
-class TraceDial(RootPlot):
+class TraceDial:
     """Top-level plot, for a given parameter and chain."""
 
     data: ParameterSlices
+    theme: BackfillzTheme
 
     @property
     def plots(self) -> List[Plot]:
-        return [self.dial_plot, self.histograms]
+        return [self.dial_plot]
 
     @property
     def dial_plot(self) -> DialPlot:
         return DialPlot(
-            # entire root plot:
+            axis_id='',
             x_domain=(0.0, 1),
             y_domain=(0.0, 1),
             row=1,
@@ -123,48 +155,55 @@ class TraceDial(RootPlot):
 
     @property
     def histograms(self) -> SliceHistograms:
-        x_to_y: float = 0.865  # magic ratio that I don't know how to discover
         return SliceHistograms(
             axis_ids=['', '2'],
-            # top-right quadrant:
-            x_domain=(0.5 + (x_to_y - 0.5) * DialPlot.hole_size, x_to_y),
+            x_domain=(0.5, 1.0),
             y_domain=(0.5, 1.0),
             row=1,
-            col=2,
+            col=1,
             data=self.data,
             theme=self.theme,
-        )
-
-    def grid_specs(self, fig: go.Figure) -> Specs:
-        return (
-            [[dict(rowspan=len(self.data.slcs), type='domain'), dict()]] +  # upper quadrants
-            [[None, dict()] for _ in self.data.slcs[1:]] +
-            [[None, None]]                                                  # lower quadrants
         )
 
     @property
     def title(self) -> str:
         return f"Pretzel plot for {self.data.param}"
 
-    def add_additional_titles(self, fig: go.Figure) -> None:
-        super().add_additional_titles(fig)
+    def render(self) -> None:
+        """Create fig and render subplots."""
+        layout = go.Layout(
+            title=self.title,
+            titlefont=dict(size=30),
+            plot_bgcolor=self.theme.bg_colour,
+            showlegend=False,
+            barmode='overlay',
+            xaxis2=dict(domain=[0.5 + DialPlot.hole_size / 2, 1], anchor='y2'),
+            yaxis2=dict(domain=[0.75, 1], anchor='x2'),
+            # plotting region won't be exactly square but best we can do to align histogram width with donut
+            width=800, height=800
+        )
+        fig = go.Figure(layout=layout)
 
-        # TODO: move to more appropriate place.
-        fig.update_layout(
-            polar=dict(
-                sector=[90, 360],
-                hole=DialPlot.hole_size,
-                bgcolor='rgba(0,0,0,0)',
-                radialaxis=dict(showgrid=False, angle=90, tickangle=90, ticks='outside'),
-                angularaxis=dict(showgrid=False, rotation=90, showticklabels=False),
-                domain=dict(x=[0, 1]),
-            ),
-            barmode='overlay'
-        ),
+        for plot in self.plots:
+            plot.layout_axes(fig)
 
-        histos: List[Plot] = self.histograms.plots
-        annotate(fig, 16, histos[0].top_left, 'right', 'top', None, "Burn-in histogram", textangle=-90)
-        annotate(fig, 16, histos[1].top_left, 'right', 'top', None, "Sample histogram", textangle=-90)
+        for trace in self.dial_plot.plot_elements:
+            fig.add_trace(trace)
+
+        for trace in TraceDialHistogram(
+            axis_id='2',
+            x_domain=(0.5, 1),  # not relevant yet
+            y_domain=(0.75, 1),  # not relevant yet
+            data=self.data,
+            theme=self.theme,
+            slc=self.data.slcs[0],
+            n_slc=0,
+            row=49,  # not used
+            col=102,  # not used
+        ).plot_elements:
+            fig.add_trace(trace)
+
+        fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
 
     @staticmethod
     def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
@@ -178,7 +217,7 @@ class TraceDial(RootPlot):
             min_sample=np.amin(backfillz.mcmc_samples[param]),
         )
 
-        TraceDial(backfillz.theme, data).render()
+        TraceDial(data, backfillz.theme).render()
         backfillz.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
 
 
