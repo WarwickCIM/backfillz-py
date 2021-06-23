@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import List, Tuple
+from typing import cast, List, Tuple
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
@@ -157,7 +157,7 @@ class TraceDial:
     @property
     def histograms(self) -> SliceHistograms:
         return SliceHistograms(
-            axis_ids=['', '2'],
+            axis_ids=['2', '3'],
             x_domain=(0.5, 1.0),
             y_domain=(0.5, 1.0),
             row=1,
@@ -193,31 +193,9 @@ class TraceDial:
         for trace in self.dial_plot.plot_elements:
             fig.add_trace(trace)
 
-        for trace in TraceDialHistogram(
-            axis_id='2',
-            x_domain=(0.5, 1),  # not relevant yet
-            y_domain=(0.75, 1),  # not relevant yet
-            data=self.data,
-            theme=self.theme,
-            slc=self.data.slcs[1],
-            n_slc=1,
-            row=49,  # not used
-            col=102,  # not used
-        ).plot_elements:
-            fig.add_trace(trace)
-
-        for trace in TraceDialHistogram(
-            axis_id='3',
-            x_domain=(0.5, 1),  # not relevant yet
-            y_domain=(0.75, 1),  # not relevant yet
-            data=self.data,
-            theme=self.theme,
-            slc=self.data.slcs[0],
-            n_slc=0,
-            row=49,  # not used
-            col=102,  # not used
-        ).plot_elements:
-            fig.add_trace(trace)
+        for histo in self.histograms.plots:
+            for trace in cast(LeafPlot, histo).plot_elements:
+                fig.add_trace(trace)
 
         fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
 
