@@ -175,8 +175,10 @@ class TraceDial:
             plot_bgcolor=self.theme.bg_colour,
             showlegend=False,
             barmode='overlay',
-            xaxis2=dict(domain=[0.5 + DialPlot.hole_size / 2, 1], anchor='y2'),
-            yaxis2=dict(domain=[0.5, 1], anchor='x2'),
+            xaxis2=dict(domain=[0.5, 1], anchor='y2'),
+            yaxis2=dict(domain=[0.75, 1], anchor='x2'),
+            width=800,
+            height=800,
         )
         fig = go.Figure(layout=layout)
 
@@ -188,8 +190,8 @@ class TraceDial:
 
         for trace in TraceDialHistogram(
             axis_id='2',
-            x_domain=(0.5, 1),
-            y_domain=(0.75, 1),
+            x_domain=(0.5, 1),  # not relevant yet
+            y_domain=(0.75, 1),  # not relevant yet
             data=self.data,
             theme=self.theme,
             slc=self.data.slcs[0],
