@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import cast, List, Tuple
+from typing import cast, List, Sequence, Tuple, Union
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
@@ -25,8 +25,8 @@ class DialPlot(LeafPlot):
 
     @property
     def xaxis_props(self) -> Props:
-        # scaleanchor='y', scaleratio=1 would force an exact square/perfect circle, but then we can't
-        # set width of histograms correctly
+        # scaleanchor='y', scaleratio=1 would force an exact square/circle, but then can't
+        # set histogram widths correctly
         return dict(visible=False)
 
     @property
@@ -44,9 +44,9 @@ class DialPlot(LeafPlot):
         """Map a normalised y coordinate into upper 2/3 of radius."""
         return DialPlot.hole_size + y * (1 - DialPlot.hole_size)
 
-    # Bit inefficient for chains as we compute the min/max rather than used the cached property on self.data.
+    # Bit inefficient for chains (we compute min/max rather than used the cached property on self.data).
     @staticmethod
-    def normalise(xs: List[float]) -> List[float]:
+    def normalise(xs: Sequence[float]) -> List[float]:
         min_x: float = min(xs)
         max_x: float = max(xs)
         return [(x - min_x) / (max_x - min_x) for x in xs]
