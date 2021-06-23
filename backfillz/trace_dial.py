@@ -76,15 +76,12 @@ class DialPlot(LeafPlot):
         xs1 = [0] + [*range(0, n_segments)]
         ys1 = [DialPlot.hole_size] + [1.0] * n_segments
         assert len(xs1) == len(ys1)
-        xs1 = DialPlot.normalise(xs1)
-        xs_circ1, ys_circ1 = DialPlot.polar_plot(xs1, ys1)
-        xs2 = [n_segments - 1, *range(n_segments - 1, -1, -1)]
+        xs2 = [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
         ys2 = [1.0] + [DialPlot.hole_size] * n_segments
         assert len(xs2) == len(ys2)
-        xs2 = DialPlot.normalise(xs2)
-        xs_circ2, ys_circ2 = DialPlot.polar_plot(xs2, ys2)
+        xs_circ, ys_circ = DialPlot.polar_plot(DialPlot.normalise(xs1 + xs2), ys1 + ys2)
         return go.Scatter(
-            x=xs_circ1 + xs_circ2, y=ys_circ1 + ys_circ2,
+            x=xs_circ, y=ys_circ,
             line=dict(width=0),
             fill='toself',
             fillcolor=self.theme.mg_colour,
