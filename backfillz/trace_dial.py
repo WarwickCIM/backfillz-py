@@ -41,11 +41,8 @@ class DialPlot(LeafPlot):
 
     @staticmethod
     def to_radial(y: float) -> float:
-        """Normalised y coordinate as radial coordinate along upper 2/3 of radius."""
+        """Map a normalised y coordinate into upper 2/3 of radius."""
         return DialPlot.hole_size + y * (1 - DialPlot.hole_size)
-
-    def normalise_sample(self, y: float) -> float:
-        return (y - self.data.min_sample) / (self.data.max_sample - self.data.min_sample)
 
     # Bit inefficient for chains as we compute the min/max rather than used the cached property on self.data.
     @staticmethod
