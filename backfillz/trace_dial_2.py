@@ -25,11 +25,13 @@ class DialPlot(LeafPlot):
 
     @property
     def xaxis_props(self) -> Props:
-        return dict(scaleanchor='y', scaleratio=1)
+        # scaleanchor='y', scaleratio=1 would force an exact square/perfect circle, but then we can't
+        # set width of histograms correctly
+        return dict(visible=False)
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(range=[-1, 1])
+        return dict(range=[-1, 1], visible=False)
 
     @staticmethod
     def to_angular(x: float, domain: Tuple[float, float]) -> float:
@@ -175,10 +177,10 @@ class TraceDial:
             plot_bgcolor=self.theme.bg_colour,
             showlegend=False,
             barmode='overlay',
-            xaxis2=dict(domain=[0.5, 1], anchor='y2'),
+            xaxis2=dict(domain=[0.5 + DialPlot.hole_size / 2, 1], anchor='y2'),
             yaxis2=dict(domain=[0.75, 1], anchor='x2'),
-            width=800,
-            height=800,
+            # plotting region won't be exactly square but best we can do to align histogram width with donut
+            width=800, height=800
         )
         fig = go.Figure(layout=layout)
 
