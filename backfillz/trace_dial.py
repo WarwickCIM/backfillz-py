@@ -44,18 +44,14 @@ class DialPlot(LeafPlot):
         """Normalised y coordinate as radial coordinate along upper 2/3 of radius."""
         return DialPlot.hole_size + y * (1 - DialPlot.hole_size)
 
-    def normalise_iter(self, n: int) -> float:
-        return n / self.data.n_iter
-
     def normalise_sample(self, y: float) -> float:
         return (y - self.data.min_sample) / (self.data.max_sample - self.data.min_sample)
 
     @staticmethod
     def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
         xs_ang = [DialPlot.to_angular(x, DialPlot.donut_domain) for x in xs]
-        xs_circ = [math.cos(x) * ys[n] for n, x in enumerate(xs_ang)]
-        ys_circ = [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)]
-        return xs_circ, ys_circ
+        return ([math.cos(x) * ys[n] for n, x in enumerate(xs_ang)],
+                [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)])
 
     def polar_trace(self, n: int) -> go.Scatter:
         chain = [(x, y) for x, y in enumerate(self.data.chains[n])]
@@ -63,15 +59,14 @@ class DialPlot(LeafPlot):
         ys = [DialPlot.to_radial(self.normalise_sample(y)) for _, y in chain]   # normalise y
         xs_circ, ys_circ = DialPlot.polar_plot(xs, ys)
         return go.Scatter(
-            x=xs_circ,
-            y=ys_circ,
+            x=xs_circ, y=ys_circ,
             line=dict(color=self.theme.palette[n]),
         )
 
     @property
     def donut(self) -> go.Scatter:
         n_segments: int = 100
-        xs1 = [0, *range(0, n_segments)]
+        xs1 = [0] + [*range(0, n_segments)]
         ys1 = [DialPlot.hole_size] + [1.0] * n_segments
         assert len(xs1) == len(ys1)
         xs1 = [x / max(xs1) for x in xs1]
@@ -82,8 +77,7 @@ class DialPlot(LeafPlot):
         xs2 = [x / max(xs2) for x in xs2]
         xs_circ2, ys_circ2 = DialPlot.polar_plot(xs2, ys2)
         return go.Scatter(
-            x=xs_circ1 + xs_circ2,
-            y=ys_circ1 + ys_circ2,
+            x=xs_circ1 + xs_circ2, y=ys_circ1 + ys_circ2,
             line=dict(width=0),
             fill='toself',
             fillcolor=self.theme.mg_colour,
