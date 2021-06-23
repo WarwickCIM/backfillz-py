@@ -7,7 +7,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import alpha, LeafPlot, Plot, segment, VerticalSubplots
+from backfillz.plot import alpha, annotate, LeafPlot, Plot, segment, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
@@ -190,6 +190,8 @@ class TraceDial:
         for plot in self.plots:
             plot.layout_axes(fig)
 
+        self.add_additional_titles(fig)
+
         for trace in self.dial_plot.plot_elements:
             fig.add_trace(trace)
 
@@ -198,6 +200,11 @@ class TraceDial:
                 fig.add_trace(trace)
 
         fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
+
+    def add_additional_titles(self, fig: go.Figure) -> None:
+        histos: List[Plot] = self.histograms.plots
+        annotate(fig, 14, histos[0].top_left, 'right', 'top', None, "Burn-in histogram", textangle=-90)
+        annotate(fig, 14, histos[1].top_left, 'right', 'top', None, "Sample histogram", textangle=-90)
 
     @staticmethod
     def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
