@@ -47,6 +47,7 @@ class DialPlot(LeafPlot):
     def normalise_sample(self, y: float) -> float:
         return (y - self.data.min_sample) / (self.data.max_sample - self.data.min_sample)
 
+    # Bit inefficient for chains as we compute the min/max rather than used the cached property on self.data.
     @staticmethod
     def normalise(xs: List[float]) -> List[float]:
         min_x: float = min(xs)
@@ -61,8 +62,8 @@ class DialPlot(LeafPlot):
 
     def polar_trace(self, n: int) -> go.Scatter:
         chain = [(x, y) for x, y in enumerate(self.data.chains[n])]
-        xs = DialPlot.normalise([x for x, _ in chain])                          # normalise x
-        ys = [DialPlot.to_radial(self.normalise_sample(y)) for _, y in chain]   # normalise y
+        xs = DialPlot.normalise([x for x, _ in chain])
+        ys = [DialPlot.to_radial(y) for y in DialPlot.normalise([y for _, y in chain])]
         xs_circ, ys_circ = DialPlot.polar_plot(xs, ys)
         return go.Scatter(
             x=xs_circ, y=ys_circ,
@@ -75,7 +76,7 @@ class DialPlot(LeafPlot):
         xs1 = [0] + [*range(0, n_segments)]
         ys1 = [DialPlot.hole_size] + [1.0] * n_segments
         assert len(xs1) == len(ys1)
-        xs1 = [x / max(xs1) for x in xs1]
+        xs1 = DialPlot.normalise([x for x in xs1])
         xs_circ1, ys_circ1 = DialPlot.polar_plot(xs1, ys1)
         xs2 = [n_segments - 1, *range(n_segments - 1, -1, -1)]
         ys2 = [1.0] + [DialPlot.hole_size] * n_segments
