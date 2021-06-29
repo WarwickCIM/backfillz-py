@@ -41,7 +41,7 @@ jobs:
   publish:
     runs-on: ubuntu-20.04
     needs:
-        docs
+        build  # docs
     if: github.ref == 'refs/heads/release'
     steps:
       - uses: actions/checkout@v2
