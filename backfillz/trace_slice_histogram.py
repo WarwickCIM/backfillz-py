@@ -194,19 +194,19 @@ class TraceSliceHistogram(RootPlot):
         annotate(fig, 16, self.density_plots.top_left, 'left', 'bottom', 0.03, "Density Plots for Slices")
 
     @staticmethod
-    def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
+    def figs(backfillz: Backfillz, save_plot: bool = False) -> List[go.Figure]:
         """Plot a slice histogram."""
         slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
-
-        for param in backfillz.params[0:1]:  # just first param for now (mu)
-            # Assume scalar parameter for now; what about vectors?
-            data = ParameterSlices(
+        figs: List[go.Figure] = [
+            TraceSliceHistogram(backfillz.theme, ParameterSlices(
                 slcs=slcs,
                 param=param,
                 chains=backfillz.iter_chains(param),
                 max_sample=np.amax(backfillz.mcmc_samples[param]),
                 min_sample=np.amin(backfillz.mcmc_samples[param]),
-            )
-            TraceSliceHistogram(backfillz.theme, data).render()
+            )).render()
+            for param in backfillz.params[0:1]  # just first param for now (mu)
+        ]
 
         backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
+        return figs

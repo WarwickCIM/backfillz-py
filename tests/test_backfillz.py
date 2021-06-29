@@ -1,9 +1,13 @@
 """Test module for backfillz."""
 
+from typing import List
+
+import plotly.graph_objects as go
 import pytest
 
 from backfillz.core import Backfillz
 from backfillz.example.eight_schools import generate_fit
+from backfillz.plot import show
 from backfillz.stan import Stan
 from backfillz.theme import demo_1
 from backfillz.trace_dial import TraceDial
@@ -33,7 +37,9 @@ def test_trace_slice_histogram(stan: Stan) -> None:
     """Slice histogram plot is generated without error."""
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(demo_1, False)
-    TraceSliceHistogram.plot(backfillz)
+    figs: List[go.Figure] = TraceSliceHistogram.figs(backfillz)
+    for fig in figs:
+        show(fig)
 
 
 # @pytest.mark.skip(reason="temporarily disable")
@@ -41,4 +47,6 @@ def test_trace_dial(stan: Stan) -> None:
     """Trace dial plot is generated without error."""
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(demo_1, False)
-    TraceDial.plot(backfillz)
+    figs: List[go.Figure] = TraceDial.figs(backfillz)
+    for fig in figs:
+        show(fig)

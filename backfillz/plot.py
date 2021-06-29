@@ -22,6 +22,11 @@ AxisId = str
 Specs = List[List[object]]
 
 
+def show(fig: go.Figure) -> None:
+    """Show Plotly figure with preferred settings."""
+    fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
+
+
 def cols(xss: Specs) -> int:
     """Length of the inner lists."""
     ns: Set[int] = set(map(len, xss))
@@ -215,7 +220,7 @@ class RootPlot:
             "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
 
-    def render(self) -> None:
+    def render(self) -> go.Figure:
         """Create fig and render subplots."""
         fig: go.Figure = go.Figure(
             layout=go.Layout(
@@ -246,4 +251,4 @@ class RootPlot:
         for plot in self.plots:
             plot.render(fig)
 
-        fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
+        return fig

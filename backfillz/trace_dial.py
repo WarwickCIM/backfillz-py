@@ -165,7 +165,7 @@ class TraceDial:
     def title(self) -> str:
         return f"Pretzel plot for {self.data.param}"
 
-    def render(self) -> None:
+    def render(self) -> go.Figure:
         """Create fig and render subplots."""
         layout = go.Layout(
             title=self.title,
@@ -194,7 +194,7 @@ class TraceDial:
             for trace in cast(LeafPlot, histo).plot_elements:
                 fig.add_trace(trace)
 
-        fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
+        return fig
 
     def add_additional_titles(self, fig: go.Figure) -> None:
         histos: List[Plot] = self.histograms.plots
@@ -202,19 +202,20 @@ class TraceDial:
         annotate(fig, 14, histos[1].top_left, 'right', 'top', None, "Sample histogram", textangle=-90)
 
     @staticmethod
-    def plot(backfillz: Backfillz, save_plot: bool = False) -> None:
+    def figs(backfillz: Backfillz, save_plot: bool = False) -> List[go.Figure]:
         slcs: List[Slice] = [Slice(0.0, 0.04), Slice(0.4, 1)]  # how to decide
         param: str = backfillz.params[0]  # pick first parameter for now (mu)
-        data: ParameterSlices = ParameterSlices(
-            slcs=slcs,
-            param=param,
-            chains=backfillz.iter_chains(param),
-            max_sample=np.amax(backfillz.mcmc_samples[param]),
-            min_sample=np.amin(backfillz.mcmc_samples[param]),
-        )
-
-        TraceDial(data, backfillz.theme).render()
+        figs: List[go.Figure] = [
+            TraceDial(ParameterSlices(
+                slcs=slcs,
+                param=param,
+                chains=backfillz.iter_chains(param),
+                max_sample=np.amax(backfillz.mcmc_samples[param]),
+                min_sample=np.amin(backfillz.mcmc_samples[param]),
+            ), backfillz.theme).render()
+        ]
         backfillz.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
+        return figs
 
 
 # Not using these properties yet.
