@@ -5,12 +5,13 @@
 ## Progress on trace dial plot
 
 - histograms overplot rather than group
+- switch to Cartesian coordinates to render traces, donut
+  - solves z-order problem
+  - allows correct positioning of histograms (but have to enforce square figure)
 
-## Implementation to dos/challenges
+## Still to dos
 
-- Eschew Plotly polar plots (not flexible enough) and render traces/donut using Cartesian coordinates
 - Render chain colours as a step plot on top of histogram (cf. plot_histogram_lines in R version?)
-- Set width of histograms to be width of donus (should be easier with Cartesian coordinates)
 - Radial axis on inside of donut
 
 ## Questions (mainly in relation to R version)
