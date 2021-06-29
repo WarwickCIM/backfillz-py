@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from backfillz.stan import Stan
+import stan  # type: ignore
 
-import stan
+from backfillz.stan import Stan
 
 
 schools_code = """
