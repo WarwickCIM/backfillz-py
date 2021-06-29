@@ -1,5 +1,48 @@
 # Meeting notes
 
+# 24 June May 2021
+
+## Progress on trace dial plot
+
+- histograms overplot rather than group
+
+## Implementation to dos/challenges
+
+- Eschew Plotly polar plots (not flexible enough) and render traces/donut using Cartesian coordinates
+- Render chain colours as a step plot on top of histogram (cf. plot_histogram_lines in R version?)
+- Set width of histograms to be width of donus (should be easier with Cartesian coordinates)
+- Radial axis on inside of donut
+
+## Questions (mainly in relation to R version)
+
+# 10 June May 2021
+
+## Progress on trace dial plot
+
+- Polar trace plot (one per chain)
+- "Ring" plot (pie chart with hole)
+- Generalise histogram from first plot to one histogram per chain  
+
+## Questions (mainly in relation to R version)
+- How do we decide number of burn-in iterations?
+- What are the "polygons" in the R trace_dial plot?
+- What is "inner" vs "outer" burn segment?
+- What determines the colours used for burn-in and rest of sample?
+
+# 27 May 2021
+
+## Progress on trace slice histogram plot
+- no new progress to report (first pass complete)
+
+## Design topics
+- Saving history in Backfillz object, use cases:
+ - summary of plots I’ve done so far (as show method)
+ - recall a particular plot
+ - save/load Backfillz object
+
+## On the horizon
+- example notebooks, showing usage of Backfillz library + history object 
+
 # 13 May 2021
 
 ## Progress on trace slice histogram plot
