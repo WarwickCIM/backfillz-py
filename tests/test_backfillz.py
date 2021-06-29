@@ -1,10 +1,10 @@
 """Test module for backfillz."""
 
-import pytest
 from examples.eight_schools import generate_fit
+import pytest
 
-from backfillz.stan import Stan
 from backfillz.core import Backfillz
+from backfillz.stan import Stan
 from backfillz.theme import demo_1
 from backfillz.trace_dial import TraceDial
 from backfillz.trace_slice_histogram import TraceSliceHistogram

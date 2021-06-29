@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 import pickle
 
-import stan
 from stan.fit import Fit
 from stan.model import Model
 
