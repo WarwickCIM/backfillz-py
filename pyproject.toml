@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "backfillz"
-version = "0.0.2"
+version = "0.0.4"
 homepage = "https://github.com/WarwickCIM/backfillz-py"
 description = "MCMC visualisations package developed at the University of Warwick and supported by The Alan Turing Institute."
 authors = ["James Tripp <james.tripp@warwick.ac.uk>", "Greg McInerny <g.mcinerny@warwick.ac.uk>", "Roly Perera <rperera@turing.ac.uk>"]
@@ -21,14 +21,11 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = "3.9.5"
+python = "^3.9.0, <3.10"
 importlib_metadata = "3.4.0"
 pystan = "3.0.0"
-pandas = "1.2.3"
-bokeh = "^2.3.1"
 plotly = "^4.14.3"
 scipy = "^1.6.3"
-rpy2 = "^3.4.4"
 numpy = "1.20.3"
 
 [tool.poetry.dev-dependencies]
