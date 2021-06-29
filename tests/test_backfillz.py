@@ -1,9 +1,9 @@
 """Test module for backfillz."""
 
-from examples.eight_schools import generate_fit
 import pytest
 
 from backfillz.core import Backfillz
+from backfillz.example.eight_schools import generate_fit
 from backfillz.stan import Stan
 from backfillz.theme import demo_1
 from backfillz.trace_dial import TraceDial
