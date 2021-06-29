@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 import pickle
 
-from stan.fit import Fit
-from stan.model import Model
+from stan.fit import Fit  # type: ignore
+from stan.model import Model  # type: ignore
 
 
 @dataclass
