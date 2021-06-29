@@ -3,3 +3,4 @@ __pycache__
 .coverage*
 tests/temp.html
 tests/build/
+notebooks/.ipynb_checkpoints
