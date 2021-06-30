@@ -70,12 +70,12 @@ class Backfillz:
 
     def plot_slice_histogram(self, param: str, save_plot: bool = False) -> None:
         """Create and plot a slice histogram."""
-        fig = TraceSliceHistogram.fig(self.mcmc_run, self.theme, self.verbose, param, save_plot)
+        fig = TraceSliceHistogram.fig(self.mcmc_run, self.theme, self.verbose, param)
         self.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
         fig.show(config=default_config())
 
     def plot_trace_dial(self, param: str, save_plot: bool = False) -> None:
         """Create and plot a trace dial."""
-        fig = TraceDial.fig(self.mcmc_run, self.theme, self.verbose, param, save_plot)
+        fig = TraceDial.fig(self.mcmc_run, self.theme, self.verbose, param)
         self.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
         fig.show(config=default_config())
