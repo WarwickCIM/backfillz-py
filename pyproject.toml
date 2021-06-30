@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "backfillz"
-version = "0.0.6"
+version = "0.1.0"
 homepage = "https://github.com/WarwickCIM/backfillz-py"
 description = "MCMC visualisations package developed at the University of Warwick and supported by The Alan Turing Institute."
 authors = ["James Tripp <james.tripp@warwick.ac.uk>", "Greg McInerny <g.mcinerny@warwick.ac.uk>", "Roly Perera <rperera@turing.ac.uk>"]

@@ -2,8 +2,7 @@
 
 import pytest
 
-from backfillz import plot_slice_histogram, plot_trace_dial
-from backfillz.core import Backfillz
+from backfillz import Backfillz, plot_slice_histogram, plot_trace_dial
 from backfillz.example.eight_schools import generate_fit
 from backfillz.stan import Stan
 from backfillz.theme import demo_1
