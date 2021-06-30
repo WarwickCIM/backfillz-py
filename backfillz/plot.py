@@ -201,6 +201,7 @@ class RootPlot:
     """Top-level plot container."""
 
     theme: BackfillzTheme
+    verbose: bool
 
     @property
     def plots(self) -> List[Plot]:
@@ -240,7 +241,7 @@ class RootPlot:
             specs=specs,
             horizontal_spacing=0,
             vertical_spacing=0,
-            print_grid=True,
+            print_grid=self.verbose,
         )
 
         for plot in self.plots:

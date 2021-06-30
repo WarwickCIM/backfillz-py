@@ -126,12 +126,14 @@ class SliceHistograms(VerticalSubplots):
         ]
 
 
+# TODO: consolidate with plot.RootPlot
 @dataclass
 class TraceDial:
     """Top-level plot, for a given parameter and chain."""
 
     data: ParameterSlices
     theme: BackfillzTheme
+    verbose: bool
 
     @property
     def plots(self) -> List[Plot]:
@@ -202,7 +204,7 @@ class TraceDial:
         annotate(fig, 14, histos[1].top_left, 'right', 'top', None, "Sample histogram", textangle=-90)
 
     @staticmethod
-    def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, param: str, save_plot: bool = False) -> go.Figure:
+    def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str, save_plot: bool = False) -> go.Figure:
         """Create a trace slice histogram."""
         slcs: List[Slice] = [Slice(0.0, 0.04), Slice(0.4, 1)]  # how to decide
         return TraceDial(ParameterSlices(
@@ -211,7 +213,7 @@ class TraceDial:
             chains=mcmc_run.iter_chains(param),
             max_sample=np.amax(mcmc_run.samples[param]),
             min_sample=np.amin(mcmc_run.samples[param]),
-        ), theme).render()
+        ), theme, verbose).render()
 
 
 # Not using these properties yet.

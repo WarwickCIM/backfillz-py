@@ -50,30 +50,32 @@ class Backfillz:
 
     theme: BackfillzTheme
     mcmc_run: MCMCRun
+    verbose: bool
     plot_history: List[HistoryEntry]
 
-    def __init__(self, fit: Fit) -> None:
+    def __init__(self, fit: Fit, verbose: bool = False) -> None:
         """Initialise a Backfillz session."""
         self.mcmc_run = MCMCRun(fit)
-        self.set_theme(default, False)
+        self.verbose = verbose
+        self.set_theme(default)
         self.plot_history = [
             HistoryEntry(HistoryEvent.OBJECT_CREATION, False)
         ]
 
-    def set_theme(self, theme: BackfillzTheme, verbose: bool = True) -> None:
+    def set_theme(self, theme: BackfillzTheme) -> None:
         """Set Backfillz theme."""
-        if verbose:
+        if self.verbose:
             print("Setting backfillz object theme to " + theme.name)
         self.theme = theme
 
     def plot_slice_histogram(self, param: str, save_plot: bool = False) -> None:
         """Create and plot a slice histogram."""
-        fig = TraceSliceHistogram.fig(self.mcmc_run, self.theme, param, save_plot)
+        fig = TraceSliceHistogram.fig(self.mcmc_run, self.theme, self.verbose, param, save_plot)
         self.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
         fig.show(config=default_config())
 
     def plot_trace_dial(self, param: str, save_plot: bool = False) -> None:
         """Create and plot a trace dial."""
-        fig = TraceDial.fig(self.mcmc_run, self.theme, param, save_plot)
+        fig = TraceDial.fig(self.mcmc_run, self.theme, self.verbose, param, save_plot)
         self.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
         fig.show(config=default_config())

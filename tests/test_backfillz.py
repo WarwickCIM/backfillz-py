@@ -30,7 +30,7 @@ def test_sample_fit(stan: Stan) -> None:
 def test_trace_slice_histogram(stan: Stan) -> None:
     """Slice histogram plot is generated without error."""
     backfillz = Backfillz(stan.fit)
-    backfillz.set_theme(demo_1, False)
+    backfillz.set_theme(demo_1)
     backfillz.plot_slice_histogram('mu')
 
 
@@ -38,5 +38,5 @@ def test_trace_slice_histogram(stan: Stan) -> None:
 def test_trace_dial(stan: Stan) -> None:
     """Trace dial plot is generated without error."""
     backfillz = Backfillz(stan.fit)
-    backfillz.set_theme(demo_1, False)
+    backfillz.set_theme(demo_1)
     backfillz.plot_trace_dial('mu')

@@ -195,10 +195,10 @@ class TraceSliceHistogram(RootPlot):
         annotate(fig, 16, self.density_plots.top_left, 'left', 'bottom', 0.03, "Density Plots for Slices")
 
     @staticmethod
-    def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, param: str, save_plot: bool = False) -> go.Figure:
+    def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str, save_plot: bool = False) -> go.Figure:
         """Create a slice histogram."""
         slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
-        return TraceSliceHistogram(theme, ParameterSlices(
+        return TraceSliceHistogram(theme, verbose, ParameterSlices(
             slcs=slcs,
             param=param,
             chains=mcmc_run.iter_chains(param),
