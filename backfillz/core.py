@@ -44,31 +44,39 @@ class HistoryEntry:
         self.saved = saved
 
 
-class Backfillz:
-    """Represents a Backfillz user session."""
+@dataclass
+class MCMCRun:
+    """A Stan fit, plus some derived data."""
 
-    theme: BackfillzTheme
-    plot_history: List[HistoryEntry]
-
-    def __init__(self, fit: Fit) -> None:
-        """Initialise a Backfillz session."""
-        self.mcmc_samples = fit
-        self.set_theme(default, False)
-        self.plot_history = [
-            HistoryEntry(HistoryEvent.OBJECT_CREATION, False)
-        ]
+    samples: Fit
 
     def iter_chains(self, param: str, index: int = 0) -> np.ndarray:
         """Return (n_chains × n_samples) matrix of draws for a given parameter."""
-        n_chains, n_samples = self.mcmc_samples.num_chains, self.mcmc_samples.num_samples
+        n_chains, n_samples = self.samples.num_chains, self.samples.num_samples
         xss = np.zeros((n_chains, n_samples))
         for n in range(0, n_chains):
-            xss[n] = self.mcmc_samples[param][index][n * n_samples: (n + 1) * n_samples]
+            xss[n] = self.samples[param][index][n * n_samples: (n + 1) * n_samples]
         return xss
 
     @property
     def params(self) -> List[str]:
-        return list(self.mcmc_samples.param_names)
+        return list(self.samples.param_names)
+
+
+class Backfillz:
+    """Represents a Backfillz user session."""
+
+    theme: BackfillzTheme
+    mcmc_run: MCMCRun
+    plot_history: List[HistoryEntry]
+
+    def __init__(self, fit: Fit) -> None:
+        """Initialise a Backfillz session."""
+        self.mcmc_run = MCMCRun(fit)
+        self.set_theme(default, False)
+        self.plot_history = [
+            HistoryEntry(HistoryEvent.OBJECT_CREATION, False)
+        ]
 
     def set_theme(self, theme: BackfillzTheme, verbose: bool = True) -> None:
         """Set Backfillz theme."""

@@ -4,9 +4,9 @@ import pytest
 
 from backfillz import Backfillz, plot_trace_dial
 from backfillz.example.eight_schools import generate_fit
-from backfillz.trace_slice_histogram import plot
 from backfillz.stan import Stan
 from backfillz.theme import demo_1
+from backfillz.trace_slice_histogram import plot
 
 
 @pytest.fixture(scope='session')

@@ -209,9 +209,9 @@ def fig(backfillz: Backfillz, param: str, save_plot: bool = False) -> go.Figure:
     return TraceDial(ParameterSlices(
         slcs=slcs,
         param=param,
-        chains=backfillz.iter_chains(param),
-        max_sample=np.amax(backfillz.mcmc_samples[param]),
-        min_sample=np.amin(backfillz.mcmc_samples[param]),
+        chains=backfillz.mcmc_run.iter_chains(param),
+        max_sample=np.amax(backfillz.mcmc_run.samples[param]),
+        min_sample=np.amin(backfillz.mcmc_run.samples[param]),
     ), backfillz.theme).render()
 
 
