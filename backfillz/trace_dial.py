@@ -204,7 +204,7 @@ class TraceDial:
         annotate(fig, 14, histos[1].top_left, 'right', 'top', None, "Sample histogram", textangle=-90)
 
     @staticmethod
-    def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str, save_plot: bool = False) -> go.Figure:
+    def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
         """Create a trace slice histogram."""
         slcs: List[Slice] = [Slice(0.0, 0.04), Slice(0.4, 1)]  # how to decide
         return TraceDial(ParameterSlices(
