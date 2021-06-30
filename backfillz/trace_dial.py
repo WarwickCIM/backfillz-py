@@ -6,9 +6,8 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.backfillz import Backfillz, HistoryEntry, HistoryEvent
 from backfillz.data import MCMCRun, ParameterSlices, Props, Slice
-from backfillz.plot import alpha, annotate, default_config, LeafPlot, Plot, segment, VerticalSubplots
+from backfillz.plot import alpha, annotate, LeafPlot, Plot, segment, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
@@ -213,13 +212,6 @@ class TraceDial:
             max_sample=np.amax(mcmc_run.samples[param]),
             min_sample=np.amin(mcmc_run.samples[param]),
         ), theme).render()
-
-
-def plot(backfillz: Backfillz, param: str, save_plot: bool = False) -> None:
-    """Create and plot a trace slice histogram."""
-    fig = TraceDial.fig(backfillz.mcmc_run, backfillz.theme, param, save_plot)
-    backfillz.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
-    fig.show(config=default_config())
 
 
 # Not using these properties yet.
