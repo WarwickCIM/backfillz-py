@@ -1,6 +1,7 @@
 """backfillz-py namespace."""
 
 from importlib_metadata import PackageNotFoundError, version
+from backfillz.trace_slice_histogram import plot as plot_slice_histogram
 
 __author__ = "Roly Perera"
 __email__ = "rperera@turing.ac.uk"

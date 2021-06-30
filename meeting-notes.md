@@ -1,5 +1,16 @@
 # Meeting notes
 
+# 15 July 2021
+
+## Progress (on example notebook)
+
+- 
+
+## Still to do
+
+- Render chain colours as a step plot on top of histogram (cf. plot_histogram_lines in R version?)
+- Radial axis on inside of donut
+
 # 24 June May 2021
 
 ## Progress on trace dial plot
@@ -8,11 +19,6 @@
 - switch to Cartesian coordinates to render traces, donut
   - solves z-order problem
   - allows correct positioning of histograms (but have to enforce square figure)
-
-## Still to dos
-
-- Render chain colours as a step plot on top of histogram (cf. plot_histogram_lines in R version?)
-- Radial axis on inside of donut
 
 ## Questions (mainly in relation to R version)
 

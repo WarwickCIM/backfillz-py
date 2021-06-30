@@ -5,6 +5,7 @@ from typing import List
 import plotly.graph_objects as go
 import pytest
 
+from backfillz import plot_slice_histogram
 from backfillz.core import Backfillz
 from backfillz.example.eight_schools import generate_fit
 from backfillz.plot import show
@@ -37,9 +38,7 @@ def test_trace_slice_histogram(stan: Stan) -> None:
     """Slice histogram plot is generated without error."""
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(demo_1, False)
-    figs: List[go.Figure] = TraceSliceHistogram.figs(backfillz)
-    for fig in figs:
-        show(fig)
+    plot_slice_histogram(backfillz, 'mu')
 
 
 # @pytest.mark.skip(reason="temporarily disable")
