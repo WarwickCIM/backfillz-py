@@ -25,6 +25,7 @@ pystan = "3.0.0"
 plotly = "^4.14.3"
 scipy = "^1.6.3"
 numpy = "1.20.3"
+nbval = "^0.9.6"
 
 [tool.poetry.dev-dependencies]
 mkdocs-material = "^6.1.5"
