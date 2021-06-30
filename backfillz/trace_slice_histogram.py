@@ -5,11 +5,8 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.mcmc_run import MCMCRun
-from backfillz.plot import (
-    annotate, default_config, LeafPlot, Plot, RootPlot, scale, segment, Specs, VerticalSubplots
-)
+from backfillz.mcmc_run import MCMCRun, ParameterSlices, Props, Slice
+from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, segment, Specs, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
@@ -208,10 +205,3 @@ class TraceSliceHistogram(RootPlot):
             max_sample=np.amax(mcmc_run.samples[param]),
             min_sample=np.amin(mcmc_run.samples[param]),
         )).render()
-
-
-def plot(backfillz: Backfillz, theme: BackfillzTheme, param: str, save_plot: bool = False) -> None:
-    """Create and plot a slice histogram."""
-    fig = TraceSliceHistogram.fig(backfillz.mcmc_run, theme, param, save_plot)
-    backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
-    fig.show(config=default_config())

@@ -6,7 +6,7 @@ from plotly.colors import unlabel_rgb  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 from plotly.subplots import make_subplots  # type: ignore
 
-from backfillz.core import ParameterSlices, Props
+from backfillz.mcmc_run import ParameterSlices, Props
 from backfillz.theme import BackfillzTheme
 
 

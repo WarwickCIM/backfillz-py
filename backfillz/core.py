@@ -1,15 +1,14 @@
-from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from math import floor
 import sys
-from typing import Any, Dict, List
+from typing import List
 
-import numpy as np
 from stan.fit import Fit  # type: ignore
 
 from backfillz.mcmc_run import MCMCRun
+from backfillz.plot import default_config
 from backfillz.theme import BackfillzTheme, default
+from backfillz.trace_slice_histogram import TraceSliceHistogram
 
 
 class HistoryEvent(Enum):
@@ -66,41 +65,8 @@ class Backfillz:
             print("Setting backfillz object theme to " + theme.name)
         self.theme = theme
 
-
-@dataclass
-class Slice:
-    """A slice of an MCMC trace."""
-
-    lower: float
-    upper: float
-
-
-Param = str
-Slices = Dict[Param, List[Slice]]
-Props = Dict[str, Any]
-
-
-@dataclass
-class ParameterSlices:
-    """The MCMC data being presented."""
-
-    slcs: List[Slice]
-    param: str
-    chains: np.ndarray  # shape is [n, n_iter] where n is number of chains
-    max_sample: float
-    min_sample: float
-
-    @property
-    def n_iter(self) -> int:
-        """Return number of MCMC iterations per chain."""
-        return int(self.chains.shape[1])
-
-    def chain_slices(self, slc: Slice) -> List[np.ndarray]:
-        """The specified slice of each chain."""
-        return [
-            self.chains[
-                n,
-                floor(slc.lower * self.n_iter):floor(slc.upper * self.n_iter)
-            ]
-            for n, _ in enumerate(self.chains)
-        ]
+    def plot_slice_histogram(self, theme: BackfillzTheme, param: str, save_plot: bool = False) -> None:
+        """Create and plot a slice histogram."""
+        fig = TraceSliceHistogram.fig(self.mcmc_run, theme, param, save_plot)
+        self.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
+        fig.show(config=default_config())
