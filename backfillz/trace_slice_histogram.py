@@ -195,20 +195,20 @@ class TraceSliceHistogram(RootPlot):
         # oof -- adjust for x-axis
         annotate(fig, 16, self.density_plots.top_left, 'left', 'bottom', 0.03, "Density Plots for Slices")
 
-
-def fig(backfillz: Backfillz, param: str, save_plot: bool = False) -> go.Figure:
-    """Create a slice histogram."""
-    slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
-    backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
-    return TraceSliceHistogram(backfillz.theme, ParameterSlices(
-        slcs=slcs,
-        param=param,
-        chains=backfillz.iter_chains(param),
-        max_sample=np.amax(backfillz.mcmc_samples[param]),
-        min_sample=np.amin(backfillz.mcmc_samples[param]),
-    )).render()
+    @staticmethod
+    def fig(backfillz: Backfillz, param: str, save_plot: bool = False) -> go.Figure:
+        """Create a slice histogram."""
+        slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
+        backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
+        return TraceSliceHistogram(backfillz.theme, ParameterSlices(
+            slcs=slcs,
+            param=param,
+            chains=backfillz.iter_chains(param),
+            max_sample=np.amax(backfillz.mcmc_samples[param]),
+            min_sample=np.amin(backfillz.mcmc_samples[param]),
+        )).render()
 
 
 def plot(backfillz: Backfillz, param: str, save_plot: bool = False) -> None:
     """Create and plot a slice histogram."""
-    fig(backfillz, param, save_plot).show(config=default_config())
+    TraceSliceHistogram.fig(backfillz, param, save_plot).show(config=default_config())
