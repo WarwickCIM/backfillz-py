@@ -5,7 +5,7 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.mcmc_run import MCMCRun, ParameterSlices, Props, Slice
+from backfillz.data import MCMCRun, ParameterSlices, Props, Slice
 from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, segment, Specs, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme

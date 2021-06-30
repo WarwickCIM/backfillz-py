@@ -2,7 +2,7 @@
 
 from importlib_metadata import PackageNotFoundError, version
 
-from backfillz.core import Backfillz
+from backfillz.backfillz import Backfillz
 from backfillz.trace_dial import plot as plot_trace_dial
 
 # Used to automatically set version number from github actions

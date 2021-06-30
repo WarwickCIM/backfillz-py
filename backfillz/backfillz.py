@@ -5,7 +5,7 @@ from typing import List
 
 from stan.fit import Fit  # type: ignore
 
-from backfillz.mcmc_run import MCMCRun
+from backfillz.data import MCMCRun
 from backfillz.plot import default_config
 from backfillz.theme import BackfillzTheme, default
 from backfillz.trace_slice_histogram import TraceSliceHistogram

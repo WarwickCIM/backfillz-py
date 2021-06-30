@@ -7,7 +7,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 import scipy.stats as stats  # type: ignore
 
-from backfillz.mcmc_run import Props, Slice
+from backfillz.data import Props, Slice
 from backfillz.plot import LeafPlot
 
 
