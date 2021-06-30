@@ -6,6 +6,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
+from backfillz.mcmc_run import MCMCRun
 from backfillz.plot import (
     annotate, default_config, LeafPlot, Plot, RootPlot, scale, segment, Specs, VerticalSubplots
 )
@@ -197,19 +198,20 @@ class TraceSliceHistogram(RootPlot):
         annotate(fig, 16, self.density_plots.top_left, 'left', 'bottom', 0.03, "Density Plots for Slices")
 
     @staticmethod
-    def fig(backfillz: Backfillz, theme: BackfillzTheme, param: str, save_plot: bool = False) -> go.Figure:
+    def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, param: str, save_plot: bool = False) -> go.Figure:
         """Create a slice histogram."""
         slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
-        backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
         return TraceSliceHistogram(theme, ParameterSlices(
             slcs=slcs,
             param=param,
-            chains=backfillz.mcmc_run.iter_chains(param),
-            max_sample=np.amax(backfillz.mcmc_run.samples[param]),
-            min_sample=np.amin(backfillz.mcmc_run.samples[param]),
+            chains=mcmc_run.iter_chains(param),
+            max_sample=np.amax(mcmc_run.samples[param]),
+            min_sample=np.amin(mcmc_run.samples[param]),
         )).render()
 
 
 def plot(backfillz: Backfillz, theme: BackfillzTheme, param: str, save_plot: bool = False) -> None:
     """Create and plot a slice histogram."""
-    TraceSliceHistogram.fig(backfillz, theme, param, save_plot).show(config=default_config())
+    fig = TraceSliceHistogram.fig(backfillz.mcmc_run, theme, param, save_plot)
+    backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
+    fig.show(config=default_config())
