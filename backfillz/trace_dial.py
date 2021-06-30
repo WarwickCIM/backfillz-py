@@ -217,7 +217,7 @@ def fig(backfillz: Backfillz, param: str, save_plot: bool = False) -> go.Figure:
 
 def plot(backfillz: Backfillz, param: str, save_plot: bool = False) -> None:
     """Create and plot a trace slice histogram."""
-    return fig(backfillz, param, save_plot).show(default_config())
+    fig(backfillz, param, save_plot).show(config=default_config())
 
 
 # Not using these properties yet.
