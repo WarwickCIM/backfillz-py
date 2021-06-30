@@ -66,9 +66,9 @@ class Backfillz:
             print("Setting backfillz object theme to " + theme.name)
         self.theme = theme
 
-    def plot_slice_histogram(self, theme: BackfillzTheme, param: str, save_plot: bool = False) -> None:
+    def plot_slice_histogram(self, param: str, save_plot: bool = False) -> None:
         """Create and plot a slice histogram."""
-        fig = TraceSliceHistogram.fig(self.mcmc_run, theme, param, save_plot)
+        fig = TraceSliceHistogram.fig(self.mcmc_run, self.theme, param, save_plot)
         self.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
         fig.show(config=default_config())
 
