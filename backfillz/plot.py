@@ -22,9 +22,9 @@ AxisId = str
 Specs = List[List[object]]
 
 
-def show(fig: go.Figure) -> None:
-    """Show Plotly figure with preferred settings."""
-    fig.show(config=dict(displayModeBar=False, showAxisDragHandles=False))
+def default_config() -> Props:
+    """Preferred settings for Plotly figure."""
+    return dict(displayModeBar=False, showAxisDragHandles=False)
 
 
 def cols(xss: Specs) -> int:

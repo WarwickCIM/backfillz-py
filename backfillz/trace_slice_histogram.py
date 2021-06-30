@@ -6,7 +6,9 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, segment, Specs, VerticalSubplots
+from backfillz.plot import (
+    annotate, default_config, LeafPlot, Plot, RootPlot, scale, segment, Specs, VerticalSubplots
+)
 from backfillz.slice_histograms import SliceHistogram
 
 
@@ -195,7 +197,7 @@ class TraceSliceHistogram(RootPlot):
 
 
 def fig(backfillz: Backfillz, param: str, save_plot: bool = False) -> go.Figure:
-    """Plot a slice histogram."""
+    """Create a slice histogram."""
     slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
     backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
     return TraceSliceHistogram(backfillz.theme, ParameterSlices(
@@ -208,4 +210,5 @@ def fig(backfillz: Backfillz, param: str, save_plot: bool = False) -> go.Figure:
 
 
 def plot(backfillz: Backfillz, param: str, save_plot: bool = False) -> None:
-    fig(backfillz, param, save_plot).show()
+    """Create and plot a slice histogram."""
+    fig(backfillz, param, save_plot).show(default_config())

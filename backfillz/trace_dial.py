@@ -7,7 +7,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.core import Backfillz, HistoryEntry, HistoryEvent, ParameterSlices, Props, Slice
-from backfillz.plot import alpha, annotate, LeafPlot, Plot, segment, VerticalSubplots
+from backfillz.plot import alpha, annotate, default_config, LeafPlot, Plot, segment, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
@@ -201,21 +201,23 @@ class TraceDial:
         annotate(fig, 14, histos[0].top_left, 'right', 'top', None, "Burn-in histogram", textangle=-90)
         annotate(fig, 14, histos[1].top_left, 'right', 'top', None, "Sample histogram", textangle=-90)
 
-    @staticmethod
-    def figs(backfillz: Backfillz, save_plot: bool = False) -> List[go.Figure]:
-        slcs: List[Slice] = [Slice(0.0, 0.04), Slice(0.4, 1)]  # how to decide
-        param: str = backfillz.params[0]  # pick first parameter for now (mu)
-        figs: List[go.Figure] = [
-            TraceDial(ParameterSlices(
-                slcs=slcs,
-                param=param,
-                chains=backfillz.iter_chains(param),
-                max_sample=np.amax(backfillz.mcmc_samples[param]),
-                min_sample=np.amin(backfillz.mcmc_samples[param]),
-            ), backfillz.theme).render()
-        ]
-        backfillz.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
-        return figs
+
+def fig(backfillz: Backfillz, param: str, save_plot: bool = False) -> go.Figure:
+    """Create a trace slice histogram."""
+    slcs: List[Slice] = [Slice(0.0, 0.04), Slice(0.4, 1)]  # how to decide
+    backfillz.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
+    return TraceDial(ParameterSlices(
+        slcs=slcs,
+        param=param,
+        chains=backfillz.iter_chains(param),
+        max_sample=np.amax(backfillz.mcmc_samples[param]),
+        min_sample=np.amin(backfillz.mcmc_samples[param]),
+    ), backfillz.theme).render()
+
+
+def plot(backfillz: Backfillz, param: str, save_plot: bool = False) -> None:
+    """Create and plot a trace slice histogram."""
+    return fig(backfillz, param, save_plot).show(default_config())
 
 
 # Not using these properties yet.
