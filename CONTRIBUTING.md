@@ -9,7 +9,7 @@ You can contribute in many ways:
 
 ### Report Bugs
 
-Report bugs at https://github.com/rolyp/backfillz/issues.
+Report bugs at https://github.com/WarwickCIM/backfillz-py/.
 
 If you are reporting a bug, please include:
 
