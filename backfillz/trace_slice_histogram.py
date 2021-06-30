@@ -10,6 +10,7 @@ from backfillz.plot import (
     annotate, default_config, LeafPlot, Plot, RootPlot, scale, segment, Specs, VerticalSubplots
 )
 from backfillz.slice_histograms import SliceHistogram
+from backfillz.theme import BackfillzTheme
 
 
 @dataclass
@@ -196,11 +197,11 @@ class TraceSliceHistogram(RootPlot):
         annotate(fig, 16, self.density_plots.top_left, 'left', 'bottom', 0.03, "Density Plots for Slices")
 
     @staticmethod
-    def fig(backfillz: Backfillz, param: str, save_plot: bool = False) -> go.Figure:
+    def fig(backfillz: Backfillz, theme: BackfillzTheme, param: str, save_plot: bool = False) -> go.Figure:
         """Create a slice histogram."""
         slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
         backfillz.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
-        return TraceSliceHistogram(backfillz.theme, ParameterSlices(
+        return TraceSliceHistogram(theme, ParameterSlices(
             slcs=slcs,
             param=param,
             chains=backfillz.mcmc_run.iter_chains(param),
@@ -209,6 +210,6 @@ class TraceSliceHistogram(RootPlot):
         )).render()
 
 
-def plot(backfillz: Backfillz, param: str, save_plot: bool = False) -> None:
+def plot(backfillz: Backfillz, theme: BackfillzTheme, param: str, save_plot: bool = False) -> None:
     """Create and plot a slice histogram."""
-    TraceSliceHistogram.fig(backfillz, param, save_plot).show(config=default_config())
+    TraceSliceHistogram.fig(backfillz, theme, param, save_plot).show(config=default_config())
