@@ -2,8 +2,9 @@
 
 import pytest
 
-from backfillz import Backfillz, plot_slice_histogram, plot_trace_dial
+from backfillz import Backfillz, plot_trace_dial
 from backfillz.example.eight_schools import generate_fit
+from backfillz.trace_slice_histogram import plot
 from backfillz.stan import Stan
 from backfillz.theme import demo_1
 
@@ -31,7 +32,7 @@ def test_trace_slice_histogram(stan: Stan) -> None:
     """Slice histogram plot is generated without error."""
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(demo_1, False)
-    plot_slice_histogram(backfillz, 'mu')
+    plot(backfillz, 'mu')
 
 
 # @pytest.mark.skip(reason="temporarily disable")
