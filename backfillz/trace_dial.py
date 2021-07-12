@@ -183,12 +183,8 @@ class TraceDial:
 
         self.add_additional_titles(fig)
 
-        for trace in self.dial_plot.plot_elements:
-            fig.add_trace(trace)
-
-        for histo in self.histograms.plots:
-            for trace in cast(LeafPlot, histo).plot_elements:
-                fig.add_trace(trace)
+        self.dial_plot.render(fig)
+        self.histograms.render(fig)
 
         return fig
 
