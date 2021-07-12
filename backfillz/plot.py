@@ -185,7 +185,7 @@ class RootPlot:
         raise AbstractMethodError()
 
     @property
-    def axis_ids(self) -> Props:
+    def additional_axes(self) -> Props:
         """Axis ids in addition to x, y."""
         raise AbstractMethodError()
 
@@ -207,7 +207,7 @@ class RootPlot:
                 titlefont=dict(size=30),
                 plot_bgcolor=self.theme.bg_colour,
                 showlegend=False,
-                **self.axis_ids,
+                **self.additional_axes,
                 **self.layout_props,
             )
         )

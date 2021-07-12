@@ -135,7 +135,7 @@ class TraceDial(RootPlot):
         return [self.dial_plot, self.histograms]
 
     @property
-    def axis_ids(self) -> Props:
+    def additional_axes(self) -> Props:
         return dict(
             xaxis2=dict(anchor='y2'),
             yaxis2=dict(anchor='x2'),
