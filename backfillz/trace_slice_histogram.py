@@ -131,11 +131,11 @@ class SliceHistograms(VerticalSubplots):
 
 
 def blah(axis_ids: List[AxisId]) -> Props:
-    axes = dict()
-    for axis_id in axis_ids:
-        axes['xaxis' + axis_id] = dict(anchor='y' + axis_id)
-        axes['yaxis' + axis_id] = dict(anchor='x' + axis_id)
-    return axes
+    return {
+        **{'xaxis' + axis_id: dict(anchor='y' + axis_id) for axis_id in axis_ids},
+        **{'yaxis' + axis_id: dict(anchor='x' + axis_id) for axis_id in axis_ids}
+    }
+
 
 @dataclass
 class TraceSliceHistogram(RootPlot):
