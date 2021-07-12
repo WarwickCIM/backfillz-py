@@ -211,19 +211,15 @@ class RootPlot:
                 titlefont=dict(size=30),
                 plot_bgcolor=self.theme.bg_colour,
                 showlegend=False,
+                xaxis2=dict(anchor='y2'),
+                yaxis2=dict(anchor='x2'),
+                xaxis3=dict(anchor='y3'),
+                yaxis3=dict(anchor='x3'),
+                xaxis4=dict(anchor='y4'),
+                yaxis4=dict(anchor='x4'),
+                xaxis5=dict(anchor='y5'),
+                yaxis5=dict(anchor='x5'),
             )
-        )
-
-        specs: Specs = self.grid_specs(fig)
-
-        make_subplots(
-            rows=len(specs),
-            cols=cols(specs),
-            figure=fig,
-            specs=specs,
-            horizontal_spacing=0,
-            vertical_spacing=0,
-            print_grid=self.verbose,
         )
 
         for plot in self.plots:

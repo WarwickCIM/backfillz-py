@@ -29,7 +29,7 @@ def test_sample_fit(stan: Stan) -> None:
 # @pytest.mark.skip(reason="temporarily disable")
 def test_trace_slice_histogram(stan: Stan) -> None:
     """Slice histogram plot is generated without error."""
-    backfillz = Backfillz(stan.fit)
+    backfillz = Backfillz(stan.fit, verbose=True)
     backfillz.set_theme(demo_1)
     backfillz.plot_slice_histogram('mu')
 
