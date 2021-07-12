@@ -130,13 +130,6 @@ class SliceHistograms(VerticalSubplots):
         ]
 
 
-def blah(axis_ids: List[AxisId]) -> Props:
-    return {
-        **{'xaxis' + axis_id: dict(anchor='y' + axis_id) for axis_id in axis_ids},
-        **{'yaxis' + axis_id: dict(anchor='x' + axis_id) for axis_id in axis_ids}
-    }
-
-
 @dataclass
 class TraceSliceHistogram(RootPlot):
     """Trace slice histogram plot for a given parameter."""
