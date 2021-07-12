@@ -195,6 +195,10 @@ class RootPlot:
             "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
 
+    @property
+    def layout_props(self) -> Props:
+        return dict()
+
     def render(self) -> go.Figure:
         """Create fig and render subplots."""
         fig: go.Figure = go.Figure(
@@ -203,7 +207,8 @@ class RootPlot:
                 titlefont=dict(size=30),
                 plot_bgcolor=self.theme.bg_colour,
                 showlegend=False,
-                **self.axis_ids
+                **self.axis_ids,
+                **self.layout_props,
             )
         )
 

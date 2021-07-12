@@ -170,27 +170,34 @@ class TraceDial:
     def title(self) -> str:
         return f"Pretzel plot for {self.data.param}"
 
-    def render(self) -> go.Figure:
-        """Create fig and render subplots."""
-        layout = go.Layout(
-            title=self.title,
-            titlefont=dict(size=30),
-            plot_bgcolor=self.theme.bg_colour,
-            showlegend=False,
+    @property
+    def layout_props(self) -> Props:
+        return dict(
             barmode='overlay',
-            **self.axis_ids,
             # plotting region won't be exactly square but best we can do to align histogram width with donut
             width=800, height=800,
         )
-        fig = go.Figure(layout=layout)
+
+    def render(self) -> go.Figure:
+        """Create fig and render subplots."""
+        fig = go.Figure(
+            layout=go.Layout(
+                title=self.title,
+                titlefont=dict(size=30),
+                plot_bgcolor=self.theme.bg_colour,
+                showlegend=False,
+                **self.axis_ids,
+                **self.layout_props,
+            )
+        )
 
         for plot in self.plots:
             plot.layout_axes(fig)
 
         self.add_additional_titles(fig)
 
-        self.dial_plot.render(fig)
-        self.histograms.render(fig)
+        for plot in self.plots:
+            plot.render(fig)
 
         return fig
 
