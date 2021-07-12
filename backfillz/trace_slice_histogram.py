@@ -6,7 +6,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import MCMCRun, ParameterSlices, Props, Slice
-from backfillz.plot import annotate, LeafPlot, Plot, RootPlot, scale, segment, VerticalSubplots
+from backfillz.plot import annotate, AxisId, LeafPlot, Plot, RootPlot, scale, segment, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
@@ -130,6 +130,13 @@ class SliceHistograms(VerticalSubplots):
         ]
 
 
+def blah(axis_ids: List[AxisId]) -> Props:
+    axes = dict()
+    for axis_id in axis_ids:
+        axes['xaxis' + axis_id] = dict(anchor='y' + axis_id)
+        axes['yaxis' + axis_id] = dict(anchor='x' + axis_id)
+    return axes
+
 @dataclass
 class TraceSliceHistogram(RootPlot):
     """Trace slice histogram plot for a given parameter."""
@@ -144,16 +151,7 @@ class TraceSliceHistogram(RootPlot):
 
     @property
     def additional_axes(self) -> Props:
-        return dict(
-            xaxis2=dict(anchor='y2'),
-            yaxis2=dict(anchor='x2'),
-            xaxis3=dict(anchor='y3'),
-            yaxis3=dict(anchor='x3'),
-            xaxis4=dict(anchor='y4'),
-            yaxis4=dict(anchor='x4'),
-            xaxis5=dict(anchor='y5'),
-            yaxis5=dict(anchor='x5'),
-        )
+        return blah(['2', '3', '4', '5'])
 
     @property
     def trace_plot(self) -> TracePlot:
