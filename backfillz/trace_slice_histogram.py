@@ -143,10 +143,6 @@ class TraceSliceHistogram(RootPlot):
         return [self.trace_plot, self.joining_segments, self.density_plots]
 
     @property
-    def additional_axes(self) -> Props:
-        return blah(['2', '3', '4', '5'])
-
-    @property
     def trace_plot(self) -> TracePlot:
         return TracePlot(
             axis_id='',

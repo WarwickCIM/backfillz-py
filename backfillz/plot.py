@@ -188,11 +188,6 @@ class RootPlot:
         """Title for overall figure."""
         raise AbstractMethodError()
 
-    @property
-    def additional_axes(self) -> Props:
-        """Axis ids in addition to x, y."""
-        raise AbstractMethodError()
-
     def add_additional_titles(self, fig: go.Figure) -> None:
         annotate(
             fig, 14, (1, -0.03), 'right', 'top', None,  # leave room for an x-axis, if needed
