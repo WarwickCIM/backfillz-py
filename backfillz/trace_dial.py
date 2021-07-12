@@ -119,8 +119,6 @@ class SliceHistograms(VerticalSubplots):
                 theme=self.theme,
                 slc=slc,
                 n_slc=n,
-                row=self.row + len(self.data.slcs) - 1 - n,
-                col=self.col,
             )
             for n, slc in enumerate(self.data.slcs)
         ]
@@ -145,8 +143,6 @@ class TraceDial:
             axis_id='',
             x_domain=(0.0, 1),
             y_domain=(0.0, 1),
-            row=1,
-            col=1,
             data=self.data,
             theme=self.theme,
         )
@@ -157,8 +153,6 @@ class TraceDial:
             axis_ids=['3', '2'],
             x_domain=(0.5 + DialPlot.hole_size / 2, 1.0),
             y_domain=(0.5, 1.0),
-            row=1,
-            col=1,
             data=self.data,
             theme=self.theme,
         )

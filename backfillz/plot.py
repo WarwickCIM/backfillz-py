@@ -1,10 +1,9 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Literal, Optional, Set, Tuple
+from typing import Any, Dict, List, Literal, Optional, Tuple
 
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 from plotly.colors import unlabel_rgb  # type: ignore
 import plotly.graph_objects as go  # type: ignore
-from plotly.subplots import make_subplots  # type: ignore
 
 from backfillz.data import ParameterSlices, Props
 from backfillz.theme import BackfillzTheme
@@ -18,20 +17,11 @@ class AbstractMethodError(NotImplementedError):
 
 # strings assigned as axis id suffixes by Plotly; empty for first subplot
 AxisId = str
-# Plotly subplot specs; 2D array of dictionaries
-Specs = List[List[object]]
 
 
 def default_config() -> Props:
     """Preferred settings for Plotly figure."""
     return dict(displayModeBar=False, showAxisDragHandles=False)
-
-
-def cols(xss: Specs) -> int:
-    """Length of the inner lists."""
-    ns: Set[int] = set(map(len, xss))
-    assert len(ns) == 1
-    return min(ns)
 
 
 def scale(factor: float, xs: List[float]) -> List[float]:
