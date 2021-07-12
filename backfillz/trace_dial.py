@@ -138,6 +138,15 @@ class TraceDial:
         return [self.dial_plot, self.histograms]
 
     @property
+    def axis_ids(self) -> Props:
+        return dict(
+            xaxis2=dict(anchor='y2'),
+            yaxis2=dict(anchor='x2'),
+            xaxis3=dict(anchor='y3'),
+            yaxis3=dict(anchor='x3'),
+        )
+
+    @property
     def dial_plot(self) -> DialPlot:
         return DialPlot(
             axis_id='',
@@ -169,10 +178,7 @@ class TraceDial:
             plot_bgcolor=self.theme.bg_colour,
             showlegend=False,
             barmode='overlay',
-            xaxis2=dict(anchor='y2'),
-            yaxis2=dict(anchor='x2'),
-            xaxis3=dict(anchor='y3'),
-            yaxis3=dict(anchor='x3'),
+            **self.axis_ids,
             # plotting region won't be exactly square but best we can do to align histogram width with donut
             width=800, height=800,
         )
