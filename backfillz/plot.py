@@ -132,7 +132,6 @@ class LeafPlot(Plot):
             'xaxis' + self.axis_id: dict(anchor='y' + self.axis_id),
             'yaxis' + self.axis_id: dict(anchor='x' + self.axis_id)
         })
-
         fig.layout[self.xaxis_id].update(domain=self.x_domain, **self.axis_defaults, **self.xaxis_props)
         fig.layout[self.yaxis_id].update(domain=self.y_domain, **self.axis_defaults, **self.yaxis_props)
 
