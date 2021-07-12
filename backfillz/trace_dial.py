@@ -7,7 +7,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import MCMCRun, ParameterSlices, Props, Slice
-from backfillz.plot import alpha, annotate, LeafPlot, Plot, segment, VerticalSubplots
+from backfillz.plot import alpha, annotate, LeafPlot, Plot, RootPlot, segment, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
@@ -124,14 +124,11 @@ class SliceHistograms(VerticalSubplots):
         ]
 
 
-# TODO: consolidate with plot.RootPlot
 @dataclass
-class TraceDial:
+class TraceDial(RootPlot):
     """Top-level plot, for a given parameter and chain."""
 
     data: ParameterSlices
-    theme: BackfillzTheme
-    verbose: bool
 
     @property
     def plots(self) -> List[Plot]:
@@ -178,29 +175,6 @@ class TraceDial:
             width=800, height=800,
         )
 
-    def render(self) -> go.Figure:
-        """Create fig and render subplots."""
-        fig = go.Figure(
-            layout=go.Layout(
-                title=self.title,
-                titlefont=dict(size=30),
-                plot_bgcolor=self.theme.bg_colour,
-                showlegend=False,
-                **self.axis_ids,
-                **self.layout_props,
-            )
-        )
-
-        for plot in self.plots:
-            plot.layout_axes(fig)
-
-        self.add_additional_titles(fig)
-
-        for plot in self.plots:
-            plot.render(fig)
-
-        return fig
-
     def add_additional_titles(self, fig: go.Figure) -> None:
         histos: List[Plot] = self.histograms.plots
         annotate(fig, 14, histos[0].top_left, 'right', 'top', None, "Burn-in histogram", textangle=-90)
@@ -210,13 +184,17 @@ class TraceDial:
     def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
         """Create a trace slice histogram."""
         slcs: List[Slice] = [Slice(0.0, 0.04), Slice(0.4, 1)]  # how to decide
-        return TraceDial(ParameterSlices(
-            slcs=slcs,
-            param=param,
-            chains=mcmc_run.iter_chains(param),
-            max_sample=np.amax(mcmc_run.samples[param]),
-            min_sample=np.amin(mcmc_run.samples[param]),
-        ), theme, verbose).render()
+        return TraceDial(
+            theme,
+            verbose,
+            data=ParameterSlices(
+                slcs=slcs,
+                param=param,
+                chains=mcmc_run.iter_chains(param),
+                max_sample=np.amax(mcmc_run.samples[param]),
+                min_sample=np.amin(mcmc_run.samples[param]),
+            ),
+        ).render()
 
 
 # Not using these properties yet.
