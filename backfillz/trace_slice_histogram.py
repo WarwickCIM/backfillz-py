@@ -125,8 +125,6 @@ class SliceHistograms(VerticalSubplots):
                 theme=self.theme,
                 slc=slc,
                 n_slc=n,
-                row=self.row + len(self.data.slcs) - 1 - n,
-                col=self.col,
             )
             for n, slc in enumerate(self.data.slcs)
         ]
@@ -150,8 +148,6 @@ class TraceSliceHistogram(RootPlot):
             axis_id='',
             x_domain=(0, self.left_w),
             y_domain=(0, 1.0),
-            row=1,
-            col=1,
             data=self.data,
             theme=self.theme,
         )
@@ -162,8 +158,6 @@ class TraceSliceHistogram(RootPlot):
             axis_id='2',
             x_domain=(self.left_w, self.left_w + self.middle_w),
             y_domain=(0, 1.0),
-            row=1,
-            col=2,
             data=self.data,
             theme=self.theme,
         )
@@ -174,8 +168,6 @@ class TraceSliceHistogram(RootPlot):
             axis_ids=[str(n + 3) for n in reversed(range(0, len(self.data.slcs)))],
             x_domain=(self.left_w + self.middle_w, 1),
             y_domain=(0, 1.0),
-            row=1,
-            col=3,
             data=self.data,
             theme=self.theme,
         )

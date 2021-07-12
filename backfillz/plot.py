@@ -83,8 +83,6 @@ class Plot:
 
     x_domain: Tuple[float, float]  # left/right edges normalised to [0, 1]
     y_domain: Tuple[float, float]  # top/bottom edges normalised to [0, 1]
-    row: int
-    col: int
     data: ParameterSlices
     theme: BackfillzTheme
 
@@ -113,7 +111,7 @@ class LeafPlot(Plot):
 
     def render(self, fig: go.Figure) -> None:
         for el in self.plot_elements:
-            fig.add_trace(el)  #, self.row, self.col)
+            fig.add_trace(el)
 
     @property
     def axis_defaults(self) -> Dict[str, Any]:
