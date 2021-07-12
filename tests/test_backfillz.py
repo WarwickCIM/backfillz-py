@@ -34,7 +34,7 @@ def test_trace_slice_histogram(stan: Stan) -> None:
     backfillz.plot_slice_histogram('mu')
 
 
-# @pytest.mark.skip(reason="temporarily disable")
+@pytest.mark.skip(reason="temporarily disable")
 def test_trace_dial(stan: Stan) -> None:
     """Trace dial plot is generated without error."""
     backfillz = Backfillz(stan.fit)

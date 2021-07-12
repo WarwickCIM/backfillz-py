@@ -113,7 +113,7 @@ class LeafPlot(Plot):
 
     def render(self, fig: go.Figure) -> None:
         for el in self.plot_elements:
-            fig.add_trace(el, self.row, self.col)
+            fig.add_trace(el)  #, self.row, self.col)
 
     @property
     def axis_defaults(self) -> Dict[str, Any]:
@@ -152,22 +152,6 @@ class LeafPlot(Plot):
     def yaxis_props(self) -> Props:
         """My custom y-axis settings; subclasses can override."""
         return dict()
-
-
-@dataclass
-class LeafPlotNoAxes(Plot):
-    """A leaf subplot of "domain" type, i.e. with no axes."""
-
-    @property
-    def plot_elements(self) -> List[BaseTraceType]:
-        raise AbstractMethodError()
-
-    def render(self, fig: go.Figure) -> None:
-        for el in self.plot_elements:
-            fig.add_trace(el)
-
-    def layout_axes(self, fig: go.Figure) -> None:
-        pass
 
 
 @dataclass

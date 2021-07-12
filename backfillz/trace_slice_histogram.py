@@ -66,12 +66,13 @@ class JoiningSegments(LeafPlot):
     def segments(self) -> List[go.Scatter]:
         return [
             go.Scatter(
+                xaxis='x' + self.axis_id,
                 x=[0, 1, 1, 0],
                 y=scale(self.data.n_iter, [slc.lower, lower, upper, slc.upper]),
                 mode='lines',
                 line=dict(color=self.theme.fg_colour, width=1),
                 fill='toself',
-                fillcolor='rgba(240,240,240,255)'
+                fillcolor='rgba(240,240,240,255)',
             )
             for n, slc in enumerate(self.data.slcs, start=1)
             for lower, upper in [((n - 1) / len(self.data.slcs), n / len(self.data.slcs))]
@@ -82,11 +83,12 @@ class JoiningSegments(LeafPlot):
     def y_labels(self) -> go.Scatter:
         y = self.slice_delimiters
         return go.Scatter(
+            xaxis='x' + self.axis_id,
             x=[0] * len(y),
             y=y,
             mode='text',
             text=[int(y) for y in y],
-            textposition='middle right'
+            textposition='middle right',
         )
 
     @property
