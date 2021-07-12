@@ -189,13 +189,24 @@ class RootPlot:
     def plots(self) -> List[Plot]:
         raise AbstractMethodError()
 
-    def grid_specs(self, fig: go.Figure) -> Specs:
-        raise AbstractMethodError()
-
     @property
     def title(self) -> str:
         """Title for overall figure."""
         raise AbstractMethodError()
+
+    @property
+    def axis_ids(self) -> Props:
+        """Axis ids in addition to x, y."""
+        return dict(
+            xaxis2=dict(anchor='y2'),
+            yaxis2=dict(anchor='x2'),
+            xaxis3=dict(anchor='y3'),
+            yaxis3=dict(anchor='x3'),
+            xaxis4=dict(anchor='y4'),
+            yaxis4=dict(anchor='x4'),
+            xaxis5=dict(anchor='y5'),
+            yaxis5=dict(anchor='x5'),
+        )
 
     def add_additional_titles(self, fig: go.Figure) -> None:
         annotate(
@@ -211,14 +222,7 @@ class RootPlot:
                 titlefont=dict(size=30),
                 plot_bgcolor=self.theme.bg_colour,
                 showlegend=False,
-                xaxis2=dict(anchor='y2'),
-                yaxis2=dict(anchor='x2'),
-                xaxis3=dict(anchor='y3'),
-                yaxis3=dict(anchor='x3'),
-                xaxis4=dict(anchor='y4'),
-                yaxis4=dict(anchor='x4'),
-                xaxis5=dict(anchor='y5'),
-                yaxis5=dict(anchor='x5'),
+                **self.axis_ids
             )
         )
 

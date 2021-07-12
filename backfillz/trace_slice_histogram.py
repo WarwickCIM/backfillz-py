@@ -172,12 +172,6 @@ class TraceSliceHistogram(RootPlot):
             theme=self.theme,
         )
 
-    def grid_specs(self, fig: go.Figure) -> Specs:
-        return (
-            [[dict(rowspan=len(self.data.slcs)), dict(rowspan=len(self.data.slcs)), dict()]] +
-            [[None, None, dict()] for _ in self.data.slcs[1:]]
-        )
-
     @property
     def title(self) -> str:
         return f"Trace slice histogram of {self.data.param}"
