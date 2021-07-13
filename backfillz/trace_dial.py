@@ -183,7 +183,7 @@ class TraceDial(RootPlot):
                 max_sample=np.amax(mcmc_run.samples[param]),
                 min_sample=np.amin(mcmc_run.samples[param]),
             ),
-        ).render()
+        ).make_fig()
 
 
 # Not using these properties yet.

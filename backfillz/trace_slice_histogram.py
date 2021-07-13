@@ -190,4 +190,4 @@ class TraceSliceHistogram(RootPlot):
             chains=mcmc_run.iter_chains(param),
             max_sample=np.amax(mcmc_run.samples[param]),
             min_sample=np.amin(mcmc_run.samples[param]),
-        )).render()
+        )).make_fig()

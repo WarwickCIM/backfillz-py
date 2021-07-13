@@ -208,7 +208,7 @@ class RootPlot:
     def layout_props(self) -> Props:
         return dict()
 
-    def render(self) -> go.Figure:
+    def make_fig(self) -> go.Figure:
         """Create fig and render subplots."""
         fig: go.Figure = go.Figure(
             layout=go.Layout(
