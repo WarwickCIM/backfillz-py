@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import Any, Dict, List, Literal, Optional
 
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 from plotly.colors import unlabel_rgb  # type: ignore
