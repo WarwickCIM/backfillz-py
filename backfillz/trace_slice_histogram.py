@@ -134,7 +134,6 @@ class SliceHistograms(AggregatePlot):
 class TraceSliceHistogram(RootPlot):
     """Trace slice histogram plot for a given parameter."""
 
-    data: ParameterSlices
     left_w = 0.4  # width of trace plot
     middle_w = 0.2  # width of joining segments
 
@@ -184,10 +183,16 @@ class TraceSliceHistogram(RootPlot):
     def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
         """Create a slice histogram."""
         slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
-        return TraceSliceHistogram(theme, verbose, ParameterSlices(
-            slcs=slcs,
-            param=param,
-            chains=mcmc_run.iter_chains(param),
-            max_sample=np.amax(mcmc_run.samples[param]),
-            min_sample=np.amin(mcmc_run.samples[param]),
-        )).make_fig()
+        return TraceSliceHistogram(
+            x_domain=(0.0, 1.0),
+            y_domain=(0.0, 1.0),
+            data=ParameterSlices(
+                slcs=slcs,
+                param=param,
+                chains=mcmc_run.iter_chains(param),
+                max_sample=np.amax(mcmc_run.samples[param]),
+                min_sample=np.amin(mcmc_run.samples[param]),
+            ),
+            theme=theme,
+            verbose=verbose,
+        ).make_fig()

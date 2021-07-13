@@ -179,19 +179,10 @@ class AggregatePlot(Plot):
 
 # Should consolidate some of the commonality with Plot.
 @dataclass
-class RootPlot:
+class RootPlot(AggregatePlot):
     """Top-level plot container."""
 
-    theme: BackfillzTheme
     verbose: bool
-    plots: List[Plot] = field(init=False)
-
-    def __post_init__(self) -> None:
-        self.plots = self.make_plots()
-
-    def make_plots(self) -> List[Plot]:
-        """My subplots."""
-        raise AbstractMethodError()
 
     @property
     def title(self) -> str:
@@ -220,12 +211,7 @@ class RootPlot:
             )
         )
 
-        for plot in self.plots:
-            plot.layout_axes(fig)
-
+        self.layout_axes(fig)
         self.add_additional_titles(fig)
-
-        for plot in self.plots:
-            plot.render(fig)
-
+        self.render(fig)
         return fig

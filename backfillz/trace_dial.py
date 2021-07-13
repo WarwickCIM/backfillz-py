@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import cast, List, Sequence, Tuple
+from typing import List, Sequence, Tuple
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
@@ -128,8 +128,6 @@ class SliceHistograms(AggregatePlot):
 class TraceDial(RootPlot):
     """Top-level plot, for a given parameter and chain."""
 
-    data: ParameterSlices
-
     def make_plots(self) -> List[Plot]:
         return [self.dial_plot, self.histograms]
 
@@ -174,8 +172,8 @@ class TraceDial(RootPlot):
         """Create a trace slice histogram."""
         slcs: List[Slice] = [Slice(0.0, 0.04), Slice(0.4, 1)]  # how to decide
         return TraceDial(
-            theme,
-            verbose,
+            x_domain=(0.0, 1.0),
+            y_domain=(0.0, 1.0),
             data=ParameterSlices(
                 slcs=slcs,
                 param=param,
@@ -183,6 +181,8 @@ class TraceDial(RootPlot):
                 max_sample=np.amax(mcmc_run.samples[param]),
                 min_sample=np.amin(mcmc_run.samples[param]),
             ),
+            theme=theme,
+            verbose=verbose
         ).make_fig()
 
 
