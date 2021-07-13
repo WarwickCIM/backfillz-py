@@ -5,7 +5,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 from plotly.colors import unlabel_rgb  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import ParameterSlices, Props
+from backfillz.data import Domain, ParameterSlices, Point, Props
 from backfillz.theme import BackfillzTheme
 
 
@@ -37,7 +37,7 @@ def scale(factor: float, xs: List[float]) -> List[float]:
     return [x * factor for x in xs]
 
 
-def segment(domain: Tuple[float, float], n: int, m: int) -> Tuple[float, float]:
+def segment(domain: Domain, n: int, m: int) -> Domain:
     """Break supplied "domain" into n equal-sized segments, and return the mth."""
     start, end = domain
     width = (end - start) / n
@@ -53,7 +53,7 @@ def alpha(colour: str, a: float) -> str:
 def annotate(
     fig: go.Figure,
     font_size: int,
-    at: Tuple[float, float],
+    at: Point,
     xanchor: Literal['left', 'right'],
     yanchor: Literal['top', 'bottom'],
     y_adjust: Optional[float],  # additional normalised offet of text relative to plot
@@ -79,8 +79,8 @@ def annotate(
 class Plot:
     """Base class providing common subplot functionality."""
 
-    x_domain: Tuple[float, float]  # left/right edges normalised to [0, 1]
-    y_domain: Tuple[float, float]  # top/bottom edges normalised to [0, 1]
+    x_domain: Domain  # left/right edges normalised to [0, 1]
+    y_domain: Domain  # top/bottom edges normalised to [0, 1]
     data: ParameterSlices
     theme: BackfillzTheme
 
@@ -92,7 +92,7 @@ class Plot:
         raise AbstractMethodError()
 
     @property
-    def top_left(self) -> Tuple[float, float]:
+    def top_left(self) -> Point:
         return self.x_domain[0], self.y_domain[1]
 
 

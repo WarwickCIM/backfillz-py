@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import floor
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from stan.fit import Fit  # type: ignore
@@ -33,9 +33,11 @@ class Slice:
     upper: float
 
 
+Domain = Tuple[float, float]  # normalised domain of a plot
 Param = str
 Slices = Dict[Param, List[Slice]]
 Props = Dict[str, Any]
+Point = Tuple[float, float]
 
 
 @dataclass

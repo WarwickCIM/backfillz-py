@@ -6,7 +6,7 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import MCMCRun, ParameterSlices, Props, Slice
+from backfillz.data import Domain, MCMCRun, ParameterSlices, Props, Slice
 from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot, segment
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
@@ -17,7 +17,7 @@ class DialPlot(LeafPlot):
     """Trace dial plot on the left."""
 
     hole_size: float = 1 / 3
-    donut_domain: Tuple[float, float] = 0.5 * math.pi, 2 * math.pi
+    donut_domain: Domain = 0.5 * math.pi, 2 * math.pi
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
@@ -34,7 +34,7 @@ class DialPlot(LeafPlot):
         return dict(range=[-1, 1], visible=False)
 
     @staticmethod
-    def to_angular(x: float, domain: Tuple[float, float]) -> float:
+    def to_angular(x: float, domain: Domain) -> float:
         """Normalised x coordinate as angular coordinate in specified portion of unit circle."""
         start, end = domain
         return start + x * (end - start)
