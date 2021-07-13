@@ -154,8 +154,8 @@ class LeafPlot(Plot):
 
 
 @dataclass
-class VerticalSubplots(Plot):
-    """A collection of vertically arranged subplots."""
+class AggregatePlot(Plot):
+    """A collection of subplots."""
 
     plots: List[Plot] = field(init=False)
 

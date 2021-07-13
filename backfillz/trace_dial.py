@@ -7,7 +7,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import MCMCRun, ParameterSlices, Props, Slice
-from backfillz.plot import alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot, segment, VerticalSubplots
+from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot, segment
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
@@ -106,7 +106,7 @@ class TraceDialHistogram(SliceHistogram):
 
 
 @dataclass
-class SliceHistograms(VerticalSubplots):
+class SliceHistograms(AggregatePlot):
     """One slice histogram per slice."""
 
     def make_plots(self) -> List[Plot]:
