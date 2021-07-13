@@ -20,6 +20,7 @@ axis_count = 2  # start with 2 for consistently with Plotly
 
 
 def fresh_axis_id() -> str:
+    """Allocate an axis id that hasn't been used elsewhere."""
     global axis_count
     axis_id = axis_count
     axis_count = axis_count + 1
