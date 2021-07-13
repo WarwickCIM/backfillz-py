@@ -6,7 +6,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import MCMCRun, ParameterSlices, Props, Slice
-from backfillz.plot import annotate, AxisId, LeafPlot, Plot, RootPlot, scale, segment, VerticalSubplots
+from backfillz.plot import annotate, AxisId, fresh_axis_id, LeafPlot, Plot, RootPlot, scale, segment, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
@@ -154,7 +154,7 @@ class TraceSliceHistogram(RootPlot):
     @property
     def joining_segments(self) -> JoiningSegments:
         return JoiningSegments(
-            axis_id='2',
+            axis_id=fresh_axis_id(),
             x_domain=(self.left_w, self.left_w + self.middle_w),
             y_domain=(0, 1.0),
             data=self.data,

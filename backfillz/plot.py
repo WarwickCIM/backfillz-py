@@ -15,8 +15,15 @@ class AbstractMethodError(NotImplementedError):
     pass
 
 
-# strings assigned as axis id suffixes by Plotly; empty for first subplot
 AxisId = str
+axis_count = 2  # start with 2 for consistently with Plotly
+
+
+def fresh_axis_id() -> str:
+    global axis_count
+    axis_id = axis_count
+    axis_count = axis_count + 1
+    return str(axis_id)
 
 
 def default_config() -> Props:
