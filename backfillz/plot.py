@@ -100,11 +100,8 @@ class Plot:
 class LeafPlot(Plot):
     """A leaf subplot."""
 
-    # Axis ids (and annotation ids) need hand-configuration to match assignment by Plotly.
+    # Either generated using fresh_axis_id, or '' to mean the figure's default axes.
     axis_id: AxisId
-
-    def __post_init__(self):
-        axis_id = fresh_axis_id()
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
@@ -140,8 +137,8 @@ class LeafPlot(Plot):
     def layout_axes(self, fig: go.Figure) -> None:
         """Configure my x and y axis settings in fig."""
         fig.update_layout({
-            'xaxis' + self.axis_id: dict(anchor='y' + self.axis_id),
-            'yaxis' + self.axis_id: dict(anchor='x' + self.axis_id)
+            self.xaxis_id: dict(anchor='y' + self.axis_id),
+            self.yaxis_id: dict(anchor='x' + self.axis_id)
         })
         fig.layout[self.xaxis_id].update(domain=self.x_domain, **self.axis_defaults, **self.xaxis_props)
         fig.layout[self.yaxis_id].update(domain=self.y_domain, **self.axis_defaults, **self.yaxis_props)

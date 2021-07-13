@@ -134,7 +134,7 @@ class TraceDial(RootPlot):
     @property
     def dial_plot(self) -> DialPlot:
         return DialPlot(
-            axis_id='',
+            axis_id='',  # Plotly default axes
             x_domain=(0.0, 1),
             y_domain=(0.0, 1),
             data=self.data,

@@ -143,7 +143,7 @@ class TraceSliceHistogram(RootPlot):
     @property
     def trace_plot(self) -> TracePlot:
         return TracePlot(
-            axis_id='',
+            axis_id='',  # Plotly default axes
             x_domain=(0, self.left_w),
             y_domain=(0, 1.0),
             data=self.data,
