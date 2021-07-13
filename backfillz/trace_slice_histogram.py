@@ -138,8 +138,7 @@ class TraceSliceHistogram(RootPlot):
     left_w = 0.4  # width of trace plot
     middle_w = 0.2  # width of joining segments
 
-    @property
-    def plots(self) -> List[Plot]:
+    def make_plots(self) -> List[Plot]:
         return [self.trace_plot, self.joining_segments, self.density_plots]
 
     @property

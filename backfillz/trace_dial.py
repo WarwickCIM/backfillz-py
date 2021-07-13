@@ -130,8 +130,7 @@ class TraceDial(RootPlot):
 
     data: ParameterSlices
 
-    @property
-    def plots(self) -> List[Plot]:
+    def make_plots(self) -> List[Plot]:
         return [self.dial_plot, self.histograms]
 
     @property

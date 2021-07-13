@@ -178,9 +178,13 @@ class RootPlot:
 
     theme: BackfillzTheme
     verbose: bool
+    plots: List[Plot] = field(init=False)
 
-    @property
-    def plots(self) -> List[Plot]:
+    def __post_init__(self) -> None:
+        self.plots = self.make_plots()
+
+    def make_plots(self) -> List[Plot]:
+        """My subplots."""
         raise AbstractMethodError()
 
     @property
