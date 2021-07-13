@@ -146,7 +146,6 @@ class TraceDial(RootPlot):
     @property
     def histograms(self) -> SliceHistograms:
         return SliceHistograms(
-            axis_ids=['3', '2'],
             x_domain=(0.5 + DialPlot.hole_size / 2, 1.0),
             y_domain=(0.5, 1.0),
             data=self.data,

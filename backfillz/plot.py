@@ -157,7 +157,6 @@ class LeafPlot(Plot):
 class VerticalSubplots(Plot):
     """A collection of vertically arranged subplots."""
 
-    axis_ids: List[AxisId]  # one per subplots
     plots: List[Plot] = field(init=False)
 
     def __post_init__(self) -> None:

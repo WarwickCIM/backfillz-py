@@ -164,7 +164,6 @@ class TraceSliceHistogram(RootPlot):
     @property
     def density_plots(self) -> SliceHistograms:
         return SliceHistograms(
-            axis_ids=[str(n + 3) for n in reversed(range(0, len(self.data.slcs)))],
             x_domain=(self.left_w + self.middle_w, 1),
             y_domain=(0, 1.0),
             data=self.data,
