@@ -6,7 +6,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import MCMCRun, ParameterSlices, Props, Slice
-from backfillz.plot import annotate, AxisId, fresh_axis_id, LeafPlot, Plot, RootPlot, scale, segment, VerticalSubplots
+from backfillz.plot import annotate, fresh_axis_id, LeafPlot, Plot, RootPlot, scale, segment, VerticalSubplots
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
@@ -118,7 +118,7 @@ class SliceHistograms(VerticalSubplots):
     def make_plots(self) -> List[Plot]:
         return [
             SliceHistogram(
-                axis_id=self.axis_ids[n],
+                axis_id=fresh_axis_id(),
                 x_domain=self.x_domain,
                 y_domain=segment(self.y_domain, len(self.data.slcs), n),
                 data=self.data,
