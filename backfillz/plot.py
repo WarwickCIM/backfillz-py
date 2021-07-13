@@ -103,6 +103,9 @@ class LeafPlot(Plot):
     # Axis ids (and annotation ids) need hand-configuration to match assignment by Plotly.
     axis_id: AxisId
 
+    def __post_init__(self):
+        axis_id = fresh_axis_id()
+
     @property
     def plot_elements(self) -> List[BaseTraceType]:
         raise AbstractMethodError()
