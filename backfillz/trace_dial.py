@@ -76,7 +76,7 @@ class DialPlot(LeafPlot):
         xs2 = [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
         ys2 = [1.0] + [0.0] * n_segments
         assert len(xs2) == len(ys2)
-        xs, ys = DialPlot.polar_plot(xs1 + xs2, [DialPlot.to_radial(y) for y in ys1 + ys2])
+        xs, ys = DialPlot.polar_plot(xs1 + xs2, [DialPlot.to_radial(y) for y in DialPlot.normalise(ys1 + ys2)])
         return go.Scatter(
             x=xs, y=ys,
             line=dict(width=0),
