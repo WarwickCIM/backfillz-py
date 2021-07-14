@@ -92,7 +92,11 @@ class TraceDialHistogram(SliceHistogram):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [self.histo([n], self.theme.palette[n], 1) for n, _ in enumerate(self.data.chains)]
+        return [self.histo([*range(0, len(self.data.chains))], self.theme.mg_colour, 1), *self.step_plots]
+
+    @property
+    def step_plots(self) -> List[go.Scatter]:
+        return []
 
     @property
     def xaxis_props(self) -> Props:
