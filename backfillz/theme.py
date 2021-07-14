@@ -4,7 +4,7 @@ from typing import List
 
 @dataclass
 class BackfillzTheme:
-    """Backfillz visualisation settings."""
+    """Backfillz visualisation settings. Colours are hex strings, without alphas."""
 
     name: str
     text_family: str
@@ -27,16 +27,16 @@ default: BackfillzTheme = BackfillzTheme(
     name="default",
     text_family="sans",
     text_font=1,
-    text_font_colour="black",
+    text_font_colour="#000000",
     text_cex_title=1.5,
     text_cex_main=1,
     text_cex_axis=0.8,
     text_col_title="#1a1a1a",
     text_col_main="#999999",
     text_col_axis="#666666",
-    bg_colour="white",
+    bg_colour="#ffffff",
     mg_colour="#7f7f7f",
-    fg_colour="black",
+    fg_colour="#000000",
     alpha=0.7,
     palette=[
         "#FF0000",

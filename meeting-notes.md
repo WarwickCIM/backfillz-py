@@ -2,14 +2,25 @@
 
 # 15 July 2021
 
-## Progress (on example notebook)
+## Progress
 
-- 
+- example notebooks [expand with notes to James]
+- consolidate polar plot infrastructure with existing plot design (including axis handling)
+- one segment of "donut" per slice
+- slice histograms aggregate all chains
+- step plot for each chain 
+- using go.Histogram, we run into z-ordering problem trying to overlay step plots on top:
+  - implement our own histograms using numpy for binning and go.Bar for plotting
+  - need this for consistency anyway, since step plots have to use numpy for binning
+
+## Questions
+
+- What is "inner burn" vs. "outer burn"?
 
 ## Still to do
 
-- Render chain colours as a step plot on top of histogram (cf. plot_histogram_lines in R version?)
-- Radial axis on inside of donut
+- render chain colours as a step plot on top of histogram (cf. plot_histogram_lines in R version?)
+- radial axis on inside of donut
 
 # 24 June May 2021
 
@@ -19,8 +30,6 @@
 - switch to Cartesian coordinates to render traces, donut
   - solves z-order problem
   - allows correct positioning of histograms (but have to enforce square figure)
-
-## Questions (mainly in relation to R version)
 
 # 10 June May 2021
 

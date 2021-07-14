@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import floor
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Sequence, Tuple
 
 import numpy as np
 from stan.fit import Fit  # type: ignore
@@ -22,7 +22,7 @@ class MCMCRun:
 
     @property
     def params(self) -> List[str]:
-        return list(self.samples.param_names)
+        return [*self.samples.param_names]
 
 
 @dataclass
@@ -38,6 +38,14 @@ Param = str
 Slices = Dict[Param, List[Slice]]
 Props = Dict[str, Any]
 Point = Tuple[float, float]
+
+
+# Bit inefficient for chains (recomputes min/max rather than used the cached property on ParameterSlices).
+def normalise(xs: Sequence[float]) -> List[float]:
+    """Normalise a sequence of numbers."""
+    min_x: float = min(xs)
+    max_x: float = max(xs)
+    return [(x - min_x) / (max_x - min_x) for x in xs]
 
 
 @dataclass

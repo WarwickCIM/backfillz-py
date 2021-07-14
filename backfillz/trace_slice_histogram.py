@@ -23,11 +23,7 @@ class TracePlot(LeafPlot):
     @property
     def traces(self) -> List[go.Scatter]:
         return [
-            go.Scatter(
-                x=chain,
-                y=list(range(0, self.data.n_iter)),
-                line=dict(color=self.theme.palette[n])
-            )
+            go.Scatter(x=chain, y=[*range(0, self.data.n_iter)], line=dict(color=self.theme.palette[n]))
             for n, chain in enumerate(self.data.chains)
         ]
 
