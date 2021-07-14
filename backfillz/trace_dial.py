@@ -6,7 +6,7 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, ParameterSlices, Props, Slice
+from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, Slice
 from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot, segment
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
@@ -44,18 +44,11 @@ class DialPlot(LeafPlot):
         """Map a normalised y coordinate into upper 2/3 of radius."""
         return DialPlot.hole_size + y * (1 - DialPlot.hole_size)
 
-    # Bit inefficient for chains (we compute min/max rather than used the cached property on self.data).
-    @staticmethod
-    def normalise(xs: Sequence[float]) -> List[float]:
-        min_x: float = min(xs)
-        max_x: float = max(xs)
-        return [(x - min_x) / (max_x - min_x) for x in xs]
-
     @staticmethod
     def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
         assert len(xs) == len(ys)
-        xs_ang = [DialPlot.to_angular(x, DialPlot.donut_domain) for x in DialPlot.normalise(xs)]
-        ys_radial = [DialPlot.to_radial(y) for y in DialPlot.normalise(ys)]
+        xs_ang = [DialPlot.to_angular(x, DialPlot.donut_domain) for x in normalise(xs)]
+        ys_radial = [DialPlot.to_radial(y) for y in normalise(ys)]
         return ([math.cos(x) * ys_radial[n] for n, x in enumerate(xs_ang)],
                 [math.sin(x) * ys_radial[n] for n, x in enumerate(xs_ang)])
 
@@ -69,13 +62,8 @@ class DialPlot(LeafPlot):
         n_segments: int = 100
         xs = [0] + [*range(0, n_segments)] + [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
         ys = [0.0] + [1.0] * n_segments + [1.0] + [0.0] * n_segments
-        xs_polar, ys_polar = DialPlot.polar_plot(xs, ys)
-        return go.Scatter(
-            x=xs_polar, y=ys_polar,
-            line=dict(width=0),
-            fill='toself',
-            fillcolor=self.theme.mg_colour,
-        )
+        x, y = DialPlot.polar_plot(xs, ys)
+        return go.Scatter(x=x, y=y, line=dict(width=0), fill='toself', fillcolor=self.theme.mg_colour)
 
     @property
     def polar_traces(self) -> List[go.Scatter]:
