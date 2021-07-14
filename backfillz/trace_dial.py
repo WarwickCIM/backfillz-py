@@ -72,8 +72,8 @@ class DialPlot(LeafPlot):
         [burn, remaining] = self.data.slcs
         colours = DerivativeColours(self.theme)
         return [
-            DialPlot.donut_segment(DialPlot.slice_domain(burn), '#002233'),  # colours.inner_burn_segment),
-            DialPlot.donut_segment(DialPlot.slice_domain(remaining), '#44AA88')  # colours.remaining_segment)
+            DialPlot.donut_segment(DialPlot.slice_domain(burn), colours.inner_burn_segment),
+            DialPlot.donut_segment(DialPlot.slice_domain(remaining), colours.remaining_segment)
         ]
 
     def polar_trace(self, n: int) -> go.Scatter:
