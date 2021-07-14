@@ -22,7 +22,7 @@ class MCMCRun:
 
     @property
     def params(self) -> List[str]:
-        return list(self.samples.param_names)
+        return [*self.samples.param_names]
 
 
 @dataclass

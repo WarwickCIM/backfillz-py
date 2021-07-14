@@ -89,24 +89,32 @@ class DialPlot(LeafPlot):
 @dataclass
 class TraceDialHistogram(SliceHistogram):
     """Slice histogram for trace dial plot."""
+
     bin_size: float = 1.0
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
         return [
+            *[self.step_plot(n) for n, _ in enumerate(self.data.chains)],
             self.histo([*range(0, len(self.data.chains))], self.theme.mg_colour, TraceDialHistogram.bin_size),
-            *self.step_plots
         ]
 
-    @property
-    def step_plots(self) -> List[go.Scatter]:
-        n: int = 0
-        np.histogram(
+    def step_plot(self, n: int) -> go.Scatter:
+        ys, xs = np.histogram(
             self.data.chains[n],
             # use same settings as go.Histogram's xbins parameter, but might not behave identically
-            [*np.arange(math.floor(self.data.min_sample), math.ceil(self.data.max_sample), TraceDialHistogram.bin_size)]
+            [*np.arange(
+                math.floor(self.data.min_sample),
+                math.ceil(self.data.max_sample),
+                TraceDialHistogram.bin_size
+            )]
         )
-        return []
+        return go.Scatter(
+            x=xs, y=ys,
+            mode='lines',
+            line=dict(width=1, color=self.theme.palette[n], shape='hvh'),
+            xaxis='x' + self.axis_id, yaxis='y' + self.axis_id,
+        )
 
     @property
     def xaxis_props(self) -> Props:
