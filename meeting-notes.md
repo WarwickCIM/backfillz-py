@@ -8,6 +8,7 @@
 - consolidate polar plot infrastructure with existing plot design (including axis handling)
 - one segment of "donut" per slice
 - slice histograms aggregate all chains
+- step plot for each chain 
 
 ## Questions
 
@@ -15,8 +16,9 @@
 
 ## Still to do
 
-- Render chain colours as a step plot on top of histogram (cf. plot_histogram_lines in R version?)
-- Radial axis on inside of donut
+- implement our own histograms to overlay step plots on top (using go.Histogram, we run into z-ordering problem)
+- render chain colours as a step plot on top of histogram (cf. plot_histogram_lines in R version?)
+- radial axis on inside of donut
 
 # 24 June May 2021
 
