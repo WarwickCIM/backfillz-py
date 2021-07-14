@@ -9,6 +9,9 @@
 - one segment of "donut" per slice
 - slice histograms aggregate all chains
 - step plot for each chain 
+- using go.Histogram, we run into z-ordering problem trying to overlay step plots on top:
+  - implement our own histograms using numpy for binning and go.Bar for plotting
+  - need this for consistency anyway, since step plots have to use numpy for binning
 
 ## Questions
 
@@ -16,7 +19,6 @@
 
 ## Still to do
 
-- implement our own histograms to overlay step plots on top (using go.Histogram, we run into z-ordering problem)
 - render chain colours as a step plot on top of histogram (cf. plot_histogram_lines in R version?)
 - radial axis on inside of donut
 

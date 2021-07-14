@@ -25,16 +25,21 @@ class SliceHistogram(LeafPlot):
         return [self.histo(ns, self.theme.fg_colour, 1), *[self.chain_plot(n) for n in ns]]
 
     # Histogram for a specified subset of the chains.
-    def histo(self, ns: List[int], color: str, bin_size: float) -> go.Histogram:
+    def histo(self, ns: List[int], color: str, bin_size: float) -> go.Bar:
         chain_slices: List[np.ndarray] = self.data.chain_slices(self.slc)
-        return go.Histogram(
-            x=[x for n in ns for x in chain_slices[n]],
-            xbins=dict(start=floor(self.data.min_sample), end=ceil(self.data.max_sample), size=bin_size),
+
+        ys, xs = np.histogram(
+            [x for n in ns for x in chain_slices[n]],
+            [*np.arange(floor(self.data.min_sample), ceil(self.data.max_sample), bin_size)]
+        )
+
+        return go.Bar(
+            x=xs,
+            y=ys,
             marker=dict(
                 color=self.theme.bg_colour,
                 line=dict(color=color, width=1)
             ),
-            histnorm='probability',
             xaxis='x' + self.axis_id,
             yaxis='y' + self.axis_id,
         )
