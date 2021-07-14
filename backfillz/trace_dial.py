@@ -101,7 +101,7 @@ class TraceDialHistogram(SliceHistogram):
 
     def step_plot(self, n: int) -> go.Scatter:
         ys, xs = np.histogram(
-            self.data.chains[n],
+            self.data.chain_slices(self.slc)[n],
             # use same settings as go.Histogram's xbins parameter, but might not behave identically
             [*np.arange(
                 math.floor(self.data.min_sample),
