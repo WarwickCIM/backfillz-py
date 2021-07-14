@@ -52,11 +52,6 @@ class DialPlot(LeafPlot):
         return ([math.cos(x) * ys_radial[n] for n, x in enumerate(xs_ang)],
                 [math.sin(x) * ys_radial[n] for n, x in enumerate(xs_ang)])
 
-    def polar_trace(self, n: int) -> go.Scatter:
-        chain: np.ndarray = self.data.chains[n]
-        xs, ys = DialPlot.polar_plot([*range(0, len(chain))], [*chain], DialPlot.donut_domain)
-        return go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[n]))
-
     @staticmethod
     def donut_segment(x_domain: Domain, fillcolor: str) -> go.Scatter:
         n_segments: int = 100
@@ -64,6 +59,26 @@ class DialPlot(LeafPlot):
         ys = [0.0] + [1.0] * n_segments + [1.0] + [0.0] * n_segments
         x, y = DialPlot.polar_plot(xs, ys, x_domain)
         return go.Scatter(x=x, y=y, line=dict(width=0), fill='toself', fillcolor=fillcolor)
+
+    @staticmethod
+    def slice_domain(slc: Slice) -> Domain:
+        return (
+            DialPlot.to_angular(slc.lower, DialPlot.donut_domain),
+            DialPlot.to_angular(slc.upper, DialPlot.donut_domain)
+        )
+
+    def donut_segments(self) -> List[go.Scatter]:
+        [burn_in, remaining] = self.data.slcs
+        colours = DerivativeColours(self.theme)
+        return [
+            DialPlot.donut_segment(DialPlot.slice_domain(burn_in), colours.inner_burn_segment),
+            DialPlot.donut_segment(DialPlot.slice_domain(remaining), colours.remaining_segment)
+        ]
+
+    def polar_trace(self, n: int) -> go.Scatter:
+        chain: np.ndarray = self.data.chains[n]
+        xs, ys = DialPlot.polar_plot([*range(0, len(chain))], [*chain], DialPlot.donut_domain)
+        return go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[n]))
 
     @property
     def polar_traces(self) -> List[go.Scatter]:
@@ -137,11 +152,8 @@ class TraceDial(RootPlot):
 
     @property
     def layout_props(self) -> Props:
-        return dict(
-            barmode='overlay',
-            # plotting region won't be exactly square but best we can do to align histogram width with donut
-            width=800, height=800,
-        )
+        # plotting region won't be exactly square but best we can do to align histogram width with donut
+        return dict(barmode='overlay', width=800, height=800)
 
     def add_additional_titles(self, fig: go.Figure) -> None:
         histos: List[Plot] = self.histograms.plots
@@ -151,12 +163,11 @@ class TraceDial(RootPlot):
     @staticmethod
     def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
         """Create a trace slice histogram."""
-        slcs: List[Slice] = [Slice(0.0, 0.04), Slice(0.4, 1)]  # how to decide
         return TraceDial(
             x_domain=(0.0, 1.0),
             y_domain=(0.0, 1.0),
             data=ParameterSlices(
-                slcs=slcs,
+                slcs=[Slice(0.0, 0.04), Slice(0.4, 1)],  # how to decide size of burn-in slice?
                 param=param,
                 chains=mcmc_run.iter_chains(param),
                 max_sample=np.amax(mcmc_run.samples[param]),

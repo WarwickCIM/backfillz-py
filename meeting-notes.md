@@ -2,9 +2,14 @@
 
 # 15 July 2021
 
-## Progress (on example notebook)
+## Progress
 
-- 
+- Example notebooks [expand with notes to James]
+- Consolidate polar plot infrastructure with existing plot design (including axis handling)
+
+## Questions
+
+- What is "inner burn" vs. "outer burn"?
 
 ## Still to do
 
@@ -19,8 +24,6 @@
 - switch to Cartesian coordinates to render traces, donut
   - solves z-order problem
   - allows correct positioning of histograms (but have to enforce square figure)
-
-## Questions (mainly in relation to R version)
 
 # 10 June May 2021
 
