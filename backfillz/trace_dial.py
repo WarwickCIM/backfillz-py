@@ -181,12 +181,13 @@ class TraceDial(RootPlot):
     def layout_props(self) -> Props:
         # plotting region won't be exactly square but best we can do to align histogram width with donut
         histos: List[Plot] = self.histograms.plots
+        colours = DerivativeColours(self.theme)
         return dict(
             width=800,
             height=800,
             shapes=[
-                TraceDial.background_rect(histos[0], 'steelblue'),
-                TraceDial.background_rect(histos[1], 'pink')
+                TraceDial.background_rect(histos[0], colours.inner_burn_segment),
+                TraceDial.background_rect(histos[1], colours.remaining_segment)
             ]
         )
 
