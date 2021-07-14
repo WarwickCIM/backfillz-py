@@ -42,6 +42,7 @@ Point = Tuple[float, float]
 
 # Bit inefficient for chains (recomputes min/max rather than used the cached property on ParameterSlices).
 def normalise(xs: Sequence[float]) -> List[float]:
+    """Normalise a sequence of numbers."""
     min_x: float = min(xs)
     max_x: float = max(xs)
     return [(x - min_x) / (max_x - min_x) for x in xs]

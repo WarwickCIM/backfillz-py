@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import List, Sequence, Tuple
+from typing import List, Tuple
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
@@ -21,7 +21,7 @@ class DialPlot(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [self.donut_segment(DialPlot.donut_domain), *self.polar_traces]
+        return [DialPlot.donut_segment(DialPlot.donut_domain, self.theme.mg_colour), *self.polar_traces]
 
     @property
     def xaxis_props(self) -> Props:
@@ -57,12 +57,13 @@ class DialPlot(LeafPlot):
         xs, ys = DialPlot.polar_plot([*range(0, len(chain))], [*chain], DialPlot.donut_domain)
         return go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[n]))
 
-    def donut_segment(self, x_domain: Domain) -> go.Scatter:
+    @staticmethod
+    def donut_segment(x_domain: Domain, fillcolor: str) -> go.Scatter:
         n_segments: int = 100
-        xs = [0] + [*range(0, n_segments)] + [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
+        xs = [0.0] + [*range(0, n_segments)] + [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
         ys = [0.0] + [1.0] * n_segments + [1.0] + [0.0] * n_segments
         x, y = DialPlot.polar_plot(xs, ys, x_domain)
-        return go.Scatter(x=x, y=y, line=dict(width=0), fill='toself', fillcolor=self.theme.mg_colour)
+        return go.Scatter(x=x, y=y, line=dict(width=0), fill='toself', fillcolor=fillcolor)
 
     @property
     def polar_traces(self) -> List[go.Scatter]:
