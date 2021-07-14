@@ -58,8 +58,9 @@ class DialPlot(LeafPlot):
                 [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)])
 
     def polar_trace(self, n: int) -> go.Scatter:
-        xs = [x for x, _ in enumerate(self.data.chains[n])]
-        ys = [DialPlot.to_radial(y) for y in DialPlot.normalise(self.data.chains[n])]
+        chain: np.ndarray = self.data.chains[n]
+        xs = [x for x, _ in enumerate(chain)]
+        ys = [DialPlot.to_radial(y) for y in DialPlot.normalise(chain)]
         xs_circ, ys_circ = DialPlot.polar_plot(xs, ys)
         return go.Scatter(
             x=xs_circ, y=ys_circ,
