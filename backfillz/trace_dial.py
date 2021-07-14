@@ -17,11 +17,11 @@ class DialPlot(LeafPlot):
     """Trace dial plot on the left."""
 
     hole_size: float = 1 / 3
-    donut_domain: Domain = 0.5 * math.pi, 2 * math.pi
+    donut_domain: Domain = 0.5 * math.pi, 2 * math.pi  # radians
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [self.donut] + [trace for trace in self.polar_traces]  # type conversion
+        return [self.donut_segment, *self.polar_traces]
 
     @property
     def xaxis_props(self) -> Props:
@@ -35,7 +35,7 @@ class DialPlot(LeafPlot):
 
     @staticmethod
     def to_angular(x: float, domain: Domain) -> float:
-        """Normalised x coordinate as angular coordinate in specified portion of unit circle."""
+        """Convert normalised x coordinate to angular coordinate within supplied domain."""
         start, end = domain
         return start + x * (end - start)
 
@@ -58,7 +58,7 @@ class DialPlot(LeafPlot):
                 [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)])
 
     def polar_trace(self, n: int) -> go.Scatter:
-        chain = [(x, y) for x, y in enumerate(self.data.chains[n])]
+        chain = [*enumerate(self.data.chains[n])]
         xs = DialPlot.normalise([x for x, _ in chain])
         ys = [DialPlot.to_radial(y) for y in DialPlot.normalise([y for _, y in chain])]
         xs_circ, ys_circ = DialPlot.polar_plot(xs, ys)
@@ -68,7 +68,7 @@ class DialPlot(LeafPlot):
         )
 
     @property
-    def donut(self) -> go.Scatter:
+    def donut_segment(self) -> go.Scatter:
         n_segments: int = 100
         xs1 = [0] + [*range(0, n_segments)]
         ys1 = [DialPlot.hole_size] + [1.0] * n_segments
@@ -76,9 +76,9 @@ class DialPlot(LeafPlot):
         xs2 = [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
         ys2 = [1.0] + [DialPlot.hole_size] * n_segments
         assert len(xs2) == len(ys2)
-        xs_circ, ys_circ = DialPlot.polar_plot(DialPlot.normalise(xs1 + xs2), ys1 + ys2)
+        xs, ys = DialPlot.polar_plot(DialPlot.normalise(xs1 + xs2), ys1 + ys2)
         return go.Scatter(
-            x=xs_circ, y=ys_circ,
+            x=xs, y=ys,
             line=dict(width=0),
             fill='toself',
             fillcolor=self.theme.mg_colour,
