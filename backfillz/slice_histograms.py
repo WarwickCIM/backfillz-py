@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
@@ -24,24 +24,20 @@ class SliceHistogram(LeafPlot):
         ns: List[int] = [*range(0, len(self.data.chains))]
         return [self.histo(ns, self.theme.fg_colour, 1), *[self.chain_plot(n) for n in ns]]
 
-    # Histogram for a specified subset of the chains.
-    def histo(self, ns: List[int], color: str, bin_size: float) -> go.Bar:
-        chain_slices: List[np.ndarray] = self.data.chain_slices(self.slc)
-
-        ys, xs = np.histogram(
-            [x for n in ns for x in chain_slices[n]],
+    # Histogram bins for a specified subset of the chains.
+    def bins(self, ns: List[int], bin_size) -> Tuple[List[float], List[float]]:
+        return np.histogram(
+            [x for n in ns for x in self.data.chain_slices(self.slc)],
             [*np.arange(floor(self.data.min_sample), ceil(self.data.max_sample), bin_size)]
         )
 
+    # Histogram for a specified subset of the chains. Compute our own bins so we're in full control.
+    def histo(self, ns: List[int], color: str, bin_size: float) -> go.Bar:
+        ys, xs = self.bins(ns, bin_size)
         return go.Bar(
-            x=xs,
-            y=ys,
-            marker=dict(
-                color=self.theme.bg_colour,
-                line=dict(color=color, width=1)
-            ),
-            xaxis='x' + self.axis_id,
-            yaxis='y' + self.axis_id,
+            x=xs, y=ys,
+            marker=dict(color=self.theme.bg_colour, line=dict(color=color, width=1)),
+            xaxis='x' + self.axis_id, yaxis='y' + self.axis_id,
         )
 
     # Non-parametric KDE, smoothed with a Gaussian kernel, for a given chain.
@@ -49,12 +45,10 @@ class SliceHistogram(LeafPlot):
         x = np.linspace(self.data.min_sample, self.data.max_sample, 200)
         chain_slices = self.data.chain_slices(self.slc)
         return go.Scatter(
-            x=x,
-            y=stats.kde.gaussian_kde(chain_slices[n])(x),
+            x=x, y=stats.kde.gaussian_kde(chain_slices[n])(x),
             mode='lines',
             line=dict(width=2, color=self.theme.palette[n]),
-            xaxis='x' + self.axis_id,
-            yaxis='y' + self.axis_id,
+            xaxis='x' + self.axis_id, yaxis='y' + self.axis_id,
         )
 
     @property

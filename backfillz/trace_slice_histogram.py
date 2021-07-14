@@ -169,6 +169,10 @@ class TraceSliceHistogram(RootPlot):
     def title(self) -> str:
         return f"Trace slice histogram of {self.data.param}"
 
+    @property
+    def layout_props(self) -> Props:
+        return dict(bargap=0)
+
     def add_additional_titles(self, fig: go.Figure) -> None:
         super().add_additional_titles(fig)
         annotate(fig, 16, self.trace_plot.top_left, 'left', 'bottom', None, "Trace Plot With Slices")

@@ -100,15 +100,7 @@ class TraceDialHistogram(SliceHistogram):
         ]
 
     def step_plot(self, n: int) -> go.Scatter:
-        ys, xs = np.histogram(
-            self.data.chain_slices(self.slc)[n],
-            # use same settings as go.Histogram's xbins parameter, but might not behave identically
-            [*np.arange(
-                math.floor(self.data.min_sample),
-                math.ceil(self.data.max_sample),
-                TraceDialHistogram.bin_size
-            )]
-        )
+        ys, xs = self.bins([n], TraceDialHistogram.bin_size)
         return go.Scatter(
             x=xs, y=ys,
             mode='lines',
@@ -178,7 +170,7 @@ class TraceDial(RootPlot):
     @property
     def layout_props(self) -> Props:
         # plotting region won't be exactly square but best we can do to align histogram width with donut
-        return dict(barmode='overlay', width=800, height=800)
+        return dict(bargap=0, width=800, height=800)
 
     def add_additional_titles(self, fig: go.Figure) -> None:
         histos: List[Plot] = self.histograms.plots
