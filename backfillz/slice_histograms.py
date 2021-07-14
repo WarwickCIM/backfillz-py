@@ -21,8 +21,8 @@ class SliceHistogram(LeafPlot):
     @property
     def plot_elements(self) -> List[BaseTraceType]:
         """Histogram for a slice (aggregating all chains) plus density plot for each chain."""
-        ns: List[int] = [n for n, _ in enumerate(self.data.chains)]
-        return [self.histo(ns, self.theme.fg_colour, 1)] + [self.chain_plot(n) for n in ns]
+        ns: List[int] = [*range(0, len(self.data.chains))]
+        return [self.histo(ns, self.theme.fg_colour, 1), *[self.chain_plot(n) for n in ns]]
 
     # Histogram for any subset of the chains.
     def histo(self, ns: List[int], color: str, bin_size: float) -> go.Histogram:

@@ -44,9 +44,9 @@ def segment(domain: Domain, n: int, m: int) -> Domain:
     return start + m * width, start + (m + 1) * width
 
 
-def alpha(colour: str, a: float) -> str:
+def alpha(hex_colour: str, a: float) -> str:
     """Add an alpha component to a colour represented as a hex string without an alpha component."""
-    rgb: tuple[int, int, int] = hex_to_rgb(colour)
+    rgb: tuple[int, int, int] = hex_to_rgb(hex_colour)
     return f"rgba({rgb[0]},{rgb[1]},{rgb[2]},{a})"
 
 
