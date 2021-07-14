@@ -4,8 +4,10 @@
 
 ## Progress
 
-- Example notebooks [expand with notes to James]
-- Consolidate polar plot infrastructure with existing plot design (including axis handling)
+- example notebooks [expand with notes to James]
+- consolidate polar plot infrastructure with existing plot design (including axis handling)
+- one segment of "donut" per slice
+- slice histograms aggregate all chains
 
 ## Questions
 

@@ -89,10 +89,14 @@ class DialPlot(LeafPlot):
 @dataclass
 class TraceDialHistogram(SliceHistogram):
     """Slice histogram for trace dial plot."""
+    bin_size: float = 1.0
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [self.histo([*range(0, len(self.data.chains))], self.theme.mg_colour, 1), *self.step_plots]
+        return [
+            self.histo([*range(0, len(self.data.chains))], self.theme.mg_colour, TraceDialHistogram.bin_size),
+            *self.step_plots
+        ]
 
     @property
     def step_plots(self) -> List[go.Scatter]:
