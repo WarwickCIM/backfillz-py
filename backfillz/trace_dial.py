@@ -110,10 +110,12 @@ class TraceDialHistogram(SliceHistogram):
 
     @property
     def xaxis_props(self) -> Props:
+        props: Props
         if self.n_slc == len(self.data.slcs) - 1:
-            return dict(side='top')
+            props = dict(side='top')
         else:
-            return dict(visible=False)
+            props = dict(visible=False)
+        return {**props, **dict(range=(self.data.min_sample, self.data.max_sample))}
 
 
 @dataclass
