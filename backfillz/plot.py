@@ -206,8 +206,10 @@ class RootPlot(AggregatePlot):
             layout=go.Layout(
                 title=self.title,
                 titlefont=dict(size=30),
-                plot_bgcolor=self.theme.bg_colour,
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
                 showlegend=False,
+                bargap=0,
                 **self.layout_props,
             )
         )

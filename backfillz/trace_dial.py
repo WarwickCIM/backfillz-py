@@ -170,7 +170,7 @@ class TraceDial(RootPlot):
     @property
     def layout_props(self) -> Props:
         # plotting region won't be exactly square but best we can do to align histogram width with donut
-        return dict(bargap=0, width=800, height=800)
+        return dict(width=800, height=800)
 
     def add_additional_titles(self, fig: go.Figure) -> None:
         histos: List[Plot] = self.histograms.plots

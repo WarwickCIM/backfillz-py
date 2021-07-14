@@ -27,7 +27,7 @@ class SliceHistogram(LeafPlot):
     # Histogram bins for a specified subset of the chains.
     def bins(self, ns: List[int], bin_size) -> Tuple[List[float], List[float]]:
         return np.histogram(
-            [x for n in ns for x in self.data.chain_slices(self.slc)],
+            [x for n in ns for x in self.data.chain_slices(self.slc)[n]],
             [*np.arange(floor(self.data.min_sample), ceil(self.data.max_sample), bin_size)],
             density=True,
         )
