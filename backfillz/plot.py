@@ -95,6 +95,10 @@ class Plot:
     def top_left(self) -> Point:
         return self.x_domain[0], self.y_domain[1]
 
+    @property
+    def bottom_right(self) -> Point:
+        return self.x_domain[1], self.y_domain[0]
+
 
 @dataclass
 class LeafPlot(Plot):

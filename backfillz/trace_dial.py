@@ -163,10 +163,30 @@ class TraceDial(RootPlot):
     def title(self) -> str:
         return f"Pretzel plot for {self.data.param}"
 
+    @staticmethod
+    def background_rect(plot: Plot) -> Props:
+        x0, y0 = plot.top_left
+        x1, y1 = plot.bottom_right
+        return dict(
+            type='rect',
+            xref='paper', yref='paper',
+            x0=x0, y0=y0,
+            x1=x1, y1=y1,
+            fillcolor='steelblue',
+            opacity=0.5,
+            layer='below',
+            line_width=0,
+        )
+
     @property
     def layout_props(self) -> Props:
         # plotting region won't be exactly square but best we can do to align histogram width with donut
-        return dict(width=800, height=800)
+        histos: List[Plot] = self.histograms.plots
+        return dict(
+            width=800,
+            height=800,
+            shapes=[TraceDial.background_rect(histos[0]), TraceDial.background_rect(histos[1])]
+        )
 
     def add_additional_titles(self, fig: go.Figure) -> None:
         histos: List[Plot] = self.histograms.plots
