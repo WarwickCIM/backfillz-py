@@ -21,7 +21,7 @@ class DialPlot(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [DialPlot.donut_segment(DialPlot.donut_domain, self.theme.mg_colour), *self.polar_traces]
+        return [*self.donut_segments, *self.polar_traces]
 
     @property
     def xaxis_props(self) -> Props:
@@ -67,12 +67,13 @@ class DialPlot(LeafPlot):
             DialPlot.to_angular(slc.upper, DialPlot.donut_domain)
         )
 
+    @property
     def donut_segments(self) -> List[go.Scatter]:
-        [burn_in, remaining] = self.data.slcs
+        [burn, remaining] = self.data.slcs
         colours = DerivativeColours(self.theme)
         return [
-            DialPlot.donut_segment(DialPlot.slice_domain(burn_in), colours.inner_burn_segment),
-            DialPlot.donut_segment(DialPlot.slice_domain(remaining), colours.remaining_segment)
+            DialPlot.donut_segment(DialPlot.slice_domain(burn), '#002233'),  # colours.inner_burn_segment),
+            DialPlot.donut_segment(DialPlot.slice_domain(remaining), '#44AA88')  # colours.remaining_segment)
         ]
 
     def polar_trace(self, n: int) -> go.Scatter:

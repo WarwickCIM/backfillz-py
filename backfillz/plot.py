@@ -45,7 +45,7 @@ def segment(domain: Domain, n: int, m: int) -> Domain:
 
 
 def alpha(colour: str, a: float) -> str:
-    """Add an alpha component to a colour represented as an RGB string."""
+    """Add an alpha component to a colour represented as an hex string without an alpha component."""
     rgb: tuple[int, int, int] = unlabel_rgb(colour)
     return f"rgb({rgb[0]},{rgb[1]},{rgb[2]},{a})"
 
