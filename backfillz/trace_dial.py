@@ -21,7 +21,7 @@ class DialPlot(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [*self.donut_segments, *self.polar_traces]
+        return [*self.donut_segments, *[self.polar_trace(n) for n, _ in enumerate(self.data.chains)]]
 
     @property
     def xaxis_props(self) -> Props:
@@ -80,10 +80,6 @@ class DialPlot(LeafPlot):
         chain: np.ndarray = self.data.chains[n]
         xs, ys = DialPlot.polar_plot([*range(0, len(chain))], [*chain], DialPlot.donut_domain)
         return go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[n]))
-
-    @property
-    def polar_traces(self) -> List[go.Scatter]:
-        return [self.polar_trace(n) for n, _ in enumerate(self.data.chains)]
 
 
 @dataclass
