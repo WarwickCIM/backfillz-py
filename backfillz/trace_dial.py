@@ -164,7 +164,7 @@ class TraceDial(RootPlot):
         return f"Pretzel plot for {self.data.param}"
 
     @staticmethod
-    def background_rect(plot: Plot) -> Props:
+    def background_rect(plot: Plot, fillcolor: str) -> Props:
         x0, y0 = plot.top_left
         x1, y1 = plot.bottom_right
         return dict(
@@ -172,8 +172,7 @@ class TraceDial(RootPlot):
             xref='paper', yref='paper',
             x0=x0, y0=y0,
             x1=x1, y1=y1,
-            fillcolor='steelblue',
-            opacity=0.5,
+            fillcolor=fillcolor,
             layer='below',
             line_width=0,
         )
@@ -185,7 +184,10 @@ class TraceDial(RootPlot):
         return dict(
             width=800,
             height=800,
-            shapes=[TraceDial.background_rect(histos[0]), TraceDial.background_rect(histos[1])]
+            shapes=[
+                TraceDial.background_rect(histos[0], 'steelblue'),
+                TraceDial.background_rect(histos[1], 'pink')
+            ]
         )
 
     def add_additional_titles(self, fig: go.Figure) -> None:
