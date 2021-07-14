@@ -57,14 +57,15 @@ class SliceHistogram(LeafPlot):
         bottom: bool = self.n_slc == 0
         top: bool = self.n_slc == len(self.data.slcs) - 1
         # single slice requires special treatment; haven't figured out how to mirror tick labels
+        props: Props = dict(range=(self.data.min_sample, self.data.max_sample))
         if len(self.data.slcs) == 1:
-            return dict(mirror='ticks')
+            return {**props, **dict(mirror='ticks')}
         elif bottom:
-            return dict()
+            return props
         elif top:
-            return dict(side='top')
+            return {**props, **dict(side='top')}
         else:
-            return dict(visible=False)
+            return {**props, **dict(visible=False)}
 
     @property
     def yaxis_props(self) -> Props:
