@@ -53,6 +53,7 @@ class DialPlot(LeafPlot):
 
     @staticmethod
     def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
+        assert len(xs) == len(ys)
         xs_ang = [DialPlot.to_angular(x, DialPlot.donut_domain) for x in DialPlot.normalise(xs)]
         ys_radial = [DialPlot.to_radial(y) for y in DialPlot.normalise(ys)]
         return ([math.cos(x) * ys_radial[n] for n, x in enumerate(xs_ang)],
@@ -60,22 +61,16 @@ class DialPlot(LeafPlot):
 
     def polar_trace(self, n: int) -> go.Scatter:
         chain: np.ndarray = self.data.chains[n]
-        xs = [*range(0, len(chain))]
-        xs_circ, ys_circ = DialPlot.polar_plot(xs, [*chain])
-        return go.Scatter(
-            x=xs_circ, y=ys_circ,
-            line=dict(color=self.theme.palette[n]),
-        )
+        xs, ys = DialPlot.polar_plot(*range(0, len(chain)), [*chain])
+        return go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[n]))
 
     @property
     def donut_segment(self) -> go.Scatter:
         n_segments: int = 100
         xs1 = [0] + [*range(0, n_segments)]
         ys1 = [0.0] + [1.0] * n_segments
-        assert len(xs1) == len(ys1)
         xs2 = [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
         ys2 = [1.0] + [0.0] * n_segments
-        assert len(xs2) == len(ys2)
         xs, ys = DialPlot.polar_plot(xs1 + xs2, ys1 + ys2)
         return go.Scatter(
             x=xs, y=ys,
