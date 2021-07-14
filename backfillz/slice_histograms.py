@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import List, Tuple
+from typing import cast, List, Tuple
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
@@ -9,6 +9,9 @@ import scipy.stats as stats  # type: ignore
 
 from backfillz.data import Props, Slice
 from backfillz.plot import LeafPlot
+
+
+Bins = Tuple[List[float], List[float]]
 
 
 @dataclass
@@ -25,12 +28,12 @@ class SliceHistogram(LeafPlot):
         return [self.histo(ns, self.theme.fg_colour, 1), *[self.chain_plot(n) for n in ns]]
 
     # Histogram bins for a specified subset of the chains.
-    def bins(self, ns: List[int], bin_size) -> Tuple[List[float], List[float]]:
-        return np.histogram(
+    def bins(self, ns: List[int], bin_size: float) -> Bins:
+        return cast(Bins, np.histogram(
             [x for n in ns for x in self.data.chain_slices(self.slc)[n]],
             [*np.arange(floor(self.data.min_sample), ceil(self.data.max_sample), bin_size)],
             density=True,
-        )
+        ))
 
     # Histogram for a specified subset of the chains. Compute our own bins so we're in full control.
     def histo(self, ns: List[int], color: str, bin_size: float) -> go.Bar:
