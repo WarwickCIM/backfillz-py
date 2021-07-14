@@ -100,6 +100,12 @@ class TraceDialHistogram(SliceHistogram):
 
     @property
     def step_plots(self) -> List[go.Scatter]:
+        n: int = 0
+        np.histogram(
+            self.data.chains[n],
+            # use same settings as go.Histogram's xbins parameter, but might not behave identically
+            [*np.arange(math.floor(self.data.min_sample), math.ceil(self.data.max_sample), TraceDialHistogram.bin_size)]
+        )
         return []
 
     @property

@@ -24,7 +24,7 @@ class SliceHistogram(LeafPlot):
         ns: List[int] = [*range(0, len(self.data.chains))]
         return [self.histo(ns, self.theme.fg_colour, 1), *[self.chain_plot(n) for n in ns]]
 
-    # Histogram for any subset of the chains.
+    # Histogram for a specified subset of the chains.
     def histo(self, ns: List[int], color: str, bin_size: float) -> go.Histogram:
         chain_slices: List[np.ndarray] = self.data.chain_slices(self.slc)
         return go.Histogram(
