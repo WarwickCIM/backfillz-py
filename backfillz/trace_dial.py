@@ -36,7 +36,12 @@ class DialPlot(LeafPlot):
         return dict(range=[-1, 1], visible=False)
 
     @staticmethod
-    def polar_plot(xs: List[float], ys: List[float], x_axis: Axis, y_axis: Axis) -> Tuple[List[float], List[float]]:
+    def polar_plot(
+        xs: List[float],
+        ys: List[float],
+        x_axis: Axis,
+        y_axis: Axis
+    ) -> Tuple[List[float], List[float]]:
         assert len(xs) == len(ys)
         xs_angular = [x_axis.translate(x) for x in xs]
         ys_radial = [y_axis.translate(y) for y in ys]

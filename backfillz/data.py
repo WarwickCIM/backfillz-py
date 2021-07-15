@@ -42,7 +42,8 @@ Point = Tuple[float, float]
 
 @dataclass
 class Axis:
-    """Maps a range into a domain."""
+    """Map a range into a domain."""
+
     range: Domain
     domain: Domain
 
@@ -54,6 +55,7 @@ class Axis:
 
 
 def normalise(xs: Sequence[float], domain: Domain) -> Axis:
+    """Map a data range into a domain."""
     return Axis((min(xs), max(xs)), domain)
 
 
