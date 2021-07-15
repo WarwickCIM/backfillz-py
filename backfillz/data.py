@@ -43,9 +43,9 @@ Point = Tuple[float, float]
 # Bit inefficient for chains (recomputes min/max rather than used the cached property on ParameterSlices).
 def normalise(xs: Sequence[float]) -> List[float]:
     """Normalise a sequence of numbers."""
-    min_x: float = min(xs)
-    max_x: float = max(xs)
-    return scale(1 / (max_x - min_x), translate(-min_x, xs))
+    start: float = min(xs)
+    end: float = max(xs)
+    return scale(1 / (end - start), translate(-start, xs))
 
 
 def scale(factor: float, xs: Sequence[float]) -> List[float]:
@@ -67,7 +67,7 @@ def segment(domain: Domain, n: int, m: int) -> Domain:
 
 
 def to_domain(x: float, domain: Domain) -> float:
-    """Convert normalised coordinate to point within supplied domain."""
+    """Convert normalised coordinate to position within supplied domain."""
     start, end = domain
     return start + x * (end - start)
 
