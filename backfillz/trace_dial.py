@@ -6,7 +6,7 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, segment, Slice, to_domain
+from backfillz.data import Axis, Domain, MCMCRun, normalise, ParameterSlices, Props, segment, Slice, to_domain
 from backfillz.plot import (
     AggregatePlot, alpha, background_rect, fresh_axis_id, LeafPlot, left_vertical_title, Plot, RootPlot
 )
@@ -39,6 +39,14 @@ class DialPlot(LeafPlot):
     def polar_plot(xs: List[float], ys: List[float], x_domain: Domain) -> Tuple[List[float], List[float]]:
         assert len(xs) == len(ys)
         xs_angular = [to_domain(x, x_domain) for x in normalise(xs)]
+        ys_radial = [to_domain(y, DialPlot.radial_domain) for y in normalise(ys)]
+        return ([math.cos(x) * ys_radial[n] for n, x in enumerate(xs_angular)],
+                [math.sin(x) * ys_radial[n] for n, x in enumerate(xs_angular)])
+
+    @staticmethod
+    def polar_plot2(xs: List[float], ys: List[float], x_axis: Axis) -> Tuple[List[float], List[float]]:
+        assert len(xs) == len(ys)
+        xs_angular = [x_axis.translate(x) for x in xs]
         ys_radial = [to_domain(y, DialPlot.radial_domain) for y in normalise(ys)]
         return ([math.cos(x) * ys_radial[n] for n, x in enumerate(xs_angular)],
                 [math.sin(x) * ys_radial[n] for n, x in enumerate(xs_angular)])
