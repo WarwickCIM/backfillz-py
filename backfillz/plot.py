@@ -222,3 +222,17 @@ class RootPlot(AggregatePlot):
         self.add_additional_titles(fig)
         self.render(fig)
         return fig
+
+
+def background_rect(plot: Plot, fillcolor: str) -> Props:
+    x0, y0 = plot.top_left
+    x1, y1 = plot.bottom_right
+    return dict(
+        type='rect',
+        xref='paper', yref='paper',
+        x0=x0, y0=y0,
+        x1=x1, y1=y1,
+        fillcolor=fillcolor,
+        layer='below',
+        line_width=0,
+    )

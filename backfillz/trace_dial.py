@@ -7,7 +7,9 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, Slice
-from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot, segment
+from backfillz.plot import (
+    AggregatePlot, alpha, annotate, background_rect, fresh_axis_id, LeafPlot, Plot, RootPlot, segment
+)
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
@@ -163,37 +165,29 @@ class TraceDial(RootPlot):
     def title(self) -> str:
         return f"Pretzel plot for {self.data.param}"
 
-    @staticmethod
-    def background_rect(plot: Plot, fillcolor: str) -> Props:
-        x0, y0 = plot.top_left
-        x1, y1 = plot.bottom_right
-        return dict(
-            type='rect',
-            xref='paper', yref='paper',
-            x0=x0, y0=y0,
-            x1=x1, y1=y1,
-            fillcolor=fillcolor,
-            layer='below',
-            line_width=0,
-        )
+    @property
+    def burn_in_histo(self) -> Plot:
+        return self.histograms.plots[0]
+
+    @property
+    def sample_histo(self) -> Plot:
+        return self.histograms.plots[1]
 
     @property
     def layout_props(self) -> Props:
         # plotting region won't be exactly square but best we can do to align histogram width with donut
-        histos: List[Plot] = self.histograms.plots
         colours = DerivativeColours(self.theme)
         return dict(
             width=800, height=800,
             shapes=[
-                TraceDial.background_rect(histos[0], colours.inner_burn_segment),
-                TraceDial.background_rect(histos[1], colours.remaining_segment)
+                background_rect(self.burn_in_histo, colours.inner_burn_segment),
+                background_rect(self.sample_histo, colours.remaining_segment)
             ]
         )
 
     def add_additional_titles(self, fig: go.Figure) -> None:
-        histos: List[Plot] = self.histograms.plots
-        annotate(fig, 14, histos[0].top_left, 'right', 'top', None, "Burn-in histogram", textangle=-90)
-        annotate(fig, 14, histos[1].top_left, 'right', 'top', None, "Sample histogram", textangle=-90)
+        annotate(fig, 14, self.burn_in_histo.top_left, 'right', 'top', None, "Burn-in histogram", textangle=-90)
+        annotate(fig, 14, self.sample_histo.top_left, 'right', 'top', None, "Sample histogram", textangle=-90)
 
     @staticmethod
     def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
