@@ -88,7 +88,7 @@ class DialPlot(LeafPlot):
         tick_every: int = 200
         xs1 = [x * tick_every for x in range(0, self.data.n_iter // tick_every)]
         xs2 = [0, TraceDial.burn_in_iter, self.data.n_iter]
-        top, bottom1, bottom2 = -0.04, -0.09, -0.15
+        top, bottom1, bottom2 = -0.04, -0.09, -0.20
         return [
             self.radial_ticks(xs1, (top, bottom1), self.theme.mg_colour),
             self.radial_ticks(xs2, (top, bottom2), self.theme.fg_colour),
