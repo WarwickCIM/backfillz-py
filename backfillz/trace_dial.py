@@ -37,15 +37,14 @@ class DialPlot(LeafPlot):
 
     @staticmethod
     def to_angular(x: float, domain: Domain) -> float:
-        """Convert normalised x coordinate to angular coordinate within supplied domain."""
+        """Convert normalised coordinate to point within supplied domain."""
         start, end = domain
         return start + x * (end - start)
 
     @staticmethod
     def to_radial(y: float) -> float:
         """Map normalised y coordinate into radial domain."""
-        start, end = DialPlot.radial_domain
-        return start + y * (end - start)
+        return DialPlot.to_angular(y, DialPlot.radial_domain)
 
     @staticmethod
     def polar_plot(xs: List[float], ys: List[float], x_domain: Domain) -> Tuple[List[float], List[float]]:
