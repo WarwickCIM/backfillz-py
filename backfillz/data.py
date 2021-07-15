@@ -47,10 +47,10 @@ class Axis:
     range: Domain
     domain: Domain
 
+    # Don't require that r_start <= x <= r_end.
     def translate(self, x: float) -> float:
         r_start, r_end = self.range
         d_start, d_end = self.domain
-        assert r_start <= x <= r_end
         return (x - r_start) / (r_end - r_start) * (d_end - d_start) + d_start
 
 
