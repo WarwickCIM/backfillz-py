@@ -52,8 +52,7 @@ class DialPlot(LeafPlot):
     def arc(x_domain: Domain, y: float, n_segments: int) -> Tuple[List[float], List[float]]:
         xs = [*range(0, n_segments)]
         ys = [y] * n_segments
-        return DialPlot.polar_plot(xs, ys, normalise(xs, x_domain), Axis((0.0, 1.0), DialPlot.radial_domain)
-)
+        return DialPlot.polar_plot(xs, ys, normalise(xs, x_domain), Axis((0.0, 1.0), DialPlot.radial_domain))
 
     @staticmethod
     def donut_segment(x_domain: Domain, fillcolor: str) -> go.Scatter:
@@ -61,6 +60,10 @@ class DialPlot(LeafPlot):
         xs = [0.0] + [*range(0, n_segments)] + [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
         ys = [0.0] + [1.0] * n_segments + [1.0] + [0.0] * n_segments
         x, y = DialPlot.polar_plot(xs, ys, normalise(xs, x_domain), normalise(ys, DialPlot.radial_domain))
+        xs1, ys1 = DialPlot.arc(x_domain, 1.0, 100)
+        xs2, ys2 = DialPlot.arc(x_domain, 0.0, 100)
+        x2 = [0.0] + xs1 + [99.0] + xs2
+        y2 = [0.0] + ys1 + [1.0] + ys2
         return go.Scatter(x=x, y=y, line=dict(width=0), fill='toself', fillcolor=fillcolor)
 
     @staticmethod
