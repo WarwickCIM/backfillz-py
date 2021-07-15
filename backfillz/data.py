@@ -58,7 +58,7 @@ class Axis:
         r_start, r_end = self.range
         d_start, d_end = self.domain
         assert r_start <= x <= r_end
-        return (x - r_start) / (r_end - r_start) * (d_start - d_end) + d_start
+        return (x - r_start) / (r_end - r_start) * (d_end - d_start) + d_start
 
 
 def normalise2(xs: Sequence[float], domain: Domain) -> Axis:
