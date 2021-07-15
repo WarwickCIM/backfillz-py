@@ -78,9 +78,10 @@ class DialPlot(LeafPlot):
     @property
     def radial_axis(self) -> go.Scatter:
         x1, y1 = DialPlot.arc(DialPlot.angular_domain, -0.1, 100)
-        x2, y2 = DialPlot.arc(DialPlot.angular_domain, -0.12, 100)
-        xs = [x for p in zip(x1, x2) for x in p]
-        ys = [y for p in zip(y1, y2) for y in p]
+        x2, y2 = DialPlot.arc(DialPlot.angular_domain, -0.13, 100)
+        y2a = [math.nan for x in x2]
+        xs = [x for p in zip(x1, x2, x2) for x in p]
+        ys = [y for p in zip(y1, y2, y2a) for y in p]
         return go.Scatter(x=xs, y=ys, line=dict(width=1, color=self.theme.fg_colour))
 
     def polar_trace(self, n: int, x_axis: Axis, y_axis: Axis) -> go.Scatter:
