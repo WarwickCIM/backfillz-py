@@ -48,6 +48,24 @@ def normalise(xs: Sequence[float]) -> List[float]:
     return [(x - min_x) / (max_x - min_x) for x in xs]
 
 
+def scale(factor: float, xs: List[float]) -> List[float]:
+    """Element-wise product."""
+    return [x * factor for x in xs]
+
+
+def segment(domain: Domain, n: int, m: int) -> Domain:
+    """Break supplied "domain" into n equal-sized segments, and return the mth."""
+    start, end = domain
+    width = (end - start) / n
+    return start + m * width, start + (m + 1) * width
+
+
+def to_domain(x: float, domain: Domain) -> float:
+    """Convert normalised coordinate to point within supplied domain."""
+    start, end = domain
+    return start + x * (end - start)
+
+
 @dataclass
 class ParameterSlices:
     """The MCMC data being presented."""

@@ -6,9 +6,9 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, Slice
+from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, segment, Slice, to_domain
 from backfillz.plot import (
-    AggregatePlot, alpha, annotate, background_rect, fresh_axis_id, LeafPlot, Plot, RootPlot, segment
+    AggregatePlot, alpha, background_rect, fresh_axis_id, LeafPlot, left_vertical_title, Plot, RootPlot
 )
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
@@ -36,16 +36,10 @@ class DialPlot(LeafPlot):
         return dict(range=[-1, 1], visible=False)
 
     @staticmethod
-    def to_domain(x: float, domain: Domain) -> float:
-        """Convert normalised coordinate to point within supplied domain."""
-        start, end = domain
-        return start + x * (end - start)
-
-    @staticmethod
     def polar_plot(xs: List[float], ys: List[float], x_domain: Domain) -> Tuple[List[float], List[float]]:
         assert len(xs) == len(ys)
-        xs_ang = [DialPlot.to_domain(x, x_domain) for x in normalise(xs)]
-        ys_radial = [DialPlot.to_domain(y, DialPlot.radial_domain) for y in normalise(ys)]
+        xs_ang = [to_domain(x, x_domain) for x in normalise(xs)]
+        ys_radial = [to_domain(y, DialPlot.radial_domain) for y in normalise(ys)]
         return ([math.cos(x) * ys_radial[n] for n, x in enumerate(xs_ang)],
                 [math.sin(x) * ys_radial[n] for n, x in enumerate(xs_ang)])
 
@@ -59,10 +53,7 @@ class DialPlot(LeafPlot):
 
     @staticmethod
     def slice_domain(slc: Slice) -> Domain:
-        return (
-            DialPlot.to_domain(slc.lower, DialPlot.angular_domain),
-            DialPlot.to_domain(slc.upper, DialPlot.angular_domain)
-        )
+        return to_domain(slc.lower, DialPlot.angular_domain), to_domain(slc.upper, DialPlot.angular_domain)
 
     @property
     def donut_segments(self) -> List[go.Scatter]:
@@ -182,8 +173,8 @@ class TraceDial(RootPlot):
         )
 
     def add_additional_titles(self, fig: go.Figure) -> None:
-        annotate(fig, 14, self.burn_in_histo.top_left, 'right', 'top', None, "Burn-in histogram", textangle=-90)
-        annotate(fig, 14, self.sample_histo.top_left, 'right', 'top', None, "Sample histogram", textangle=-90)
+        left_vertical_title(fig, self.burn_in_histo, "Burn-in histogram")
+        left_vertical_title(fig, self.sample_histo, "Sample histogram")
 
     @staticmethod
     def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
