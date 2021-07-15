@@ -55,6 +55,7 @@ def scale(factor: float, xs: List[float]) -> List[float]:
 
 def segment(domain: Domain, n: int, m: int) -> Domain:
     """Break supplied "domain" into n equal-sized segments, and return the mth."""
+    assert n > 0 and 0 <= m < n
     start, end = domain
     width = (end - start) / n
     return start + m * width, start + (m + 1) * width
