@@ -38,15 +38,7 @@ class DialPlot(LeafPlot):
         return dict(range=[-1, 1], visible=False)
 
     @staticmethod
-    def polar_plot(xs: List[float], ys: List[float], x_domain: Domain) -> Tuple[List[float], List[float]]:
-        assert len(xs) == len(ys)
-        xs_angular = [to_domain(x, x_domain) for x in normalise(xs)]
-        ys_radial = [to_domain(y, DialPlot.radial_domain) for y in normalise(ys)]
-        return ([math.cos(x) * ys_radial[n] for n, x in enumerate(xs_angular)],
-                [math.sin(x) * ys_radial[n] for n, x in enumerate(xs_angular)])
-
-    @staticmethod
-    def polar_plot2(xs: List[float], ys: List[float], x_axis: Axis) -> Tuple[List[float], List[float]]:
+    def polar_plot(xs: List[float], ys: List[float], x_axis: Axis) -> Tuple[List[float], List[float]]:
         assert len(xs) == len(ys)
         xs_angular = [x_axis.translate(x) for x in xs]
         ys_radial = [to_domain(y, DialPlot.radial_domain) for y in normalise(ys)]
@@ -58,7 +50,7 @@ class DialPlot(LeafPlot):
         n_segments: int = 100
         xs = [0.0] + [*range(0, n_segments)] + [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
         ys = [0.0] + [1.0] * n_segments + [1.0] + [0.0] * n_segments
-        x, y = DialPlot.polar_plot2(xs, ys, normalise2(xs, x_domain))
+        x, y = DialPlot.polar_plot(xs, ys, normalise2(xs, x_domain))
         return go.Scatter(x=x, y=y, line=dict(width=0), fill='toself', fillcolor=fillcolor)
 
     @staticmethod
@@ -76,7 +68,7 @@ class DialPlot(LeafPlot):
 
     def polar_trace(self, n: int, x_axis) -> go.Scatter:
         chain: np.ndarray = self.data.chains[n]
-        xs, ys = DialPlot.polar_plot2([*range(0, len(chain))], [*chain], x_axis)
+        xs, ys = DialPlot.polar_plot([*range(0, len(chain))], [*chain], x_axis)
         return go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[n]))
 
     @property
