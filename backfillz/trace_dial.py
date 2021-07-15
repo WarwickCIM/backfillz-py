@@ -38,10 +38,10 @@ class DialPlot(LeafPlot):
     @staticmethod
     def polar_plot(xs: List[float], ys: List[float], x_domain: Domain) -> Tuple[List[float], List[float]]:
         assert len(xs) == len(ys)
-        xs_ang = [to_domain(x, x_domain) for x in normalise(xs)]
+        xs_angular = [to_domain(x, x_domain) for x in normalise(xs)]
         ys_radial = [to_domain(y, DialPlot.radial_domain) for y in normalise(ys)]
-        return ([math.cos(x) * ys_radial[n] for n, x in enumerate(xs_ang)],
-                [math.sin(x) * ys_radial[n] for n, x in enumerate(xs_ang)])
+        return ([math.cos(x) * ys_radial[n] for n, x in enumerate(xs_angular)],
+                [math.sin(x) * ys_radial[n] for n, x in enumerate(xs_angular)])
 
     @staticmethod
     def donut_segment(x_domain: Domain, fillcolor: str) -> go.Scatter:

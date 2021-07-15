@@ -48,6 +48,23 @@ def normalise(xs: Sequence[float]) -> List[float]:
     return scale(1 / (end - start), translate(-start, xs))
 
 
+@dataclass
+class Axis:
+    """Maps a range into a domain."""
+    range: Domain
+    domain: Domain
+
+    def translate(self, x: float) -> float:
+        r_start, r_end = self.range
+        d_start, d_end = self.domain
+        assert r_start <= x <= r_end
+        return (x - r_start) / (r_end - r_start) * (d_start - d_end) + d_start
+
+
+def normalise2(xs: Sequence[float], domain: Domain) -> Axis:
+    return Axis((min(xs), max(xs)), domain)
+
+
 def scale(factor: float, xs: Sequence[float]) -> List[float]:
     """Element-wise product."""
     return [x * factor for x in xs]
