@@ -74,14 +74,15 @@ class DialPlot(LeafPlot):
             DialPlot.donut_segment(DialPlot.slice_domain(remaining), colours.remaining_segment)
         ]
 
-    def polar_trace(self, n: int) -> go.Scatter:
+    def polar_trace(self, n: int, x_axis) -> go.Scatter:
         chain: np.ndarray = self.data.chains[n]
         xs, ys = DialPlot.polar_plot([*range(0, len(chain))], [*chain], DialPlot.angular_domain)
         return go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[n]))
 
     @property
     def polar_traces(self) -> List[go.Scatter]:
-        return [self.polar_trace(n) for n, _ in enumerate(self.data.chains)]
+        x_axis = Axis((0, self.data.n_iter), DialPlot.angular_domain)
+        return [self.polar_trace(n, x_axis) for n, _ in enumerate(self.data.chains)]
 
 
 @dataclass
