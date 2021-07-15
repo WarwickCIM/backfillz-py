@@ -126,7 +126,6 @@ class AggregatePlot(Plot):
             plot.render(fig)
 
 
-# Should consolidate some of the commonality with Plot.
 @dataclass
 class RootPlot(AggregatePlot):
     """Top-level plot container."""

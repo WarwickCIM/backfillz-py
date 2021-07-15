@@ -45,17 +45,17 @@ def normalise(xs: Sequence[float]) -> List[float]:
     """Normalise a sequence of numbers."""
     min_x: float = min(xs)
     max_x: float = max(xs)
-    return [(x - min_x) / (max_x - min_x) for x in xs]
+    return scale(1 / (max_x - min_x), translate(-min_x, xs))
 
 
-def scale(factor: float, xs: List[float]) -> List[float]:
+def scale(factor: float, xs: Sequence[float]) -> List[float]:
     """Element-wise product."""
     return [x * factor for x in xs]
 
 
-def translate(offset: float, factor: float, xs: List[float]) -> List[float]:
-    """Element-wise translation."""
-    return [offset + x * factor for x in xs]
+def translate(offset: float, xs: Sequence[float]) -> List[float]:
+    """Element-wise addition of a constant."""
+    return [x + offset for x in xs]
 
 
 def segment(domain: Domain, n: int, m: int) -> Domain:
