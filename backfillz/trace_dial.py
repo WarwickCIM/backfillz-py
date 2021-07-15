@@ -89,9 +89,12 @@ class DialPlot(LeafPlot):
         xs1 = [x * tick_every for x in range(0, self.data.n_iter // tick_every)]
         xs2 = [0, TraceDial.burn_in_iter, self.data.n_iter]
         top, bottom1, bottom2 = -0.04, -0.09, -0.15
-        return [self.radial_ticks(xs2, (top, bottom2)), self.radial_ticks(xs1, (top, bottom1))]
+        return [
+            self.radial_ticks(xs1, (top, bottom1), self.theme.mg_colour),
+            self.radial_ticks(xs2, (top, bottom2), self.theme.fg_colour),
+        ]
 
-    def radial_ticks(self, xs: List[float], tick_size: Tuple[float, float]) -> go.Scatter:
+    def radial_ticks(self, xs: List[float], tick_size: Tuple[float, float], colour: str) -> go.Scatter:
         """Ticks at supplied angular positions, sized relative to radial_domain."""
         top, bottom = tick_size
         y_axis: Axis = Axis((0.0, 1.0), DialPlot.radial_domain)
@@ -99,7 +102,7 @@ class DialPlot(LeafPlot):
         x2, y2 = DialPlot.polar_plot(xs, [bottom] * len(xs), self.angular_axis, y_axis)
         xs = [x for p in zip(x1, x2, x2) for x in p]
         ys = [y for p in zip(y1, y2, [math.nan for x in x2]) for y in p]
-        return go.Scatter(x=xs, y=ys, line=dict(width=1, color=self.theme.mg_colour))
+        return go.Scatter(x=xs, y=ys, mode='lines', line=dict(width=1, color=colour))
 
     def polar_trace(self, n: int, x_axis: Axis, y_axis: Axis) -> go.Scatter:
         chain: np.ndarray = self.data.chains[n]
