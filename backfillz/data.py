@@ -40,14 +40,6 @@ Props = Dict[str, Any]
 Point = Tuple[float, float]
 
 
-# Bit inefficient for chains (recomputes min/max rather than used the cached property on ParameterSlices).
-def normalise(xs: Sequence[float]) -> List[float]:
-    """Normalise a sequence of numbers."""
-    start: float = min(xs)
-    end: float = max(xs)
-    return scale(1 / (end - start), translate(-start, xs))
-
-
 @dataclass
 class Axis:
     """Maps a range into a domain."""
@@ -61,7 +53,7 @@ class Axis:
         return (x - r_start) / (r_end - r_start) * (d_end - d_start) + d_start
 
 
-def normalise2(xs: Sequence[float], domain: Domain) -> Axis:
+def normalise(xs: Sequence[float], domain: Domain) -> Axis:
     return Axis((min(xs), max(xs)), domain)
 
 
