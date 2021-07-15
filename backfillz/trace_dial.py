@@ -76,21 +76,23 @@ class DialPlot(LeafPlot):
         ]
 
     @property
-    def radial_axis(self) -> Axis:
+    def angular_axis(self) -> Axis:
         return Axis((0, self.data.n_iter), DialPlot.angular_domain)
 
     @property
-    def angular_axis(self) -> Axis:
+    def radial_axis(self) -> Axis:
         return Axis((self.data.min_sample, self.data.max_sample), DialPlot.radial_domain)
 
     @property
     def radial_ticks(self) -> go.Scatter:
-        num_ticks: int = 50
+        tick_every: int = 200
+        xs = [x * tick_every for x in range(0, self.data.n_iter // tick_every)]
         # these both in DialPlot.radial_domain frame of reference
         tick_top: float = -0.04
         tick_bottom: float = -0.09
-        x1, y1 = DialPlot.arc(DialPlot.angular_domain, tick_top, num_ticks)
-        x2, y2 = DialPlot.arc(DialPlot.angular_domain, tick_bottom, num_ticks)
+        y_axis: Axis = Axis((0.0, 1.0), DialPlot.radial_domain)
+        x1, y1 = DialPlot.polar_plot(xs, [tick_top] * len(xs), self.angular_axis, y_axis)
+        x2, y2 = DialPlot.polar_plot(xs, [tick_bottom] * len(xs), self.angular_axis, y_axis)
         xs = [x for p in zip(x1, x2, x2) for x in p]
         ys = [y for p in zip(y1, y2, [math.nan for x in x2]) for y in p]
         return go.Scatter(x=xs, y=ys, line=dict(width=1, color=self.theme.mg_colour))
@@ -103,7 +105,7 @@ class DialPlot(LeafPlot):
     @property
     def polar_traces(self) -> List[go.Scatter]:
         return [
-            self.polar_trace(n, self.radial_axis, self.angular_axis)
+            self.polar_trace(n, self.angular_axis, self.radial_axis)
             for n, _ in enumerate(self.data.chains)
         ]
 
