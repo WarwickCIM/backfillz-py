@@ -36,21 +36,16 @@ class DialPlot(LeafPlot):
         return dict(range=[-1, 1], visible=False)
 
     @staticmethod
-    def to_angular(x: float, domain: Domain) -> float:
+    def to_domain(x: float, domain: Domain) -> float:
         """Convert normalised coordinate to point within supplied domain."""
         start, end = domain
         return start + x * (end - start)
 
     @staticmethod
-    def to_radial(y: float) -> float:
-        """Map normalised y coordinate into radial domain."""
-        return DialPlot.to_angular(y, DialPlot.radial_domain)
-
-    @staticmethod
     def polar_plot(xs: List[float], ys: List[float], x_domain: Domain) -> Tuple[List[float], List[float]]:
         assert len(xs) == len(ys)
-        xs_ang = [DialPlot.to_angular(x, x_domain) for x in normalise(xs)]
-        ys_radial = [DialPlot.to_radial(y) for y in normalise(ys)]
+        xs_ang = [DialPlot.to_domain(x, x_domain) for x in normalise(xs)]
+        ys_radial = [DialPlot.to_domain(y, DialPlot.radial_domain) for y in normalise(ys)]
         return ([math.cos(x) * ys_radial[n] for n, x in enumerate(xs_ang)],
                 [math.sin(x) * ys_radial[n] for n, x in enumerate(xs_ang)])
 
@@ -65,8 +60,8 @@ class DialPlot(LeafPlot):
     @staticmethod
     def slice_domain(slc: Slice) -> Domain:
         return (
-            DialPlot.to_angular(slc.lower, DialPlot.angular_domain),
-            DialPlot.to_angular(slc.upper, DialPlot.angular_domain)
+            DialPlot.to_domain(slc.lower, DialPlot.angular_domain),
+            DialPlot.to_domain(slc.upper, DialPlot.angular_domain)
         )
 
     @property
