@@ -23,7 +23,7 @@ class DialPlot(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [*self.donut_segments, *self.polar_traces, self.radial_ticks]
+        return [*self.donut_segments, *self.polar_traces, self.inner_ticks]
 
     @property
     def xaxis_props(self) -> Props:
@@ -84,14 +84,12 @@ class DialPlot(LeafPlot):
         return Axis((self.data.min_sample, self.data.max_sample), DialPlot.radial_domain)
 
     @property
-    def radial_ticks(self) -> go.Scatter:
+    def inner_ticks(self) -> go.Scatter:
         tick_every: int = 200
         xs = [x * tick_every for x in range(0, self.data.n_iter // tick_every)]
-        # these both in DialPlot.radial_domain frame of reference
-        tick_size: Tuple[float, float] = (-0.04, -0.09)
-        return self.radial_ticks2(xs, tick_size)
+        return self.radial_ticks(xs, (-0.04, -0.09))
 
-    def radial_ticks2(self, xs: List[float], tick_size: Tuple[float, float]) -> go.Scatter:
+    def radial_ticks(self, xs: List[float], tick_size: Tuple[float, float]) -> go.Scatter:
         """Ticks at supplied angular positions, sized relative to radial_domain."""
         top, bottom = tick_size
         y_axis: Axis = Axis((0.0, 1.0), DialPlot.radial_domain)
