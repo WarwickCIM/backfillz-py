@@ -23,7 +23,7 @@ class DialPlot(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [*self.donut_segments, *self.polar_traces, self.inner_ticks]
+        return [*self.donut_segments, *self.polar_traces, *self.inner_ticks]
 
     @property
     def xaxis_props(self) -> Props:
@@ -84,10 +84,12 @@ class DialPlot(LeafPlot):
         return Axis((self.data.min_sample, self.data.max_sample), DialPlot.radial_domain)
 
     @property
-    def inner_ticks(self) -> go.Scatter:
+    def inner_ticks(self) -> List[go.Scatter]:
         tick_every: int = 200
-        xs = [x * tick_every for x in range(0, self.data.n_iter // tick_every)]
-        return self.radial_ticks(xs, (-0.04, -0.09))
+        xs1 = [x * tick_every for x in range(0, self.data.n_iter // tick_every)]
+        xs2 = [0, TraceDial.burn_in_iter, self.data.n_iter]
+        top, bottom1, bottom2 = -0.04, -0.09, -0.15
+        return [self.radial_ticks(xs2, (top, bottom2)), self.radial_ticks(xs1, (top, bottom1))]
 
     def radial_ticks(self, xs: List[float], tick_size: Tuple[float, float]) -> go.Scatter:
         """Ticks at supplied angular positions, sized relative to radial_domain."""
@@ -167,6 +169,8 @@ class SliceHistograms(AggregatePlot):
 class TraceDial(RootPlot):
     """Top-level plot, for a given parameter and chain."""
 
+    burn_in_iter: int = 500  # hard-coded for now -- should be a parameter?
+
     def make_plots(self) -> List[Plot]:
         return [self.dial_plot, self.histograms]
 
@@ -221,8 +225,7 @@ class TraceDial(RootPlot):
     @staticmethod
     def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
         """Create a trace slice histogram."""
-        burn_in_iter: int = 500  # how to decide?
-        burn_in_end: float = burn_in_iter / mcmc_run.samples.num_samples
+        burn_in_end: float = TraceDial.burn_in_iter / mcmc_run.samples.num_samples
         return TraceDial(
             x_domain=(0.0, 1.0),
             y_domain=(0.0, 1.0),
