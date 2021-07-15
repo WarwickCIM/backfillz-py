@@ -88,11 +88,15 @@ class DialPlot(LeafPlot):
         tick_every: int = 200
         xs = [x * tick_every for x in range(0, self.data.n_iter // tick_every)]
         # these both in DialPlot.radial_domain frame of reference
-        tick_top: float = -0.04
-        tick_bottom: float = -0.09
+        tick_size: Tuple[float, float] = (-0.04, -0.09)
+        return self.radial_ticks2(xs, tick_size)
+
+    def radial_ticks2(self, xs: List[float], tick_size: Tuple[float, float]) -> go.Scatter:
+        """Ticks at supplied angular positions, sized relative to radial_domain."""
+        top, bottom = tick_size
         y_axis: Axis = Axis((0.0, 1.0), DialPlot.radial_domain)
-        x1, y1 = DialPlot.polar_plot(xs, [tick_top] * len(xs), self.angular_axis, y_axis)
-        x2, y2 = DialPlot.polar_plot(xs, [tick_bottom] * len(xs), self.angular_axis, y_axis)
+        x1, y1 = DialPlot.polar_plot(xs, [top] * len(xs), self.angular_axis, y_axis)
+        x2, y2 = DialPlot.polar_plot(xs, [bottom] * len(xs), self.angular_axis, y_axis)
         xs = [x for p in zip(x1, x2, x2) for x in p]
         ys = [y for p in zip(y1, y2, [math.nan for x in x2]) for y in p]
         return go.Scatter(x=xs, y=ys, line=dict(width=1, color=self.theme.mg_colour))
