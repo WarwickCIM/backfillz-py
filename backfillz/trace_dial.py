@@ -23,7 +23,7 @@ class DialPlot(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [*self.donut_segments, *self.polar_traces, self.radial_axis]
+        return [*self.donut_segments, *self.polar_traces, self.radial_ticks]
 
     @property
     def xaxis_props(self) -> Props:
@@ -76,13 +76,24 @@ class DialPlot(LeafPlot):
         ]
 
     @property
-    def radial_axis(self) -> go.Scatter:
-        x1, y1 = DialPlot.arc(DialPlot.angular_domain, -0.1, 100)
-        x2, y2 = DialPlot.arc(DialPlot.angular_domain, -0.13, 100)
-        y2a = [math.nan for x in x2]
+    def radial_axis(self) -> Axis:
+        return Axis((0, self.data.n_iter), DialPlot.angular_domain)
+
+    @property
+    def angular_axis(self) -> Axis:
+        return Axis((self.data.min_sample, self.data.max_sample), DialPlot.radial_domain)
+
+    @property
+    def radial_ticks(self) -> go.Scatter:
+        num_ticks: int = 50
+        # these both in DialPlot.radial_domain frame of reference
+        tick_top: float = -0.04
+        tick_bottom: float = -0.09
+        x1, y1 = DialPlot.arc(DialPlot.angular_domain, tick_top, num_ticks)
+        x2, y2 = DialPlot.arc(DialPlot.angular_domain, tick_bottom, num_ticks)
         xs = [x for p in zip(x1, x2, x2) for x in p]
-        ys = [y for p in zip(y1, y2, y2a) for y in p]
-        return go.Scatter(x=xs, y=ys, line=dict(width=1, color=self.theme.fg_colour))
+        ys = [y for p in zip(y1, y2, [math.nan for x in x2]) for y in p]
+        return go.Scatter(x=xs, y=ys, line=dict(width=1, color=self.theme.mg_colour))
 
     def polar_trace(self, n: int, x_axis: Axis, y_axis: Axis) -> go.Scatter:
         chain: np.ndarray = self.data.chains[n]
@@ -91,9 +102,10 @@ class DialPlot(LeafPlot):
 
     @property
     def polar_traces(self) -> List[go.Scatter]:
-        x_axis = Axis((0, self.data.n_iter), DialPlot.angular_domain)
-        y_axis = Axis((self.data.min_sample, self.data.max_sample), DialPlot.radial_domain)
-        return [self.polar_trace(n, x_axis, y_axis) for n, _ in enumerate(self.data.chains)]
+        return [
+            self.polar_trace(n, self.radial_axis, self.angular_axis)
+            for n, _ in enumerate(self.data.chains)
+        ]
 
 
 @dataclass
