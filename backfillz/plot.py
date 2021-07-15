@@ -213,10 +213,12 @@ def annotate(
 
 
 def left_vertical_title(fig: go.Figure, plot: Plot, title: str) -> None:
+    """Add vertical title to left of plot."""
     annotate(fig, 14, plot.top_left, 'right', 'top', None, title, textangle=-90)
 
 
 def background_rect(plot: Plot, fillcolor: str) -> Props:
+    """Shaded background for a plot, as a Plotly shape that can be added to layout.shapes."""
     x0, y0 = plot.top_left
     x1, y1 = plot.bottom_right
     return dict(
