@@ -18,8 +18,8 @@ from backfillz.theme import BackfillzTheme
 class DialPlot(LeafPlot):
     """Trace dial plot on the left."""
 
-    hole_size: float = 1 / 3
-    donut_domain: Domain = 0.5 * math.pi, 2 * math.pi  # radians
+    radial_domain: Domain = 1 / 3, 1.0
+    angular_domain: Domain = 0.5 * math.pi, 2 * math.pi
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
@@ -43,8 +43,9 @@ class DialPlot(LeafPlot):
 
     @staticmethod
     def to_radial(y: float) -> float:
-        """Map a normalised y coordinate into upper 2/3 of radius."""
-        return DialPlot.hole_size + y * (1 - DialPlot.hole_size)
+        """Map normalised y coordinate into radial domain."""
+        start, end = DialPlot.radial_domain
+        return start + y * (end - start)
 
     @staticmethod
     def polar_plot(xs: List[float], ys: List[float], x_domain: Domain) -> Tuple[List[float], List[float]]:
@@ -65,8 +66,8 @@ class DialPlot(LeafPlot):
     @staticmethod
     def slice_domain(slc: Slice) -> Domain:
         return (
-            DialPlot.to_angular(slc.lower, DialPlot.donut_domain),
-            DialPlot.to_angular(slc.upper, DialPlot.donut_domain)
+            DialPlot.to_angular(slc.lower, DialPlot.angular_domain),
+            DialPlot.to_angular(slc.upper, DialPlot.angular_domain)
         )
 
     @property
@@ -80,7 +81,7 @@ class DialPlot(LeafPlot):
 
     def polar_trace(self, n: int) -> go.Scatter:
         chain: np.ndarray = self.data.chains[n]
-        xs, ys = DialPlot.polar_plot([*range(0, len(chain))], [*chain], DialPlot.donut_domain)
+        xs, ys = DialPlot.polar_plot([*range(0, len(chain))], [*chain], DialPlot.angular_domain)
         return go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[n]))
 
 
@@ -154,8 +155,9 @@ class TraceDial(RootPlot):
 
     @property
     def histograms(self) -> SliceHistograms:
+        start, end = DialPlot.radial_domain
         return SliceHistograms(
-            x_domain=(0.5 + DialPlot.hole_size / 2, 1.0),
+            x_domain=(0.5 + start * 0.5, 0.5 + end * 0.5),
             y_domain=(0.5, 1.0),
             data=self.data,
             theme=self.theme,
