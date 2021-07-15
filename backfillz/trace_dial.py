@@ -56,7 +56,7 @@ class DialPlot(LeafPlot):
         n_segments: int = 100
         xs = [0.0] + [*range(0, n_segments)] + [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
         ys = [0.0] + [1.0] * n_segments + [1.0] + [0.0] * n_segments
-        x, y = DialPlot.polar_plot(xs, ys, x_domain)
+        x, y = DialPlot.polar_plot2(xs, ys, Axis((0, n_segments), x_domain))
         return go.Scatter(x=x, y=y, line=dict(width=0), fill='toself', fillcolor=fillcolor)
 
     @staticmethod
