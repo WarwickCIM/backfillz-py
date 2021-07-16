@@ -1,17 +1,6 @@
 # Meeting notes
 
-# 15 July 2021
-
-## Progress
-
-- example notebooks [expand with notes to James]
-- consolidate polar plot infrastructure with existing plot design (including axis handling)
-- one segment of "donut" per slice
-- slice histograms aggregate all chains
-- step plot for each chain 
-- using go.Histogram, we run into z-ordering problem trying to overlay step plots on top:
-  - implement our own histograms using numpy for binning and go.Bar for plotting
-  - need this for consistency anyway, since step plots have to use numpy for binning
+# 29 July 2021
 
 ## Questions
 
@@ -19,8 +8,20 @@
 
 ## Still to do
 
-- render chain colours as a step plot on top of histogram (cf. plot_histogram_lines in R version?)
 - radial axis on inside of donut
+
+# 15 July 2021
+
+## Progress
+
+- example notebooks
+- consolidate polar plot infrastructure with existing plot design (including axis handling)
+- one segment of "donut" per slice
+- slice histograms aggregate all chains
+- step plot for each chain 
+- using go.Histogram, we run into z-ordering problem trying to overlay step plots on top:
+  - implement our own histograms using go.Bar for plotting, and numpy for binning
+  - need this for consistency with step plots anyway (which also use numpy for binning)
 
 # 24 June May 2021
 

@@ -40,12 +40,28 @@ Props = Dict[str, Any]
 Point = Tuple[float, float]
 
 
-# Bit inefficient for chains (recomputes min/max rather than used the cached property on ParameterSlices).
-def normalise(xs: Sequence[float]) -> List[float]:
-    """Normalise a sequence of numbers."""
-    min_x: float = min(xs)
-    max_x: float = max(xs)
-    return [(x - min_x) / (max_x - min_x) for x in xs]
+def scale(factor: float, xs: Sequence[float]) -> List[float]:
+    """Element-wise product."""
+    return [x * factor for x in xs]
+
+
+def translate(offset: float, xs: Sequence[float]) -> List[float]:
+    """Element-wise addition of a constant."""
+    return [x + offset for x in xs]
+
+
+def segment(domain: Domain, n: int, m: int) -> Domain:
+    """Break supplied "domain" into n equal-sized segments, and return the mth."""
+    assert n > 0 and 0 <= m < n
+    start, end = domain
+    width = (end - start) / n
+    return start + m * width, start + (m + 1) * width
+
+
+def to_domain(x: float, domain: Domain) -> float:
+    """Convert normalised coordinate to position within supplied domain."""
+    start, end = domain
+    return start + x * (end - start)
 
 
 @dataclass

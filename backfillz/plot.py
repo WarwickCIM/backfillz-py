@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Literal, Optional
+from math import floor, log10, pi
+from typing import Any, Dict, List, Literal, Optional, Sequence
 
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 from plotly.colors import hex_to_rgb  # type: ignore
@@ -17,62 +18,6 @@ class AbstractMethodError(NotImplementedError):
 
 AxisId = str
 axis_count = 2  # start with 2 for consistently with Plotly
-
-
-def fresh_axis_id() -> str:
-    """Allocate an axis id that hasn't been used elsewhere."""
-    global axis_count
-    axis_id = axis_count
-    axis_count = axis_count + 1
-    return str(axis_id)
-
-
-def default_config() -> Props:
-    """Preferred settings for Plotly figure."""
-    return dict(displayModeBar=False, showAxisDragHandles=False)
-
-
-def scale(factor: float, xs: List[float]) -> List[float]:
-    """Element-wise product."""
-    return [x * factor for x in xs]
-
-
-def segment(domain: Domain, n: int, m: int) -> Domain:
-    """Break supplied "domain" into n equal-sized segments, and return the mth."""
-    start, end = domain
-    width = (end - start) / n
-    return start + m * width, start + (m + 1) * width
-
-
-def alpha(hex_colour: str, a: float) -> str:
-    """Add an alpha component to a colour represented as a hex string without an alpha component."""
-    rgb: tuple[int, int, int] = hex_to_rgb(hex_colour)
-    return f"rgba({rgb[0]},{rgb[1]},{rgb[2]},{a})"
-
-
-def annotate(
-    fig: go.Figure,
-    font_size: int,
-    at: Point,
-    xanchor: Literal['left', 'right'],
-    yanchor: Literal['top', 'bottom'],
-    y_adjust: Optional[float],  # additional normalised offet of text relative to plot
-    text: str,
-    textangle: int = 0,
-) -> None:
-    """Add an annotation to supplied figure, with supplied arguments in addition to some default settings."""
-    fig.add_annotation(
-        xref='paper',
-        yref='paper',
-        showarrow=False,
-        font=dict(size=font_size),
-        x=at[0],
-        y=at[1] + (0 if y_adjust is None else y_adjust),
-        xanchor=xanchor,
-        yanchor=yanchor,
-        text=text,
-        textangle=textangle
-    )
 
 
 @dataclass
@@ -182,7 +127,6 @@ class AggregatePlot(Plot):
             plot.render(fig)
 
 
-# Should consolidate some of the commonality with Plot.
 @dataclass
 class RootPlot(AggregatePlot):
     """Top-level plot container."""
@@ -222,3 +166,95 @@ class RootPlot(AggregatePlot):
         self.add_additional_titles(fig)
         self.render(fig)
         return fig
+
+
+@dataclass
+class Axis:
+    """Map a range into a domain."""
+
+    range: Domain
+    domain: Domain
+
+    # Don't require that r_start <= x <= r_end.
+    def translate(self, x: float) -> float:
+        r_start, r_end = self.range
+        d_start, d_end = self.domain
+        return (x - r_start) / (r_end - r_start) * (d_end - d_start) + d_start
+
+
+def normalise(xs: Sequence[float], domain: Domain) -> Axis:
+    """Map a data range into a domain."""
+    return Axis((min(xs), max(xs)), domain)
+
+
+def fresh_axis_id() -> str:
+    """Allocate an axis id that hasn't been used elsewhere."""
+    global axis_count
+    axis_id = axis_count
+    axis_count = axis_count + 1
+    return str(axis_id)
+
+
+def default_config() -> Props:
+    """Preferred settings for Plotly figure."""
+    return dict(displayModeBar=False, showAxisDragHandles=False)
+
+
+def alpha(hex_colour: str, a: float) -> str:
+    """Add an alpha component to a colour represented as a hex string without an alpha component."""
+    rgb: tuple[int, int, int] = hex_to_rgb(hex_colour)
+    return f"rgba({rgb[0]},{rgb[1]},{rgb[2]},{a})"
+
+
+def annotate(
+    fig: go.Figure,
+    font_size: int,
+    at: Point,
+    xanchor: Literal['left', 'right'],
+    yanchor: Literal['top', 'bottom'],
+    y_adjust: Optional[float],  # additional normalised offet of text relative to plot
+    text: str,
+    textangle: int = 0,
+) -> None:
+    """Add an annotation to supplied figure, with supplied arguments in addition to some default settings."""
+    fig.add_annotation(
+        xref='paper',
+        yref='paper',
+        showarrow=False,
+        font=dict(size=font_size),
+        x=at[0],
+        y=at[1] + (0 if y_adjust is None else y_adjust),
+        xanchor=xanchor,
+        yanchor=yanchor,
+        text=text,
+        textangle=textangle
+    )
+
+
+def left_vertical_title(fig: go.Figure, plot: Plot, title: str) -> None:
+    """Add vertical title to left of plot."""
+    annotate(fig, 14, plot.top_left, 'right', 'top', None, title, textangle=-90)
+
+
+def background_rect(plot: Plot, fillcolor: str) -> Props:
+    """Shaded background for a plot, as a Plotly shape that can be added to layout.shapes."""
+    x0, y0 = plot.top_left
+    x1, y1 = plot.bottom_right
+    return dict(
+        type='rect',
+        xref='paper', yref='paper',
+        x0=x0, y0=y0,
+        x1=x1, y1=y1,
+        fillcolor=fillcolor,
+        layer='below',
+        line_width=0,
+    )
+
+
+def tick_every(ticks_per_circle: int, angular_axis: Axis) -> int:
+    """Tick gap in range units, based on desired approximate number of ticks per circle."""
+    dom_start, dom_end = angular_axis.domain
+    num_ticks: float = (dom_end - dom_start) / (2 * pi) * ticks_per_circle
+    start, end = angular_axis.range
+    tick_gap: float = (end - start) / num_ticks
+    return int(round(tick_gap, -int(floor(log10(abs(tick_gap))))))  # 1 sig fig
