@@ -2,13 +2,13 @@
 
 # 29 July 2021
 
+## Progress
+
+- radial axis on inside of donut
+
 ## Questions
 
 - What is "inner burn" vs. "outer burn"?
-
-## Still to do
-
-- radial axis on inside of donut
 
 # 15 July 2021
 
