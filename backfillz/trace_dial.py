@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from math import cos, floor, nan, pi, sin
+from math import cos, floor, log10, nan, pi, sin
 from typing import List, Sequence, Tuple
 
 import numpy as np
@@ -85,8 +85,12 @@ class DialPlot(LeafPlot):
 
     @property
     def inner_ticks(self) -> List[go.Scatter]:
-        tick_every: int = 200
+        ticks_per_circle = 80  # somewhat arbitrary
+        dom_start, dom_end = self.angular_axis.domain
+        num_ticks: float = (dom_end - dom_start) / (2 * pi) * ticks_per_circle
         start, end = self.angular_axis.range
+        tick_every_: float = (end - start) / num_ticks
+        tick_every: int = int(round(tick_every_, -int(floor(log10(abs(tick_every_))))))
         xs1 = [x * tick_every for x in range(floor(start), floor(end / tick_every))]
         xs2 = [start, TraceDial.burn_in_iter, end]
         top, bottom1, bottom2 = -0.04, -0.09, -0.20
