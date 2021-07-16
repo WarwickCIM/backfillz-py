@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from math import cos, floor, log10, nan, pi, sin
+from math import cos, floor, nan, pi, sin
 from typing import List, Sequence, Tuple
 
 import numpy as np
@@ -8,8 +8,8 @@ import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import Domain, MCMCRun, ParameterSlices, Props, segment, Slice, to_domain
 from backfillz.plot import (
-    AggregatePlot, alpha, Axis, background_rect, fresh_axis_id, LeafPlot, left_vertical_title, normalise, Plot,
-    RootPlot, tick_every
+    AggregatePlot, alpha, Axis, background_rect, fresh_axis_id, LeafPlot, left_vertical_title, normalise,
+    Plot, RootPlot, tick_every
 )
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
