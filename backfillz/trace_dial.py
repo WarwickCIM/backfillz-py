@@ -6,9 +6,10 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Axis, Domain, MCMCRun, normalise, ParameterSlices, Props, segment, Slice, to_domain
+from backfillz.data import Domain, MCMCRun, ParameterSlices, Props, segment, Slice, to_domain
 from backfillz.plot import (
-    AggregatePlot, alpha, background_rect, fresh_axis_id, LeafPlot, left_vertical_title, Plot, RootPlot
+    AggregatePlot, alpha, Axis, background_rect, fresh_axis_id, LeafPlot, left_vertical_title, normalise, Plot,
+    RootPlot, tick_every
 )
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
@@ -86,12 +87,9 @@ class DialPlot(LeafPlot):
     @property
     def inner_ticks(self) -> List[go.Scatter]:
         ticks_per_circle = 80  # somewhat arbitrary
-        dom_start, dom_end = self.angular_axis.domain
-        num_ticks: float = (dom_end - dom_start) / (2 * pi) * ticks_per_circle
+        tick_gap: int = tick_every(ticks_per_circle, self.angular_axis)
         start, end = self.angular_axis.range
-        tick_every_: float = (end - start) / num_ticks
-        tick_every: int = int(round(tick_every_, -int(floor(log10(abs(tick_every_))))))
-        xs1 = [x * tick_every for x in range(floor(start), floor(end / tick_every))]
+        xs1 = [x * tick_gap for x in range(floor(start), floor(end / tick_gap))]
         xs2 = [start, TraceDial.burn_in_iter, end]
         top, bottom1, bottom2 = -0.04, -0.09, -0.20
         return [

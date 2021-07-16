@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Literal, Optional
+from math import floor, log10, pi
+from typing import Any, Dict, List, Literal, Optional, Sequence
 
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 from plotly.colors import hex_to_rgb  # type: ignore
@@ -167,6 +168,25 @@ class RootPlot(AggregatePlot):
         return fig
 
 
+@dataclass
+class Axis:
+    """Map a range into a domain."""
+
+    range: Domain
+    domain: Domain
+
+    # Don't require that r_start <= x <= r_end.
+    def translate(self, x: float) -> float:
+        r_start, r_end = self.range
+        d_start, d_end = self.domain
+        return (x - r_start) / (r_end - r_start) * (d_end - d_start) + d_start
+
+
+def normalise(xs: Sequence[float], domain: Domain) -> Axis:
+    """Map a data range into a domain."""
+    return Axis((min(xs), max(xs)), domain)
+
+
 def fresh_axis_id() -> str:
     """Allocate an axis id that hasn't been used elsewhere."""
     global axis_count
@@ -229,3 +249,12 @@ def background_rect(plot: Plot, fillcolor: str) -> Props:
         layer='below',
         line_width=0,
     )
+
+
+def tick_every(ticks_per_circle: int, angular_axis: Axis) -> int:
+    """Tick gap in range units, based on desired approximate number of ticks per circle."""
+    dom_start, dom_end = angular_axis.domain
+    num_ticks: float = (dom_end - dom_start) / (2 * pi) * ticks_per_circle
+    start, end = angular_axis.range
+    tick_gap: float = (end - start) / num_ticks
+    return int(round(tick_gap, -int(floor(log10(abs(tick_gap))))))  # 1 sig fig
