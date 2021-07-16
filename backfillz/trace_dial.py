@@ -99,7 +99,7 @@ class DialPlot(LeafPlot):
             self.radial_ticks(xs2, (top, bottom2), self.theme.fg_colour),
         ]
 
-    def radial_ticks(self, xs: List[int], tick_size: Tuple[float, float], colour: str) -> go.Scatter:
+    def radial_ticks(self, xs: Sequence[float], tick_size: Tuple[float, float], colour: str) -> go.Scatter:
         """Ticks at supplied angular positions, sized relative to radial_domain."""
         top, bottom = tick_size
         y_axis: Axis = Axis((0.0, 1.0), DialPlot.radial_domain)
