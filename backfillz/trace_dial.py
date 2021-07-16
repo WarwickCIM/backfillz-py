@@ -91,11 +91,17 @@ class DialPlot(LeafPlot):
         start, end = self.angular_axis.range
         xs1 = [x * tick_gap for x in range(floor(start), floor(end / tick_gap))]
         xs2 = [start, TraceDial.burn_in_iter, end]
-        top, bottom1, bottom2 = -0.04, -0.09, -0.20
+        top, bottom1, bottom2 = -0.04, -0.07, -0.14
         return [
             self.radial_ticks(xs1, (top, bottom1), self.theme.mg_colour),
             self.radial_ticks(xs2, (top, bottom2), self.theme.fg_colour),
+            self.radial_tick_marks(xs2, bottom2)
         ]
+
+    def radial_tick_marks(self, xs: Sequence[float], tick_bottom: float) -> go.Scatter:
+        y_axis: Axis = Axis((0.0, 1.0), DialPlot.radial_domain)
+        x, y = DialPlot.polar_plot(xs, [tick_bottom - 0.05] * len(xs), self.angular_axis, y_axis)
+        return go.Scatter(x=x, y=y, text=[str(x) for x in xs], mode='text', textposition='middle left')
 
     def radial_ticks(self, xs: Sequence[float], tick_size: Tuple[float, float], colour: str) -> go.Scatter:
         """Ticks at supplied angular positions, sized relative to radial_domain."""
