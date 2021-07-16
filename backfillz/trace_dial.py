@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-import math
+from math import cos, floor, nan, pi, sin
 from typing import List, Sequence, Tuple
 
 import numpy as np
@@ -19,7 +19,7 @@ class DialPlot(LeafPlot):
     """Trace dial plot on the left."""
 
     radial_domain: Domain = 1 / 3, 1.0
-    angular_domain: Domain = 0.5 * math.pi, 2 * math.pi
+    angular_domain: Domain = 0.5 * pi, 2 * pi
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
@@ -45,8 +45,8 @@ class DialPlot(LeafPlot):
         assert len(xs) == len(ys)
         xs_angular = [x_axis.translate(x) for x in xs]
         ys_radial = [y_axis.translate(y) for y in ys]
-        return ([math.cos(x) * ys_radial[n] for n, x in enumerate(xs_angular)],
-                [math.sin(x) * ys_radial[n] for n, x in enumerate(xs_angular)])
+        return ([cos(x) * ys_radial[n] for n, x in enumerate(xs_angular)],
+                [sin(x) * ys_radial[n] for n, x in enumerate(xs_angular)])
 
     @staticmethod
     def arc(x_domain: Domain, y: float, n_segments: int) -> Tuple[List[float], List[float]]:
@@ -86,8 +86,9 @@ class DialPlot(LeafPlot):
     @property
     def inner_ticks(self) -> List[go.Scatter]:
         tick_every: int = 200
-        xs1 = [x * tick_every for x in range(0, self.data.n_iter // tick_every)]
-        xs2 = [0, TraceDial.burn_in_iter, self.data.n_iter]
+        start, end = self.angular_axis.range
+        xs1 = [x * tick_every for x in range(floor(start), floor(end / tick_every))]
+        xs2 = [start, TraceDial.burn_in_iter, end]
         top, bottom1, bottom2 = -0.04, -0.09, -0.20
         return [
             self.radial_ticks(xs1, (top, bottom1), self.theme.mg_colour),
@@ -101,7 +102,7 @@ class DialPlot(LeafPlot):
         x1, y1 = DialPlot.polar_plot(xs, [top] * len(xs), self.angular_axis, y_axis)
         x2, y2 = DialPlot.polar_plot(xs, [bottom] * len(xs), self.angular_axis, y_axis)
         x = [x for p in zip(x1, x2, x2) for x in p]
-        y = [y for p in zip(y1, y2, [math.nan] * len(x2)) for y in p]
+        y = [y for p in zip(y1, y2, [nan] * len(x2)) for y in p]
         return go.Scatter(x=x, y=y, mode='lines', line=dict(width=1, color=colour))
 
     def polar_trace(self, n: int, x_axis: Axis, y_axis: Axis) -> go.Scatter:
