@@ -74,6 +74,10 @@ class SpiralStream(RootPlot):
             for n, _ in enumerate(self.data.chains)
         ]
 
+    @property
+    def title(self) -> str:
+        return f"Spiral stream plot for {self.data.param}"
+
     @staticmethod
     def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
         """Create a spiral stream plot."""
