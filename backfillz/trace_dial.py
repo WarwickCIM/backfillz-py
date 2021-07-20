@@ -16,7 +16,7 @@ from backfillz.theme import BackfillzTheme
 
 
 @dataclass
-class DialPlot(LeafPlot):
+class DialPlot(LeafPlot[ParameterSlices]):
     """Trace dial plot on the left."""
 
     radial_domain: Domain = 1 / 3, 1.0
@@ -159,10 +159,10 @@ class TraceDialHistogram(SliceHistogram):
 
 
 @dataclass
-class SliceHistograms(AggregatePlot):
+class SliceHistograms(AggregatePlot[ParameterSlices]):
     """One slice histogram per slice."""
 
-    def make_plots(self) -> List[Plot]:
+    def make_plots(self) -> List[Plot[ParameterSlices]]:
         return [
             TraceDialHistogram(
                 axis_id=fresh_axis_id(),
@@ -178,12 +178,12 @@ class SliceHistograms(AggregatePlot):
 
 
 @dataclass
-class TraceDial(RootPlot):
+class TraceDial(RootPlot[ParameterSlices]):
     """Top-level plot, for a given parameter and chain."""
 
     burn_in_iter: int = 500  # hard-coded for now -- should be a parameter?
 
-    def make_plots(self) -> List[Plot]:
+    def make_plots(self) -> List[Plot[ParameterSlices]]:
         return [self.dial_plot, self.histograms]
 
     @property
@@ -211,11 +211,11 @@ class TraceDial(RootPlot):
         return f"Pretzel plot for {self.data.param}"
 
     @property
-    def burn_in_histo(self) -> Plot:
+    def burn_in_histo(self) -> Plot[ParameterSlices]:
         return self.histograms.plots[0]
 
     @property
-    def sample_histo(self) -> Plot:
+    def sample_histo(self) -> Plot[ParameterSlices]:
         return self.histograms.plots[1]
 
     @property
@@ -242,11 +242,11 @@ class TraceDial(RootPlot):
             x_domain=(0.0, 1.0),
             y_domain=(0.0, 1.0),
             data=ParameterSlices(
-                slcs=[Slice(0.0, burn_in_end), Slice(burn_in_end, 1)],
                 param=param,
                 chains=mcmc_run.iter_chains(param),
                 max_sample=np.amax(mcmc_run.samples[param]),
                 min_sample=np.amin(mcmc_run.samples[param]),
+                slcs=[Slice(0.0, burn_in_end), Slice(burn_in_end, 1)],
             ),
             theme=theme,
             verbose=verbose

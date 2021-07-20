@@ -7,8 +7,8 @@ from stan.fit import Fit  # type: ignore
 
 from backfillz.data import MCMCRun
 from backfillz.plot import default_config
-from backfillz.theme import BackfillzTheme, default
 from backfillz.spiral_stream import SpiralStream
+from backfillz.theme import BackfillzTheme, default
 from backfillz.trace_dial import TraceDial
 from backfillz.trace_slice_histogram import TraceSliceHistogram
 

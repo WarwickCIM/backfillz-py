@@ -1,27 +1,33 @@
 from dataclasses import dataclass
 from math import nan
-from typing import Sequence
+from typing import cast, List, Sequence
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
-import plotly.graph_objects as go
+import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import MCMCRun, ParameterSlices, segment, Slice
+from backfillz.data import MCMCRun, ParameterData, segment
 from backfillz.plot import AggregatePlot, fresh_axis_id, LeafPlot, Plot, RootPlot
 from backfillz.theme import BackfillzTheme
 
 
 @dataclass
-class SpiralRow(LeafPlot):
+class ParameterSteps(ParameterData):
+    """Data being visualised by a spiral stream plot."""
+
+    steps: List[int]
+
+
+@dataclass
+class SpiralRow(LeafPlot[ParameterSteps]):
     """Row of spiral plots for chain with index n."""
 
     n: int
 
     @property
     def plot_elements(self) -> Sequence[BaseTraceType]:
-        steps = [3, 8, 15]
         spiral_points = [nan] * self.data.n_iter
-        for step in steps:
+        for step in self.data.steps:
             for i in range(0, self.data.n_iter):
                 if i >= step:
                     klw = i - step
@@ -38,10 +44,10 @@ class SpiralRow(LeafPlot):
         return []
 
 
-class SpiralRows(AggregatePlot):
+class SpiralRows(AggregatePlot[ParameterSteps]):
     """One spiral row per chain."""
 
-    def make_plots(self) -> Sequence[Plot]:
+    def make_plots(self) -> Sequence[Plot[ParameterSteps]]:
         return [
             SpiralRow(
                 axis_id=fresh_axis_id(),
@@ -56,10 +62,10 @@ class SpiralRows(AggregatePlot):
 
 
 @dataclass
-class SpiralStream(RootPlot):
+class SpiralStream(RootPlot[ParameterSteps]):
     """Spiral stream plot for a given parameter."""
 
-    def make_plots(self) -> Sequence[Plot]:
+    def make_plots(self) -> Sequence[Plot[ParameterSteps]]:
         return self.spiral_rows
 
     @property
@@ -84,13 +90,13 @@ class SpiralStream(RootPlot):
         return SpiralStream(
             x_domain=(0.0, 1.0),
             y_domain=(0.0, 1.0),
-            data=ParameterSlices(
-                slcs=[Slice(0, 1)],
+            data=ParameterSteps(
                 param=param,
                 chains=mcmc_run.iter_chains(param),
                 max_sample=np.amax(mcmc_run.samples[param]),
                 min_sample=np.amin(mcmc_run.samples[param]),
+                steps=[3, 8, 15],  # defaults for now
             ),
             theme=theme,
-            verbose=verbose
+            verbose=verbose,
         ).make_fig()
