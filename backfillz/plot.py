@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from math import floor, log10, pi
-from typing import Any, Dict, List, Literal, Optional, Sequence
+from typing import Any, Dict, Literal, Optional, Sequence
 
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 from plotly.colors import hex_to_rgb  # type: ignore
@@ -53,7 +53,7 @@ class LeafPlot(Plot):
     axis_id: AxisId
 
     @property
-    def plot_elements(self) -> List[BaseTraceType]:
+    def plot_elements(self) -> Sequence[BaseTraceType]:
         raise AbstractMethodError()
 
     def render(self, fig: go.Figure) -> None:
@@ -107,12 +107,12 @@ class LeafPlot(Plot):
 class AggregatePlot(Plot):
     """A collection of subplots."""
 
-    plots: List[Plot] = field(init=False)
+    plots: Sequence[Plot] = field(init=False)
 
     def __post_init__(self) -> None:
         self.plots = self.make_plots()
 
-    def make_plots(self) -> List[Plot]:
+    def make_plots(self) -> Sequence[Plot]:
         """My subplots."""
         raise AbstractMethodError()
 

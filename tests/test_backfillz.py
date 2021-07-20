@@ -5,7 +5,7 @@ import pytest
 from backfillz import Backfillz
 from backfillz.example.eight_schools import generate_fit
 from backfillz.stan import Stan
-from backfillz.theme import default, demo_1
+from backfillz.theme import default, demo_1, demo_2
 
 
 @pytest.fixture(scope='session')
@@ -14,7 +14,7 @@ def stan() -> Stan:
     return generate_fit()
 
 
-# @pytest.mark.skip(reason="temporarily disable")
+@pytest.mark.skip(reason="temporarily disable")
 def test_sample_fit(stan: Stan) -> None:
     """Backfillz object can be created."""
     Backfillz(stan.fit)
@@ -26,7 +26,7 @@ def test_sample_fit(stan: Stan) -> None:
     assert expected_stan.equal(stan)
 
 
-# @pytest.mark.skip(reason="temporarily disable")
+@pytest.mark.skip(reason="temporarily disable")
 def test_trace_slice_histogram(stan: Stan) -> None:
     """Slice histogram plot is generated without error."""
     backfillz = Backfillz(stan.fit, verbose=True)
@@ -34,9 +34,17 @@ def test_trace_slice_histogram(stan: Stan) -> None:
     backfillz.plot_slice_histogram('mu')
 
 
-# @pytest.mark.skip(reason="temporarily disable")
+@pytest.mark.skip(reason="temporarily disable")
 def test_trace_dial(stan: Stan) -> None:
     """Trace dial plot is generated without error."""
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(default)
     backfillz.plot_trace_dial('mu')
+
+
+# @pytest.mark.skip(reason="temporarily disable")
+def test_spiral_stream(stan: Stan) -> None:
+    """Trace dial plot is generated without error."""
+    backfillz = Backfillz(stan.fit)
+    backfillz.set_theme(demo_2)
+    backfillz.plot_spiral_stream('mu')
