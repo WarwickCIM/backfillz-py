@@ -36,7 +36,6 @@ flake8-docstrings = "1.5.0"
 flake8-import-order = "0.18.1"
 flake8-colors = "0.1.6"
 
-
 mypy = "0.812"
 
 [tool.black]
@@ -49,7 +48,8 @@ include-ids="yes"
 msg-template="{msg_id}:{line:3d},{column}: {obj}: {msg}"
 
 [tool.pytest.ini_options]
-addopts = "--cov=backfillz --cov-branch --cov-report term-missing  -vv --color=yes --cov-fail-under 100"
+# no need for coverage right now
+addopts = "-vv --color=yes" # --cov=backfillz --cov-branch --cov-report term-missing --cov-fail-under 100
 python_files = "tests.py test_*.py *_tests.py"
 
 [build-system]
