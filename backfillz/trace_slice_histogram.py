@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import List
 
-import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
@@ -182,13 +181,7 @@ class TraceSliceHistogram(RootPlot[ParameterSlices]):
         return TraceSliceHistogram(
             x_domain=(0.0, 1.0),
             y_domain=(0.0, 1.0),
-            data=ParameterSlices(
-                param=param,
-                chains=mcmc_run.iter_chains(param),
-                max_sample=np.amax(mcmc_run.samples[param]),
-                min_sample=np.amin(mcmc_run.samples[param]),
-                slcs=slcs,
-            ),
+            data=ParameterSlices(mcmc_run, param, slcs),
             theme=theme,
             verbose=verbose,
         ).make_fig()

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from math import floor
 from typing import Any, Dict, List, Sequence, Tuple
 
@@ -68,10 +68,17 @@ def to_domain(x: float, domain: Domain) -> float:
 class ParameterData:
     """MCMC data for a given parameter."""
 
+    mcmc_run: MCMCRun
     param: str
-    chains: np.ndarray  # shape is [n, n_iter] where n is number of chains
-    max_sample: float
-    min_sample: float
+    chains: np.ndarray = field(init=False)  # shape is [n, n_iter] where n is number of chains
+    max_sample: float = field(init=False)
+    min_sample: float = field(init=False)
+
+    # cache some properties which are expensive to compute
+    def __post_init__(self) -> None:
+        self.chains = self.mcmc_run.iter_chains(self.param)
+        self.max_sample = np.amax(self.mcmc_run.samples[self.param])
+        self.min_sample = np.amin(self.mcmc_run.samples[self.param])
 
     @property
     def n_iter(self) -> int:

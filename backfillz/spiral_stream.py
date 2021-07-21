@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import nan
-from typing import cast, List, Sequence
+from typing import List, Sequence
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
@@ -87,16 +87,11 @@ class SpiralStream(RootPlot[ParameterSteps]):
     @staticmethod
     def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
         """Create a spiral stream plot."""
+        steps: List[int] = [3, 8, 15]  # defaults for now
         return SpiralStream(
             x_domain=(0.0, 1.0),
             y_domain=(0.0, 1.0),
-            data=ParameterSteps(
-                param=param,
-                chains=mcmc_run.iter_chains(param),
-                max_sample=np.amax(mcmc_run.samples[param]),
-                min_sample=np.amin(mcmc_run.samples[param]),
-                steps=[3, 8, 15],  # defaults for now
-            ),
+            data=ParameterSteps(mcmc_run, param, steps),
             theme=theme,
             verbose=verbose,
         ).make_fig()

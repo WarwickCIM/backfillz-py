@@ -238,16 +238,11 @@ class TraceDial(RootPlot[ParameterSlices]):
     def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
         """Create a trace slice histogram."""
         burn_in_end: float = TraceDial.burn_in_iter / mcmc_run.samples.num_samples
+        slcs: List[Slice] = [Slice(0.0, burn_in_end), Slice(burn_in_end, 1)]
         return TraceDial(
             x_domain=(0.0, 1.0),
             y_domain=(0.0, 1.0),
-            data=ParameterSlices(
-                param=param,
-                chains=mcmc_run.iter_chains(param),
-                max_sample=np.amax(mcmc_run.samples[param]),
-                min_sample=np.amin(mcmc_run.samples[param]),
-                slcs=[Slice(0.0, burn_in_end), Slice(burn_in_end, 1)],
-            ),
+            data=ParameterSlices(mcmc_run, param, slcs),
             theme=theme,
             verbose=verbose
         ).make_fig()
