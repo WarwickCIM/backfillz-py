@@ -275,19 +275,8 @@ def polar_plot(
     return [*zip(*[(cos(x) * y, sin(x) * y) for x, y in zip(xs_angular, ys_radial)])]
 
 
-# Doesn't yet do any normalisation of y
-def spiral_plot(a: float, b: float, theta_domain: Domain) -> Tuple[List[float], List[float]]:
-    """Plot arithmetic spiral r = a + b * theta."""
-    theta_start, theta_end = theta_domain
-    theta_incr: float = 2 * pi / 36  # 10-degree increments
-    thetas: List[float] = [
-        x * theta_incr
-        for x in range(floor(theta_start / theta_incr), floor((theta_end - theta_start) / theta_incr) + 1)
-    ]
-    return spiral_plot2([a] * len(thetas), b, thetas)
-
-
-def spiral_plot2(ys: List[float], b: float, thetas: List[float]) -> Tuple[List[float], List[float]]:
+def spiral_plot(ys: List[float], b: float, thetas: List[float]) -> Tuple[List[float], List[float]]:
     """Plot along arithmetic spiral r = a + b * theta."""
+    assert len(ys) == len(thetas)
     ys_radial = [y + b * theta for theta, y in zip(thetas, ys)]
     return [*zip(*[(cos(theta) * y, sin(theta) * y) for theta, y in zip(thetas, ys_radial)])]
