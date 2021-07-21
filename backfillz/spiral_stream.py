@@ -1,11 +1,13 @@
 from dataclasses import dataclass
+from math import pi
 from typing import List, Sequence
+import numpy as np
 
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import MCMCRun, ParameterData, segment
-from backfillz.plot import AggregatePlot, fresh_axis_id, LeafPlot, Plot, RootPlot
+from backfillz.data import Domain, MCMCRun, ParameterData, segment
+from backfillz.plot import AggregatePlot, Axis, fresh_axis_id, LeafPlot, Plot, polar_plot, RootPlot
 from backfillz.theme import BackfillzTheme
 
 
@@ -23,9 +25,21 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
     n_chain: int
     step: int
 
+    angular_domain: Domain = 0.5 * pi, 2 * pi * 3
+
+    @property
+    def angular_axis(self) -> Axis:
+        return Axis((0, self.data.n_iter), SpiralPlot.angular_domain)
+
+    @property
+    def radial_axis(self) -> Axis:
+        return Axis((self.data.min_sample, self.data.max_sample), (0, 1))
+
     @property
     def plot_elements(self) -> go.Scatter:
-        pass
+        chain: np.ndarray = self.data.chains[self.n_chain]
+        xs, ys = polar_plot([*range(0, len(chain))], [*chain], self.angular_axis, self.radial_axis)
+        return go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[self.n_chain]))
 
 
 @dataclass

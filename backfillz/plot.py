@@ -268,7 +268,7 @@ def polar_plot(
     x_axis: Axis,
     y_axis: Axis
 ) -> Tuple[List[float], List[float]]:
-    """Map xs via x_axis into angular cooordinates and ys via y_axis into radial coordinates."""
+    """Map xs and ys into angular and radial coordinates, via the supplied axes. Zero radians =3pm."""
     assert len(xs) == len(ys)
     xs_angular = [x_axis.translate(x) for x in xs]
     ys_radial = [y_axis.translate(y) for y in ys]
