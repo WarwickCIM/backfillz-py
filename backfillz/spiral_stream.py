@@ -40,17 +40,11 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
         chain: np.ndarray = self.data.chains[self.n_chain]
         # xs, ys = spiral_plot(10, 2, (0, 8 * pi))
 
-        theta_domain: Domain = (0, 2 * pi)
-        theta_start, theta_end = theta_domain
-        theta_incr: float = 2 * pi / 36  # 10-degree increments
-        thetas: List[float] = [
-            x * theta_incr
-            for x in range(floor(theta_start / theta_incr), floor((theta_end - theta_start) / theta_incr) + 1)
-        ]
+        theta_domain: Domain = (0, 4 * pi)
         angular_axis: Axis = Axis((0, self.data.n_iter), theta_domain)
         thetas: List[float] = [angular_axis.translate(x) for x, _ in enumerate(chain)]
         ys_radial: List[float] = [self.radial_axis.translate(y) for y in chain]
-        xs, ys = spiral_plot(ys_radial, 0, thetas)
+        xs, ys = spiral_plot(ys_radial, 1 / (2 * pi), thetas)
         return [go.Scatter(
             x=xs,
             y=ys,
@@ -61,11 +55,11 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
 
     @property
     def xaxis_props(self) -> Props:
-        return dict(visible=True)
+        return dict(visible=True, range=(-4, 4))
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(visible=True)
+        return dict(visible=True, range=(-4, 4))
 
 
 @dataclass
