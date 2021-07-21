@@ -1,8 +1,6 @@
 from dataclasses import dataclass
-from math import nan
 from typing import List, Sequence
 
-import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
@@ -19,29 +17,37 @@ class ParameterSteps(ParameterData):
 
 
 @dataclass
-class SpiralRow(LeafPlot[ParameterSteps]):
-    """Row of spiral plots for chain with index n."""
+class SpiralPlot(LeafPlot[ParameterSteps]):
+    """Spiral plot for chain and step."""
 
-    n: int
+    n_chain: int
+    step: int
+
+    @property
+    def plot_elements(self) -> go.Scatter:
+        pass
+
+
+@dataclass
+class SpiralRow(LeafPlot[ParameterSteps]):
+    """Row of spiral plots for chain, one for each step."""
+
+    n_chain: int
 
     @property
     def plot_elements(self) -> Sequence[BaseTraceType]:
-        spiral_points = [nan] * self.data.n_iter
-        for step in self.data.steps:
-            for i in range(0, self.data.n_iter):
-                if i >= step:
-                    klw = i - step
-                else:
-                    klw = 1
-
-                if i <= (self.data.n_iter - step):
-                    khg = i + step
-                else:
-                    khg = self.data.n_iter
-
-            spiral_points[i] = np.var(self.data.chains[self.n][klw:khg])
-
-        return []
+        return [
+            SpiralPlot(
+                data=self.data,
+                theme=self.theme,
+                axis_id=fresh_axis_id(),
+                x_domain=segment(self.x_domain, len(self.data.steps), n),
+                y_domain=self.y_domain,
+                n_chain=self.n_chain,
+                step=step,
+            )
+            for n, step in enumerate(self.data.steps)
+        ]
 
 
 class SpiralRows(AggregatePlot[ParameterSteps]):
@@ -55,7 +61,7 @@ class SpiralRows(AggregatePlot[ParameterSteps]):
                 y_domain=segment(self.y_domain, len(self.data.chains), n),
                 data=self.data,
                 theme=self.theme,
-                n=n,
+                n_chain=n,
             )
             for n, slc in enumerate(self.data.chains)
         ]
