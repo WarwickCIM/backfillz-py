@@ -50,11 +50,11 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
 
     @property
     def xaxis_props(self) -> Props:
-        return dict(visible=False, range=(-1, 1))
+        return dict(visible=True, range=(-1, 1))
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(visible=False, range=(-1, 1))
+        return dict(visible=True, range=(-1, 1))
 
 
 @dataclass
