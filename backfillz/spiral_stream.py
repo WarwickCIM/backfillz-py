@@ -5,7 +5,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import MCMCRun, ParameterData, segment
-from backfillz.plot import fresh_axis_id, LeafPlot, Plot, RootPlot
+from backfillz.plot import AggregatePlot, fresh_axis_id, LeafPlot, Plot, RootPlot
 from backfillz.theme import BackfillzTheme
 
 
@@ -29,13 +29,12 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
 
 
 @dataclass
-class SpiralRow(LeafPlot[ParameterSteps]):
+class SpiralRow(AggregatePlot[ParameterSteps]):
     """Row of spiral plots for chain, one for each step."""
 
     n_chain: int
 
-    @property
-    def plot_elements(self) -> Sequence[BaseTraceType]:
+    def make_plots(self) -> Sequence[BaseTraceType]:
         return [
             SpiralPlot(
                 data=self.data,
@@ -61,7 +60,6 @@ class SpiralStream(RootPlot[ParameterSteps]):
     def spiral_rows(self) -> Sequence[SpiralRow]:
         return [
             SpiralRow(
-                axis_id=fresh_axis_id(),
                 x_domain=(0, 1),
                 y_domain=segment(self.y_domain, len(self.data.chains), n),
                 data=self.data,
