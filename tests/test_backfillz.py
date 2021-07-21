@@ -18,7 +18,7 @@ def stan() -> Stan:
 def test_sample_fit(stan: Stan) -> None:
     """Backfillz object can be created."""
     Backfillz(stan.fit)
-    file = "expected_sample_fit"
+    file = "tests/expected_sample_fit"
 #    stan.save(file)
     expected_stan = Stan.load(file)
     print(str(expected_stan))
