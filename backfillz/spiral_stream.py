@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from math import floor, pi
+from math import pi
 from typing import List, Sequence
 
 import numpy as np
@@ -39,8 +39,8 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
     def plot_elements(self) -> List[go.Scatter]:
         chain: np.ndarray = self.data.chains[self.n_chain]
         angular_axis: Axis = Axis((0, self.data.n_iter), self.angular_domain)
-        thetas: List[float] = [angular_axis.translate(x) for x, _ in enumerate(chain)]
-        ys_radial: List[float] = [self.radial_axis.translate(y) for y in chain]
+        thetas: Sequence[float] = angular_axis.translate([x for x, _ in enumerate(chain)])
+        ys_radial: Sequence[float] = self.radial_axis.translate([*chain])
         xs, ys = spiral_plot(ys_radial, 1 / (2 * pi), thetas)
         return [go.Scatter(
             x=xs,

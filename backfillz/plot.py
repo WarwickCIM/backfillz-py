@@ -178,10 +178,10 @@ class Axis:
     domain: Domain
 
     # Don't require that r_start <= x <= r_end.
-    def translate(self, x: float) -> float:
+    def translate(self, xs: Sequence[float]) -> Sequence[float]:
         r_start, r_end = self.range
         d_start, d_end = self.domain
-        return (x - r_start) / (r_end - r_start) * (d_end - d_start) + d_start
+        return [(x - r_start) / (r_end - r_start) * (d_end - d_start) + d_start for x in xs]
 
 
 def normalise(xs: Sequence[float], domain: Domain) -> Axis:
@@ -270,13 +270,23 @@ def polar_plot(
 ) -> Tuple[List[float], List[float]]:
     """Map xs and ys into angular and radial coordinates, via the supplied axes. 12o'clock = 0.5pi radians."""
     assert len(xs) == len(ys)
-    xs_angular = [x_axis.translate(x) for x in xs]
-    ys_radial = [y_axis.translate(y) for y in ys]
-    return [*zip(*[(cos(x) * y, sin(x) * y) for x, y in zip(xs_angular, ys_radial)])]
+    rs_thetas: List[Tuple[float, float]] = [
+        (cos(x) * y, sin(x) * y)
+        for x, y in zip(x_axis.translate(xs), y_axis.translate(ys))
+    ]
+    return [r for r, _ in rs_thetas], [theta for _, theta in rs_thetas]
 
 
-def spiral_plot(ys: List[float], b: float, thetas: List[float]) -> Tuple[List[float], List[float]]:
+def spiral_plot(
+    ys: Sequence[float],
+    b: float,
+    thetas: Sequence[float]
+) -> Tuple[List[float], List[float]]:
     """Plot along arithmetic spiral r = a + b * theta."""
     assert len(ys) == len(thetas)
     ys_radial = [y + b * theta for theta, y in zip(thetas, ys)]
-    return [*zip(*[(cos(theta) * y, sin(theta) * y) for theta, y in zip(thetas, ys_radial)])]
+    rs_thetas: List[Tuple[float, float]] = [
+        (cos(theta) * y, sin(theta) * y)
+        for theta, y in zip(thetas, ys_radial)
+    ]
+    return [r for r, _ in rs_thetas], [theta for _, theta in rs_thetas]
