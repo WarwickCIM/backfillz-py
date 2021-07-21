@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from math import floor, log10, pi
-from typing import Any, Dict, Generic, Literal, Optional, Sequence, TypeVar
+from math import cos, floor, log10, pi, sin
+from typing import Any, Dict, Generic, List, Literal, Optional, Sequence, Tuple, TypeVar
 
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 from plotly.colors import hex_to_rgb  # type: ignore
@@ -260,3 +260,17 @@ def tick_every(ticks_per_circle: int, angular_axis: Axis) -> int:
     start, end = angular_axis.range
     tick_gap: float = (end - start) / num_ticks
     return int(round(tick_gap, -int(floor(log10(abs(tick_gap))))))  # 1 sig fig
+
+
+def polar_plot(
+    xs: Sequence[float],
+    ys: Sequence[float],
+    x_axis: Axis,
+    y_axis: Axis
+) -> Tuple[List[float], List[float]]:
+    """Map xs via x_axis into angular cooordinates and ys via y_axis into radial coordinates."""
+    assert len(xs) == len(ys)
+    xs_angular = [x_axis.translate(x) for x in xs]
+    ys_radial = [y_axis.translate(y) for y in ys]
+    return ([cos(x) * ys_radial[n] for n, x in enumerate(xs_angular)],
+            [sin(x) * ys_radial[n] for n, x in enumerate(xs_angular)])
