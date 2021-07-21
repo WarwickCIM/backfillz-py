@@ -272,8 +272,8 @@ def polar_plot(
     assert len(xs) == len(ys)
     xs_angular = [x_axis.translate(x) for x in xs]
     ys_radial = [y_axis.translate(y) for y in ys]
-    return ([cos(x) * ys_radial[n] for n, x in enumerate(xs_angular)],
-            [sin(x) * ys_radial[n] for n, x in enumerate(xs_angular)])
+    return ([cos(x) * y for x, y in zip(xs_angular, ys_radial)],
+            [sin(x) * y for x, y in zip(xs_angular, ys_radial)])
 
 
 # Doesn't yet do any normalisation of y
