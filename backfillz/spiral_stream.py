@@ -7,7 +7,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import Domain, MCMCRun, ParameterData, Props, segment
-from backfillz.plot import AggregatePlot, Axis, fresh_axis_id, LeafPlot, Plot, polar_plot, RootPlot
+from backfillz.plot import AggregatePlot, Axis, fresh_axis_id, LeafPlot, Plot, RootPlot, spiral_plot
 from backfillz.theme import BackfillzTheme
 
 
@@ -37,8 +37,8 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
 
     @property
     def plot_elements(self) -> List[go.Scatter]:
-        chain: np.ndarray = self.data.chains[self.n_chain]
-        xs, ys = polar_plot([*range(0, len(chain))], [*chain], self.angular_axis, self.radial_axis)
+        # chain: np.ndarray = self.data.chains[self.n_chain]
+        xs, ys = spiral_plot(0, 2, (0, 6 * pi))
         return [go.Scatter(
             x=xs,
             y=ys,

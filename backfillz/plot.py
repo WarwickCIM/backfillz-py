@@ -274,3 +274,17 @@ def polar_plot(
     ys_radial = [y_axis.translate(y) for y in ys]
     return ([cos(x) * ys_radial[n] for n, x in enumerate(xs_angular)],
             [sin(x) * ys_radial[n] for n, x in enumerate(xs_angular)])
+
+
+# Doesn't yet do any normalisation of y
+def spiral_plot(a: float, b: float, theta_domain: Domain) -> Tuple[List[float], List[float]]:
+    """Plot arithmetic spiral r = a + b * theta."""
+    theta_start, theta_end = theta_domain
+    theta_incr: float = 2 * pi / 36  # 10-degree increments
+    thetas: List[float] = [
+        x * theta_incr
+        for x in range(floor(theta_start / theta_incr), floor((theta_end - theta_start) / theta_incr))
+    ]
+    ys_radial = [a + b * theta for theta in thetas]
+    return ([cos(theta) * ys_radial[n] for n, theta in enumerate(thetas)],
+            [sin(theta) * ys_radial[n] for n, theta in enumerate(thetas)])
