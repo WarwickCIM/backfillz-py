@@ -36,10 +36,10 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
         return Axis((self.data.min_sample, self.data.max_sample), (0, 1))
 
     @property
-    def plot_elements(self) -> go.Scatter:
+    def plot_elements(self) -> List[go.Scatter]:
         chain: np.ndarray = self.data.chains[self.n_chain]
         xs, ys = polar_plot([*range(0, len(chain))], [*chain], self.angular_axis, self.radial_axis)
-        return go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[self.n_chain]))
+        return [go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[self.n_chain]))]
 
 
 @dataclass
