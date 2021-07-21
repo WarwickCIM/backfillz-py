@@ -55,6 +55,7 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
     def yaxis_props(self) -> Props:
         return dict(visible=False)
 
+
 @dataclass
 class SpiralRow(AggregatePlot[ParameterSteps]):
     """Row of spiral plots for chain, one for each step."""
