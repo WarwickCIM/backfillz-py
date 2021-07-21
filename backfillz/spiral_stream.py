@@ -38,22 +38,22 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
     @property
     def plot_elements(self) -> List[go.Scatter]:
         # chain: np.ndarray = self.data.chains[self.n_chain]
-        xs, ys = spiral_plot(0, 2, (0, 6 * pi))
+        xs, ys = spiral_plot(0, 2, (0, 8 * pi))
         return [go.Scatter(
             x=xs,
             y=ys,
-            line=dict(color=self.theme.palette[self.n_chain]),
+            line=dict(width=1, color=self.theme.palette[self.n_chain]),
             xaxis='x' + self.axis_id,
             yaxis='y' + self.axis_id,
         )]
 
     @property
     def xaxis_props(self) -> Props:
-        return dict(visible=False)
+        return dict(visible=True)
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(visible=False)
+        return dict(visible=True)
 
 
 @dataclass
