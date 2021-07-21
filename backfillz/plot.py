@@ -272,8 +272,7 @@ def polar_plot(
     assert len(xs) == len(ys)
     xs_angular = [x_axis.translate(x) for x in xs]
     ys_radial = [y_axis.translate(y) for y in ys]
-    return ([cos(x) * y for x, y in zip(xs_angular, ys_radial)],
-            [sin(x) * y for x, y in zip(xs_angular, ys_radial)])
+    return [*zip(*[(cos(x) * y, sin(x) * y) for x, y in zip(xs_angular, ys_radial)])]
 
 
 # Doesn't yet do any normalisation of y
@@ -286,5 +285,4 @@ def spiral_plot(a: float, b: float, theta_domain: Domain) -> Tuple[List[float], 
         for x in range(floor(theta_start / theta_incr), floor((theta_end - theta_start) / theta_incr) + 1)
     ]
     ys_radial = [a + b * theta for theta in thetas]
-    return ([cos(theta) * ys_radial[n] for n, theta in enumerate(thetas)],
-            [sin(theta) * ys_radial[n] for n, theta in enumerate(thetas)])
+    return [*zip(*[(cos(theta) * y, sin(theta) * y) for theta, y in zip(thetas, ys_radial)])]
