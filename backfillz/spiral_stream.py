@@ -38,7 +38,8 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
     @property
     def plot_elements(self) -> List[go.Scatter]:
         # chain: np.ndarray = self.data.chains[self.n_chain]
-        xs, ys = spiral_plot(0, 2, (0, 8 * pi))
+        # xs, ys = spiral_plot(10, 2, (0, 8 * pi))
+        xs, ys = spiral_plot(1, 0, (0, 2 * pi))
         return [go.Scatter(
             x=xs,
             y=ys,
