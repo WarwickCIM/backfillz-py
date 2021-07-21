@@ -284,5 +284,10 @@ def spiral_plot(a: float, b: float, theta_domain: Domain) -> Tuple[List[float], 
         x * theta_incr
         for x in range(floor(theta_start / theta_incr), floor((theta_end - theta_start) / theta_incr) + 1)
     ]
-    ys_radial = [a + b * theta for theta in thetas]
+    return spiral_plot2([a] * len(thetas), b, thetas)
+
+
+def spiral_plot2(ys: List[float], b: float, thetas: List[float]) -> Tuple[List[float], List[float]]:
+    """Plot along arithmetic spiral r = a + b * theta."""
+    ys_radial = [y + b * theta for theta, y in zip(thetas, ys)]
     return [*zip(*[(cos(theta) * y, sin(theta) * y) for theta, y in zip(thetas, ys_radial)])]
