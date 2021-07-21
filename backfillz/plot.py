@@ -283,7 +283,7 @@ def spiral_plot(a: float, b: float, theta_domain: Domain) -> Tuple[List[float], 
     theta_incr: float = 2 * pi / 36  # 10-degree increments
     thetas: List[float] = [
         x * theta_incr
-        for x in range(floor(theta_start / theta_incr), floor((theta_end - theta_start) / theta_incr))
+        for x in range(floor(theta_start / theta_incr), floor((theta_end - theta_start) / theta_incr) + 1)
     ]
     ys_radial = [a + b * theta for theta in thetas]
     return ([cos(theta) * ys_radial[n] for n, theta in enumerate(thetas)],
