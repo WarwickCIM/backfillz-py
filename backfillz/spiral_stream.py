@@ -6,7 +6,7 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, ParameterData, segment
+from backfillz.data import Domain, MCMCRun, ParameterData, Props, segment
 from backfillz.plot import AggregatePlot, Axis, fresh_axis_id, LeafPlot, Plot, polar_plot, RootPlot
 from backfillz.theme import BackfillzTheme
 
@@ -47,6 +47,13 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
             yaxis='y' + self.axis_id,
         )]
 
+    @property
+    def xaxis_props(self) -> Props:
+        return dict(visible=False)
+
+    @property
+    def yaxis_props(self) -> Props:
+        return dict(visible=False)
 
 @dataclass
 class SpiralRow(AggregatePlot[ParameterSteps]):
@@ -92,6 +99,12 @@ class SpiralStream(RootPlot[ParameterSteps]):
     @property
     def title(self) -> str:
         return f"Spiral stream plot for {self.data.param}"
+
+    @property
+    def layout_props(self) -> Props:
+        # ensure each individual spiral plot is square; see trace_dial
+        length: int = 600
+        return dict(width=length, height=length * len(self.data.chains) / len(self.data.steps))
 
     @staticmethod
     def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
