@@ -17,7 +17,7 @@ from backfillz.theme import BackfillzTheme
 
 @dataclass
 class DialPlot(LeafPlot[ParameterSlices]):
-    """Trace dial plot on the left."""
+    """Trace dial plot (3/4 segment)."""
 
     radial_domain: Domain = 1 / 3, 1.0
     angular_domain: Domain = 0.5 * pi, 2 * pi

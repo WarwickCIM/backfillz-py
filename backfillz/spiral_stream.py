@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from math import pi
 from typing import List, Sequence
-import numpy as np
 
+import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
@@ -39,7 +39,13 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
     def plot_elements(self) -> List[go.Scatter]:
         chain: np.ndarray = self.data.chains[self.n_chain]
         xs, ys = polar_plot([*range(0, len(chain))], [*chain], self.angular_axis, self.radial_axis)
-        return [go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[self.n_chain]))]
+        return [go.Scatter(
+            x=xs,
+            y=ys,
+            line=dict(color=self.theme.palette[self.n_chain]),
+            xaxis='x' + self.axis_id,
+            yaxis='y' + self.axis_id,
+        )]
 
 
 @dataclass

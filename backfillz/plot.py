@@ -77,12 +77,12 @@ class LeafPlot(Plot[T]):
 
     @property
     def xaxis_id(self) -> str:
-        """My Plotly-assigned x-axis id."""
+        """My Plotly x-axis id."""
         return 'xaxis' + self.axis_id
 
     @property
     def yaxis_id(self) -> str:
-        """My Plotly-assigned y-axis id."""
+        """My Plotly y-axis id."""
         return 'yaxis' + self.axis_id
 
     def layout_axes(self, fig: go.Figure) -> None:
@@ -125,7 +125,7 @@ class AggregatePlot(Plot[T]):
 
     def render(self, fig: go.Figure) -> None:
         """Render subplots into fig."""
-        for n, plot in enumerate(self.plots):
+        for plot in self.plots:
             plot.render(fig)
 
 
@@ -268,7 +268,7 @@ def polar_plot(
     x_axis: Axis,
     y_axis: Axis
 ) -> Tuple[List[float], List[float]]:
-    """Map xs and ys into angular and radial coordinates, via the supplied axes. Zero radians =3pm."""
+    """Map xs and ys into angular and radial coordinates, via the supplied axes. 12o'clock = 0.5pi radians."""
     assert len(xs) == len(ys)
     xs_angular = [x_axis.translate(x) for x in xs]
     ys_radial = [y_axis.translate(y) for y in ys]
