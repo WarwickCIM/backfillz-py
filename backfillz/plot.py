@@ -265,9 +265,9 @@ def tick_every(ticks_per_circle: int, angular_axis: Axis) -> int:
 def spiral_plot(
     xs: Sequence[float],
     ys: Sequence[float],
-    b: float,
     x_axis: Axis,
     y_axis: Axis,
+    b: float,
 ) -> Tuple[List[float], List[float]]:
     """Plot along arithmetic spiral r = a + b * theta, via the supplied axes. 12 o'clock = 0.5 * pi."""
     assert len(xs) == len(ys)
@@ -287,4 +287,4 @@ def polar_plot(
     y_axis: Axis
 ) -> Tuple[List[float], List[float]]:
     """A spiral plot with b = 0."""
-    return spiral_plot(xs, ys, 0, x_axis, y_axis)
+    return spiral_plot(xs, ys, x_axis, y_axis, 0)
