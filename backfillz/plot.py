@@ -262,16 +262,6 @@ def tick_every(ticks_per_circle: int, angular_axis: Axis) -> int:
     return int(round(tick_gap, -int(floor(log10(abs(tick_gap))))))  # 1 sig fig
 
 
-def polar_plot(
-    xs: Sequence[float],
-    ys: Sequence[float],
-    x_axis: Axis,
-    y_axis: Axis
-) -> Tuple[List[float], List[float]]:
-    """A spiral plot with b = 0."""
-    return spiral_plot(xs, ys, 0, x_axis, y_axis)
-
-
 def spiral_plot(
     xs: Sequence[float],
     ys: Sequence[float],
@@ -288,3 +278,13 @@ def spiral_plot(
         for theta, y in zip(thetas, ys_radial)
     ]
     return [r for r, _ in rs_thetas], [theta for _, theta in rs_thetas]
+
+
+def polar_plot(
+    xs: Sequence[float],
+    ys: Sequence[float],
+    x_axis: Axis,
+    y_axis: Axis
+) -> Tuple[List[float], List[float]]:
+    """A spiral plot with b = 0."""
+    return spiral_plot(xs, ys, 0, x_axis, y_axis)
