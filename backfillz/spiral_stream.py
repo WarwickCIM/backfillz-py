@@ -1,13 +1,11 @@
 from dataclasses import dataclass
-from math import pi
-from typing import List, Sequence
+from math import floor, pi
+from typing import List, Sequence, Tuple
 
-import numpy as np
-from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import Domain, MCMCRun, ParameterData, Props, segment
-from backfillz.plot import AggregatePlot, Axis, fresh_axis_id, LeafPlot, Plot, RootPlot, spiral_plot
+from backfillz.plot import AggregatePlot, annotate, Axis, fresh_axis_id, LeafPlot, RootPlot, spiral_plot
 from backfillz.theme import BackfillzTheme
 
 
@@ -46,12 +44,18 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
         )]
 
     @property
+    def overall_range(self) -> Tuple[float, float]:
+        _, end = self.angular_domain
+        rotations: int = floor(end / (2 * pi) + 1)
+        return (-rotations, rotations)
+
+    @property
     def xaxis_props(self) -> Props:
-        return dict(visible=True, range=(-4, 4))
+        return dict(visible=False, range=self.overall_range)
 
     @property
     def yaxis_props(self) -> Props:
-        return dict(visible=True, range=(-4, 4))
+        return dict(visible=False, range=self.overall_range)
 
 
 @dataclass
@@ -60,7 +64,7 @@ class SpiralRow(AggregatePlot[ParameterSteps]):
 
     n_chain: int
 
-    def make_plots(self) -> Sequence[BaseTraceType]:
+    def make_plots(self) -> Sequence[SpiralPlot]:
         return [
             SpiralPlot(
                 data=self.data,
@@ -79,11 +83,7 @@ class SpiralRow(AggregatePlot[ParameterSteps]):
 class SpiralStream(RootPlot[ParameterSteps]):
     """Spiral stream plot for a given parameter; one spiral row per chain."""
 
-    def make_plots(self) -> Sequence[Plot[ParameterSteps]]:
-        return self.spiral_rows
-
-    @property
-    def spiral_rows(self) -> Sequence[SpiralRow]:
+    def make_plots(self) -> Sequence[SpiralRow]:
         return [
             SpiralRow(
                 x_domain=(0, 1),
@@ -98,6 +98,11 @@ class SpiralStream(RootPlot[ParameterSteps]):
     @property
     def title(self) -> str:
         return f"Spiral stream plot for {self.data.param}"
+
+    def add_additional_titles(self, fig: go.Figure) -> None:
+        super().add_additional_titles(fig)
+        annotate(fig, 14, (0.5, 0), 'center', 'middle', None, "Variance")
+        annotate(fig, 14, (0, 0.5), 'right', 'middle', None, "Chain", textangle=-90)
 
     @property
     def layout_props(self) -> Props:

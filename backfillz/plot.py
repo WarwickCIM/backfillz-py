@@ -212,8 +212,8 @@ def annotate(
     fig: go.Figure,
     font_size: int,
     at: Point,
-    xanchor: Literal['left', 'right'],
-    yanchor: Literal['top', 'bottom'],
+    xanchor: Literal['left', 'center', 'right'],
+    yanchor: Literal['top', 'middle', 'bottom'],
     y_adjust: Optional[float],  # additional normalised offet of text relative to plot
     text: str,
     textangle: int = 0,
