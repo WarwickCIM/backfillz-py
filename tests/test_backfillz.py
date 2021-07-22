@@ -5,7 +5,7 @@ import pytest
 from backfillz import Backfillz
 from backfillz.example.eight_schools import generate_fit
 from backfillz.stan import Stan
-from backfillz.theme import default, demo_1
+from backfillz.theme import default, demo_1, demo_2
 
 
 @pytest.fixture(scope='session')
@@ -18,7 +18,7 @@ def stan() -> Stan:
 def test_sample_fit(stan: Stan) -> None:
     """Backfillz object can be created."""
     Backfillz(stan.fit)
-    file = "expected_sample_fit"
+    file = "tests/expected_sample_fit"
 #    stan.save(file)
     expected_stan = Stan.load(file)
     print(str(expected_stan))
@@ -40,3 +40,11 @@ def test_trace_dial(stan: Stan) -> None:
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(default)
     backfillz.plot_trace_dial('mu')
+
+
+# @pytest.mark.skip(reason="temporarily disable")
+def test_spiral_stream(stan: Stan) -> None:
+    """Trace dial plot is generated without error."""
+    backfillz = Backfillz(stan.fit)
+    backfillz.set_theme(demo_2)
+    backfillz.plot_spiral_stream('mu')

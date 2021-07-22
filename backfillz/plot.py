@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
-from math import floor, log10, pi
-from typing import Any, Dict, List, Literal, Optional, Sequence
+from math import cos, floor, log10, pi, sin
+from typing import Any, Dict, Generic, List, Literal, Optional, Sequence, Tuple, TypeVar
 
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 from plotly.colors import hex_to_rgb  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, ParameterSlices, Point, Props
+from backfillz.data import Domain, ParameterData, Point, Props
 from backfillz.theme import BackfillzTheme
 
 
@@ -19,14 +19,16 @@ class AbstractMethodError(NotImplementedError):
 AxisId = str
 axis_count = 2  # start with 2 for consistently with Plotly
 
+T = TypeVar('T', bound='ParameterData')
+
 
 @dataclass
-class Plot:
+class Plot(Generic[T]):
     """Base class providing common subplot functionality."""
 
     x_domain: Domain  # left/right edges normalised to [0, 1]
     y_domain: Domain  # top/bottom edges normalised to [0, 1]
-    data: ParameterSlices
+    data: T
     theme: BackfillzTheme
 
     def layout_axes(self, fig: go.Figure) -> None:
@@ -46,14 +48,14 @@ class Plot:
 
 
 @dataclass
-class LeafPlot(Plot):
+class LeafPlot(Plot[T]):
     """A leaf subplot."""
 
     # Either generated using fresh_axis_id, or '' to mean the figure's default axes.
     axis_id: AxisId
 
     @property
-    def plot_elements(self) -> List[BaseTraceType]:
+    def plot_elements(self) -> Sequence[BaseTraceType]:
         raise AbstractMethodError()
 
     def render(self, fig: go.Figure) -> None:
@@ -75,12 +77,12 @@ class LeafPlot(Plot):
 
     @property
     def xaxis_id(self) -> str:
-        """My Plotly-assigned x-axis id."""
+        """My Plotly x-axis id."""
         return 'xaxis' + self.axis_id
 
     @property
     def yaxis_id(self) -> str:
-        """My Plotly-assigned y-axis id."""
+        """My Plotly y-axis id."""
         return 'yaxis' + self.axis_id
 
     def layout_axes(self, fig: go.Figure) -> None:
@@ -104,15 +106,15 @@ class LeafPlot(Plot):
 
 
 @dataclass
-class AggregatePlot(Plot):
+class AggregatePlot(Plot[T]):
     """A collection of subplots."""
 
-    plots: List[Plot] = field(init=False)
+    plots: Sequence[Plot[T]] = field(init=False)
 
     def __post_init__(self) -> None:
         self.plots = self.make_plots()
 
-    def make_plots(self) -> List[Plot]:
+    def make_plots(self) -> Sequence[Plot[T]]:
         """My subplots."""
         raise AbstractMethodError()
 
@@ -123,12 +125,12 @@ class AggregatePlot(Plot):
 
     def render(self, fig: go.Figure) -> None:
         """Render subplots into fig."""
-        for n, plot in enumerate(self.plots):
+        for plot in self.plots:
             plot.render(fig)
 
 
 @dataclass
-class RootPlot(AggregatePlot):
+class RootPlot(AggregatePlot[T]):
     """Top-level plot container."""
 
     verbose: bool
@@ -176,10 +178,10 @@ class Axis:
     domain: Domain
 
     # Don't require that r_start <= x <= r_end.
-    def translate(self, x: float) -> float:
+    def translate(self, xs: Sequence[float]) -> Sequence[float]:
         r_start, r_end = self.range
         d_start, d_end = self.domain
-        return (x - r_start) / (r_end - r_start) * (d_end - d_start) + d_start
+        return [(x - r_start) / (r_end - r_start) * (d_end - d_start) + d_start for x in xs]
 
 
 def normalise(xs: Sequence[float], domain: Domain) -> Axis:
@@ -210,8 +212,8 @@ def annotate(
     fig: go.Figure,
     font_size: int,
     at: Point,
-    xanchor: Literal['left', 'right'],
-    yanchor: Literal['top', 'bottom'],
+    xanchor: Literal['left', 'center', 'right'],
+    yanchor: Literal['top', 'middle', 'bottom'],
     y_adjust: Optional[float],  # additional normalised offet of text relative to plot
     text: str,
     textangle: int = 0,
@@ -231,12 +233,12 @@ def annotate(
     )
 
 
-def left_vertical_title(fig: go.Figure, plot: Plot, title: str) -> None:
+def left_vertical_title(fig: go.Figure, plot: Plot[T], title: str) -> None:
     """Add vertical title to left of plot."""
     annotate(fig, 14, plot.top_left, 'right', 'top', None, title, textangle=-90)
 
 
-def background_rect(plot: Plot, fillcolor: str) -> Props:
+def background_rect(plot: Plot[T], fillcolor: str) -> Props:
     """Shaded background for a plot, as a Plotly shape that can be added to layout.shapes."""
     x0, y0 = plot.top_left
     x1, y1 = plot.bottom_right
@@ -258,3 +260,31 @@ def tick_every(ticks_per_circle: int, angular_axis: Axis) -> int:
     start, end = angular_axis.range
     tick_gap: float = (end - start) / num_ticks
     return int(round(tick_gap, -int(floor(log10(abs(tick_gap))))))  # 1 sig fig
+
+
+def spiral_plot(
+    xs: Sequence[float],
+    ys: Sequence[float],
+    x_axis: Axis,
+    y_axis: Axis,
+    b: float,
+) -> Tuple[List[float], List[float]]:
+    """Plot along arithmetic spiral r = a + b * theta, via the supplied axes. 12 o'clock = 0.5 * pi."""
+    assert len(xs) == len(ys)
+    thetas = x_axis.translate(xs)
+    ys_radial = [y + b * theta for theta, y in zip(thetas, y_axis.translate(ys))]
+    rs_thetas: List[Tuple[float, float]] = [
+        (cos(theta) * y, sin(theta) * y)
+        for theta, y in zip(thetas, ys_radial)
+    ]
+    return [r for r, _ in rs_thetas], [theta for _, theta in rs_thetas]
+
+
+def polar_plot(
+    xs: Sequence[float],
+    ys: Sequence[float],
+    x_axis: Axis,
+    y_axis: Axis
+) -> Tuple[List[float], List[float]]:
+    """A spiral plot with b = 0."""
+    return spiral_plot(xs, ys, x_axis, y_axis, 0)

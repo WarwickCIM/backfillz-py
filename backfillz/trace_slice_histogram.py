@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import List
 
-import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
@@ -12,7 +11,7 @@ from backfillz.theme import BackfillzTheme
 
 
 @dataclass
-class TracePlot(LeafPlot):
+class TracePlot(LeafPlot[ParameterSlices]):
     """Left-hand component."""
 
     @property
@@ -50,7 +49,7 @@ class TracePlot(LeafPlot):
 
 
 @dataclass
-class JoiningSegments(LeafPlot):
+class JoiningSegments(LeafPlot[ParameterSlices]):
     """Middle component."""
 
     @property
@@ -108,10 +107,10 @@ class JoiningSegments(LeafPlot):
 
 
 @dataclass
-class SliceHistograms(AggregatePlot):
+class SliceHistograms(AggregatePlot[ParameterSlices]):
     """One slice histogram per slice."""
 
-    def make_plots(self) -> List[Plot]:
+    def make_plots(self) -> List[Plot[ParameterSlices]]:
         return [
             SliceHistogram(
                 axis_id=fresh_axis_id(),
@@ -127,13 +126,13 @@ class SliceHistograms(AggregatePlot):
 
 
 @dataclass
-class TraceSliceHistogram(RootPlot):
+class TraceSliceHistogram(RootPlot[ParameterSlices]):
     """Trace slice histogram plot for a given parameter."""
 
     left_w = 0.4  # width of trace plot
     middle_w = 0.2  # width of joining segments
 
-    def make_plots(self) -> List[Plot]:
+    def make_plots(self) -> List[Plot[ParameterSlices]]:
         return [self.trace_plot, self.joining_segments, self.density_plots]
 
     @property
@@ -182,13 +181,7 @@ class TraceSliceHistogram(RootPlot):
         return TraceSliceHistogram(
             x_domain=(0.0, 1.0),
             y_domain=(0.0, 1.0),
-            data=ParameterSlices(
-                slcs=slcs,
-                param=param,
-                chains=mcmc_run.iter_chains(param),
-                max_sample=np.amax(mcmc_run.samples[param]),
-                min_sample=np.amin(mcmc_run.samples[param]),
-            ),
+            data=ParameterSlices(mcmc_run, param, slcs),
             theme=theme,
             verbose=verbose,
         ).make_fig()

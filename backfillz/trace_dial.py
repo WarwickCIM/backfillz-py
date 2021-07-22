@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from math import cos, floor, nan, pi, sin
+from math import floor, nan, pi
 from typing import List, Sequence, Tuple
 
 import numpy as np
@@ -9,15 +9,15 @@ import plotly.graph_objects as go  # type: ignore
 from backfillz.data import Domain, MCMCRun, ParameterSlices, Props, segment, Slice, to_domain
 from backfillz.plot import (
     AggregatePlot, alpha, Axis, background_rect, fresh_axis_id, LeafPlot, left_vertical_title, normalise,
-    Plot, RootPlot, tick_every
+    Plot, polar_plot, RootPlot, tick_every
 )
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
 
 @dataclass
-class DialPlot(LeafPlot):
-    """Trace dial plot on the left."""
+class DialPlot(LeafPlot[ParameterSlices]):
+    """Trace dial plot (3/4 segment)."""
 
     radial_domain: Domain = 1 / 3, 1.0
     angular_domain: Domain = 0.5 * pi, 2 * pi
@@ -37,23 +37,10 @@ class DialPlot(LeafPlot):
         return dict(range=[-1, 1], visible=False)
 
     @staticmethod
-    def polar_plot(
-        xs: Sequence[float],
-        ys: Sequence[float],
-        x_axis: Axis,
-        y_axis: Axis
-    ) -> Tuple[List[float], List[float]]:
-        assert len(xs) == len(ys)
-        xs_angular = [x_axis.translate(x) for x in xs]
-        ys_radial = [y_axis.translate(y) for y in ys]
-        return ([cos(x) * ys_radial[n] for n, x in enumerate(xs_angular)],
-                [sin(x) * ys_radial[n] for n, x in enumerate(xs_angular)])
-
-    @staticmethod
     def arc(x_domain: Domain, y: float, n_segments: int) -> Tuple[List[float], List[float]]:
         xs = [*range(0, n_segments)]
         ys = [y] * n_segments
-        return DialPlot.polar_plot(xs, ys, normalise(xs, x_domain), Axis((0.0, 1.0), DialPlot.radial_domain))
+        return polar_plot(xs, ys, normalise(xs, x_domain), Axis((0.0, 1.0), DialPlot.radial_domain))
 
     @staticmethod
     def donut_segment(x_domain: Domain, fillcolor: str) -> go.Scatter:
@@ -100,22 +87,22 @@ class DialPlot(LeafPlot):
 
     def radial_tick_marks(self, xs: Sequence[float], tick_bottom: float) -> go.Scatter:
         y_axis: Axis = Axis((0.0, 1.0), DialPlot.radial_domain)
-        x, y = DialPlot.polar_plot(xs, [tick_bottom - 0.05] * len(xs), self.angular_axis, y_axis)
+        x, y = polar_plot(xs, [tick_bottom - 0.05] * len(xs), self.angular_axis, y_axis)
         return go.Scatter(x=x, y=y, text=[str(x) for x in xs], mode='text', textposition='middle left')
 
     def radial_ticks(self, xs: Sequence[float], tick_size: Tuple[float, float], colour: str) -> go.Scatter:
         """Ticks at supplied angular positions, sized relative to radial_domain."""
         top, bottom = tick_size
         y_axis: Axis = Axis((0.0, 1.0), DialPlot.radial_domain)
-        x1, y1 = DialPlot.polar_plot(xs, [top] * len(xs), self.angular_axis, y_axis)
-        x2, y2 = DialPlot.polar_plot(xs, [bottom] * len(xs), self.angular_axis, y_axis)
+        x1, y1 = polar_plot(xs, [top] * len(xs), self.angular_axis, y_axis)
+        x2, y2 = polar_plot(xs, [bottom] * len(xs), self.angular_axis, y_axis)
         x = [x for p in zip(x1, x2, x2) for x in p]
         y = [y for p in zip(y1, y2, [nan] * len(x2)) for y in p]
         return go.Scatter(x=x, y=y, mode='lines', line=dict(width=1, color=colour))
 
     def polar_trace(self, n: int, x_axis: Axis, y_axis: Axis) -> go.Scatter:
         chain: np.ndarray = self.data.chains[n]
-        xs, ys = DialPlot.polar_plot([*range(0, len(chain))], [*chain], x_axis, y_axis)
+        xs, ys = polar_plot([*range(0, len(chain))], [*chain], x_axis, y_axis)
         return go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[n]))
 
     @property
@@ -159,10 +146,10 @@ class TraceDialHistogram(SliceHistogram):
 
 
 @dataclass
-class SliceHistograms(AggregatePlot):
+class SliceHistograms(AggregatePlot[ParameterSlices]):
     """One slice histogram per slice."""
 
-    def make_plots(self) -> List[Plot]:
+    def make_plots(self) -> List[Plot[ParameterSlices]]:
         return [
             TraceDialHistogram(
                 axis_id=fresh_axis_id(),
@@ -178,12 +165,12 @@ class SliceHistograms(AggregatePlot):
 
 
 @dataclass
-class TraceDial(RootPlot):
+class TraceDial(RootPlot[ParameterSlices]):
     """Top-level plot, for a given parameter and chain."""
 
     burn_in_iter: int = 500  # hard-coded for now -- should be a parameter?
 
-    def make_plots(self) -> List[Plot]:
+    def make_plots(self) -> List[Plot[ParameterSlices]]:
         return [self.dial_plot, self.histograms]
 
     @property
@@ -211,19 +198,21 @@ class TraceDial(RootPlot):
         return f"Pretzel plot for {self.data.param}"
 
     @property
-    def burn_in_histo(self) -> Plot:
+    def burn_in_histo(self) -> Plot[ParameterSlices]:
         return self.histograms.plots[0]
 
     @property
-    def sample_histo(self) -> Plot:
+    def sample_histo(self) -> Plot[ParameterSlices]:
         return self.histograms.plots[1]
 
     @property
     def layout_props(self) -> Props:
-        # plotting region won't be exactly square but best we can do to align histogram width with donut
         colours = DerivativeColours(self.theme)
+        # plotting region won't be exactly square but best we can do to align histogram width with donut
+        length: int = 800
         return dict(
-            width=800, height=800,
+            width=length,
+            height=length,
             shapes=[
                 background_rect(self.burn_in_histo, colours.inner_burn_segment),
                 background_rect(self.sample_histo, colours.remaining_segment)
@@ -238,16 +227,11 @@ class TraceDial(RootPlot):
     def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
         """Create a trace slice histogram."""
         burn_in_end: float = TraceDial.burn_in_iter / mcmc_run.samples.num_samples
+        slcs: List[Slice] = [Slice(0.0, burn_in_end), Slice(burn_in_end, 1)]
         return TraceDial(
             x_domain=(0.0, 1.0),
             y_domain=(0.0, 1.0),
-            data=ParameterSlices(
-                slcs=[Slice(0.0, burn_in_end), Slice(burn_in_end, 1)],
-                param=param,
-                chains=mcmc_run.iter_chains(param),
-                max_sample=np.amax(mcmc_run.samples[param]),
-                min_sample=np.amin(mcmc_run.samples[param]),
-            ),
+            data=ParameterSlices(mcmc_run, param, slcs),
             theme=theme,
             verbose=verbose
         ).make_fig()

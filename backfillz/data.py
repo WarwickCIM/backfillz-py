@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from math import floor
 from typing import Any, Dict, List, Sequence, Tuple
 
@@ -65,19 +65,32 @@ def to_domain(x: float, domain: Domain) -> float:
 
 
 @dataclass
-class ParameterSlices:
-    """The MCMC data being presented."""
+class ParameterData:
+    """MCMC data for a given parameter."""
 
-    slcs: List[Slice]
+    mcmc_run: MCMCRun
     param: str
-    chains: np.ndarray  # shape is [n, n_iter] where n is number of chains
-    max_sample: float
-    min_sample: float
+    chains: np.ndarray = field(init=False)  # shape is [n, n_iter] where n is number of chains
+    max_sample: float = field(init=False)
+    min_sample: float = field(init=False)
+
+    # cache some properties which are expensive to compute
+    def __post_init__(self) -> None:
+        self.chains = self.mcmc_run.iter_chains(self.param)
+        self.max_sample = np.amax(self.mcmc_run.samples[self.param])
+        self.min_sample = np.amin(self.mcmc_run.samples[self.param])
 
     @property
     def n_iter(self) -> int:
         """Return number of MCMC iterations per chain."""
         return int(self.chains.shape[1])
+
+
+@dataclass
+class ParameterSlices(ParameterData):
+    """Parameter data, plus a set of slices."""
+
+    slcs: List[Slice]
 
     def chain_slices(self, slc: Slice) -> List[np.ndarray]:
         """The specified slice of each chain."""

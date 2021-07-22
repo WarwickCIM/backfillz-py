@@ -7,7 +7,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 import scipy.stats as stats  # type: ignore
 
-from backfillz.data import Props, Slice
+from backfillz.data import ParameterSlices, Props, Slice
 from backfillz.plot import LeafPlot
 
 
@@ -15,7 +15,7 @@ Bins = Tuple[List[float], List[float]]
 
 
 @dataclass
-class SliceHistogram(LeafPlot):
+class SliceHistogram(LeafPlot[ParameterSlices]):
     """Plot histograms for arbitrary subsets of chains, plus optional KDE plots for individual chains."""
 
     slc: Slice
@@ -39,9 +39,11 @@ class SliceHistogram(LeafPlot):
     def histo(self, ns: List[int], color: str, bin_size: float) -> go.Bar:
         ys, xs = self.bins(ns, bin_size)
         return go.Bar(
-            x=xs, y=ys,
+            x=xs,
+            y=ys,
             marker=dict(color=self.theme.bg_colour, line=dict(color=color, width=1)),
-            xaxis='x' + self.axis_id, yaxis='y' + self.axis_id,
+            xaxis='x' + self.axis_id,
+            yaxis='y' + self.axis_id,
         )
 
     # Non-parametric KDE, smoothed with a Gaussian kernel, for a given chain.
@@ -49,10 +51,12 @@ class SliceHistogram(LeafPlot):
         x = np.linspace(self.data.min_sample, self.data.max_sample, 200)
         chain_slices = self.data.chain_slices(self.slc)
         return go.Scatter(
-            x=x, y=stats.kde.gaussian_kde(chain_slices[n])(x),
+            x=x,
+            y=stats.kde.gaussian_kde(chain_slices[n])(x),
             mode='lines',
             line=dict(width=2, color=self.theme.palette[n]),
-            xaxis='x' + self.axis_id, yaxis='y' + self.axis_id,
+            yaxis='y' + self.axis_id,
+            xaxis='x' + self.axis_id,
         )
 
     @property
