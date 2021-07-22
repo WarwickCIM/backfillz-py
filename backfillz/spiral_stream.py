@@ -28,22 +28,14 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
     angular_domain: Domain = 0.5 * pi, 2 * pi * 3
 
     @property
-    def angular_axis(self) -> Axis:
-        return Axis((0, self.data.n_iter), SpiralPlot.angular_domain)
-
-    @property
-    def radial_axis(self) -> Axis:
-        return Axis((self.data.min_sample, self.data.max_sample), (0, 1))
-
-    @property
     def plot_elements(self) -> List[go.Scatter]:
         chain: List[float] = [*self.data.chains[self.n_chain]]
         xs, ys = spiral_plot(
             [*range(0, len(chain))],
             chain,
             1 / (2 * pi),
-            self.angular_axis,
-            self.radial_axis
+            Axis((0, len(chain)), SpiralPlot.angular_domain),
+            Axis((self.data.min_sample, self.data.max_sample), (0, 1))
         )
         return [go.Scatter(
             x=xs,
