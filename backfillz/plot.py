@@ -268,14 +268,8 @@ def polar_plot(
     x_axis: Axis,
     y_axis: Axis
 ) -> Tuple[List[float], List[float]]:
-    """Map xs and ys into angular and radial coordinates, via the supplied axes. 12o'clock = 0.5 * pi."""
-    assert len(xs) == len(ys)
-    thetas = x_axis.translate(xs)
-    rs_thetas: List[Tuple[float, float]] = [
-        (cos(theta) * y, sin(theta) * y)
-        for theta, y in zip(thetas, y_axis.translate(ys))
-    ]
-    return [r for r, _ in rs_thetas], [theta for _, theta in rs_thetas]
+    """A spiral plot with b = 0."""
+    return spiral_plot(xs, ys, 0, x_axis, y_axis)
 
 
 def spiral_plot(
