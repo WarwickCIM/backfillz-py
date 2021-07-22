@@ -268,7 +268,7 @@ def polar_plot(
     x_axis: Axis,
     y_axis: Axis
 ) -> Tuple[List[float], List[float]]:
-    """Map xs and ys into angular and radial coordinates, via the supplied axes. 12o'clock = 0.5pi radians."""
+    """Map xs and ys into angular and radial coordinates, via the supplied axes. 12o'clock = 0.5 * pi."""
     assert len(xs) == len(ys)
     rs_thetas: List[Tuple[float, float]] = [
         (cos(x) * y, sin(x) * y)
@@ -282,11 +282,12 @@ def spiral_plot(
     ys: Sequence[float],
     b: float,
     x_axis: Axis,
+    y_axis: Axis,
 ) -> Tuple[List[float], List[float]]:
-    """Plot along arithmetic spiral r = a + b * theta."""
+    """Plot along arithmetic spiral r = a + b * theta, via the supplied axes. 12 o'clock = 0.5 * pi."""
     assert len(xs) == len(ys)
     thetas = x_axis.translate(xs)
-    ys_radial = [y + b * theta for theta, y in zip(thetas, ys)]
+    ys_radial = [y + b * theta for theta, y in zip(thetas, y_axis.translate(ys))]
     rs_thetas: List[Tuple[float, float]] = [
         (cos(theta) * y, sin(theta) * y)
         for theta, y in zip(thetas, ys_radial)
