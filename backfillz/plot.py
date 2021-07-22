@@ -278,9 +278,9 @@ def polar_plot(
 
 
 def spiral_plot(
+    xs: Sequence[float],
     ys: Sequence[float],
     b: float,
-    xs: Sequence[float],
     x_axis: Axis,
 ) -> Tuple[List[float], List[float]]:
     """Plot along arithmetic spiral r = a + b * theta."""
