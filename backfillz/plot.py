@@ -280,10 +280,12 @@ def polar_plot(
 def spiral_plot(
     ys: Sequence[float],
     b: float,
-    thetas: Sequence[float]
+    xs: Sequence[float],
+    x_axis: Axis,
 ) -> Tuple[List[float], List[float]]:
     """Plot along arithmetic spiral r = a + b * theta."""
-    assert len(ys) == len(thetas)
+    assert len(xs) == len(ys)
+    thetas = x_axis.translate(xs)
     ys_radial = [y + b * theta for theta, y in zip(thetas, ys)]
     rs_thetas: List[Tuple[float, float]] = [
         (cos(theta) * y, sin(theta) * y)
