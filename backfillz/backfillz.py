@@ -87,8 +87,8 @@ class Backfillz:
 
         file = open("tests/expected_spiral_stream.svg", "rt")
         # fig.write_image("tests/expected_spiral_stream.svg")
-        expected = determinise_clip_ids(file.read())
-        found = fig.to_image(format="svg").decode('utf-8')
+        expected = file.read()
+        found = determinise_clip_ids(fig.to_image(format="svg").decode('utf-8'))
         if expected != found:
             file_new = open("tests/expected_spiral_stream.new.svg", "wt")
             file_new.write(found)
@@ -101,6 +101,5 @@ def determinise_clip_ids(s: str) -> str:
     matches: List[str] = re.findall(pattern, s)
     start_id: int = 10000
     for match, n in zip(matches, [*range(start_id, start_id + len(matches))]):
-        print(f"Replacing {match} by '{n}'")
-        s = re.sub(match, str(n), s)
+        s = re.sub(match, f'id="{n}"', s)
     return s
