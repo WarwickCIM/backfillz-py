@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+import re
 import sys
 from typing import List
 
@@ -83,3 +84,20 @@ class Backfillz:
         fig = SpiralStream.fig(self.mcmc_run, self.theme, self.verbose, param)
         self.plot_history.append(HistoryEntry(HistoryEvent.SPIRAL_STREAM, save_plot))
         fig.show(config=default_config())
+
+        file = open("tests/expected_spiral_stream.svg", "rb")
+        # fig.write_image("tests/expected_spiral_stream.svg")
+        expected = determinise_clip_ids(file.read())
+        found = fig.to_image(format="svg")
+        if expected != found:
+            file_new = open("tests/expected_spiral_stream.new.svg", "wb")
+            file_new.write(found)
+            assert False
+
+
+def determinise_clip_ids(s: str) -> str:
+    """Replace clip ids in s by deterministically chosen ones."""
+    pattern: str = 'id="clip[^"]*'
+    matches: List[str] = re.findall(pattern, s)
+    for match, n in zip(matches, [*range(0, len(matches))]):
+        print(f"Replacing {match} by '{n}'")
