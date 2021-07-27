@@ -88,18 +88,18 @@ class Backfillz:
         file = open("tests/expected_spiral_stream.svg", "rt")
         # fig.write_image("tests/expected_spiral_stream.svg")
         expected = file.read()
-        found = determinise_ids("defs-", determinise_ids("clip", fig.to_image(format="svg").decode('utf-8')))
+        found = determinise_ids(fig.to_image(format="svg").decode('utf-8'))
         if expected != found:
             file_new = open("tests/expected_spiral_stream.new.svg", "wt")
             file_new.write(found)
             assert False
 
 
-def determinise_ids(prefix: str, s: str) -> str:
-    """Replace ids in s with the given prefix by deterministically chosen ones. Idempotent."""
-    pattern: str = f'id="{prefix}[^"]*\"'  # not a good idea for prefix to contain regex metachars
+def determinise_ids(s: str) -> str:
+    """Replace all ids in s by deterministically chosen ones. Idempotent."""
+    pattern: str = 'id="[^"]*\"'
     matches: List[str] = re.findall(pattern, s)
     start_id: int = 10000
     for match, n in zip(matches, [*range(start_id, start_id + len(matches))]):
-        s = re.sub(match, f'id="new-{prefix}{n}"', s)
+        s = re.sub(match, f'id="{n}"', s)
     return s
