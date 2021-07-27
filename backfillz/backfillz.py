@@ -84,30 +84,15 @@ class Backfillz:
         fig = SpiralStream.fig(self.mcmc_run, self.theme, self.verbose, param)
         self.plot_history.append(HistoryEntry(HistoryEvent.SPIRAL_STREAM, save_plot))
         fig.show(config=default_config())
-        file = open("tests/expected_spiral_stream.svg", "rt")
-        # fig.write_image("tests/expected_spiral_stream.svg")
-        expected = file.read()
-        found = prettyprint(determinise_ids(fig.to_image(format="svg").decode('utf-8')))
-        if expected != found:
-            file_new = open("tests/expected_spiral_stream.new.svg", "wt")
+        found = fig.to_image(format="png")
+        filename: str = "tests/expected_spiral_stream"
+        try:
+            file = open(filename + ".png", "rb")
+            expected = file.read()
+            if expected != found:
+                file_new = open(filename + ".new.png", "wb")
+                file_new.write(found)
+                assert False
+        except FileNotFoundError:
+            file_new = open(filename + ".png", "wb")
             file_new.write(found)
-            assert False
-
-
-def prettyprint(s: str) -> str:
-    """Prettyprint XML supplied as a string."""
-    import xml.etree.ElementTree as ET
-
-    element = ET.XML(s)
-    ET.indent(element)
-    return ET.tostring(element, encoding='unicode')
-
-
-def determinise_ids(s: str) -> str:
-    """Replace all ids in s by deterministically chosen ones. Idempotent."""
-    pattern: str = 'id="[^"]*\"'
-    matches: List[str] = re.findall(pattern, s)
-    start_id: int = 10000
-    for match, n in zip(matches, [*range(start_id, start_id + len(matches))]):
-        s = re.sub(match, f'id="{n}"', s)
-    return s
