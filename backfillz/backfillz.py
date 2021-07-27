@@ -85,10 +85,10 @@ class Backfillz:
         self.plot_history.append(HistoryEntry(HistoryEvent.SPIRAL_STREAM, save_plot))
         fig.show(config=default_config())
 
-        file = open("tests/expected_spiral_stream.svg", "rb")
+        file = open("tests/expected_spiral_stream.svg", "rt")
         # fig.write_image("tests/expected_spiral_stream.svg")
         expected = determinise_clip_ids(file.read())
-        found = fig.to_image(format="svg")
+        found = fig.to_image(format="svg").decode('utf-8')
         if expected != found:
             file_new = open("tests/expected_spiral_stream.new.svg", "wb")
             file_new.write(found)
