@@ -8,3 +8,4 @@
 ## TODO
 
 - reduce verbosity of terminal window
+- remove mypy annotations, add some comments instead?

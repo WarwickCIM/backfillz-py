@@ -3,7 +3,7 @@ from enum import Enum
 import sys
 from typing import List
 
-import plotly.graph_objects as go
+import plotly.graph_objects as go  # type: ignore
 from stan.fit import Fit  # type: ignore
 
 from backfillz.data import MCMCRun

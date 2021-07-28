@@ -52,7 +52,7 @@ class DialPlot(LeafPlot):
         return [(x - min_x) / (max_x - min_x) for x in xs]
 
     @staticmethod
-    def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
+    def polar_plot(xs: Sequence[float], ys: Sequence[float]) -> Tuple[List[float], List[float]]:
         xs_ang = [DialPlot.to_angular(x, DialPlot.donut_domain) for x in DialPlot.normalise(xs)]
         return ([math.cos(x) * ys[n] for n, x in enumerate(xs_ang)],
                 [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)])
