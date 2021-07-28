@@ -19,7 +19,7 @@ def stan() -> Stan:
 def compare_images(pytestconfig) -> bool:
     """Whether to compare generated images with stored expected images."""
     print("Printing something")
-    return pytestconfig.getoption("compare-images") == "True"
+    return pytestconfig.getoption("compare_images") == "True"
 
 
 # Plotly doesn't generate SVGs deterministically, so use PNGs instead.
@@ -56,7 +56,7 @@ def test_sample_fit(stan: Stan) -> None:
 
 
 # @pytest.mark.skip(reason="temporarily disable")
-def test_trace_slice_histogram(stan: Stan) -> None:
+def test_trace_slice_histogram(stan: Stan, compare_images: bool) -> None:
     """Slice histogram plot is generated without error."""
     backfillz = Backfillz(stan.fit, verbose=True)
     backfillz.set_theme(demo_1)
@@ -65,7 +65,7 @@ def test_trace_slice_histogram(stan: Stan) -> None:
 
 
 # @pytest.mark.skip(reason="temporarily disable")
-def test_trace_dial(stan: Stan) -> None:
+def test_trace_dial(stan: Stan, compare_images: bool) -> None:
     """Trace dial plot is generated without error."""
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(default)
@@ -74,7 +74,7 @@ def test_trace_dial(stan: Stan) -> None:
 
 
 # @pytest.mark.skip(reason="temporarily disable")
-def test_spiral_stream(stan: Stan) -> None:
+def test_spiral_stream(stan: Stan, compare_images: bool) -> None:
     """Trace dial plot is generated without error."""
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(demo_2)

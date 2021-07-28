@@ -23,7 +23,7 @@ jobs:
       - name: Check type hinting with mypy
         run: poetry run mypy --strict --config-file=mypy.ini backfillz/
       - name: Unit & coverage test with pytest
-        run: poetry run pytest
+        run: poetry run pytest --compare_images=False -rP
 
   docs:
     if: ${{ false }}  # mkdocs no longer pushes successfully to gh-pages -- disable for now
