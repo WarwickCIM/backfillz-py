@@ -202,12 +202,8 @@ class DerivativeColours:
         return self.theme.fg_colour
 
     @property
-    def inner_burn_segment(self) -> str:
+    def burn_in_segment(self) -> str:
         return alpha(self.theme.mg_colour, self.theme.alpha + 0.2)
-
-    @property
-    def outer_burn_segment(self) -> str:
-        return alpha(self.theme.mg_colour, self.theme.alpha + 0.1)
 
     @property
     def remaining_segment(self) -> str:
