@@ -3,6 +3,7 @@ from enum import Enum
 import sys
 from typing import List
 
+import plotly.graph_objects as go
 from stan.fit import Fit  # type: ignore
 
 from backfillz.data import MCMCRun
@@ -68,14 +69,16 @@ class Backfillz:
             print("Setting backfillz object theme to " + theme.name)
         self.theme = theme
 
-    def plot_slice_histogram(self, param: str, save_plot: bool = False) -> None:
+    def plot_slice_histogram(self, param: str, save_plot: bool = False) -> go.Figure:
         """Create and plot a slice histogram."""
         fig = TraceSliceHistogram.fig(self.mcmc_run, self.theme, self.verbose, param)
         self.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
         fig.show(config=default_config())
+        return fig
 
-    def plot_trace_dial(self, param: str, save_plot: bool = False) -> None:
+    def plot_trace_dial(self, param: str, save_plot: bool = False) -> go.Figure:
         """Create and plot a trace dial."""
         fig = TraceDial.fig(self.mcmc_run, self.theme, self.verbose, param)
         self.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
         fig.show(config=default_config())
+        return fig
