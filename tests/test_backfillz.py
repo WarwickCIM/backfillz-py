@@ -1,8 +1,7 @@
 """Test module for backfillz."""
 
-import pytest
-
 import plotly.graph_objects as go  # type: ignore
+import pytest
 
 from backfillz import Backfillz
 from backfillz.example.eight_schools import generate_fit
@@ -19,7 +18,8 @@ def stan() -> Stan:
 @pytest.fixture()
 def compare_images(pytestconfig) -> bool:
     """Whether to compare generated images with stored expected images."""
-    return pytestconfig.getoption("compare-images")
+    print("Printing something")
+    return pytestconfig.getoption("compare-images") == "True"
 
 
 # Plotly doesn't generate SVGs deterministically, so use PNGs instead.
@@ -35,10 +35,12 @@ def expect_fig(fig: go.Figure, filename: str, check: bool) -> None:
                 file_new.write(found)
                 assert False
             else:
-                print("Image identical.")
+                print(f"{filename}: image identical.")
         except FileNotFoundError:
             file_new = open(filename + ".png", "wb")
             file_new.write(found)
+    else:
+        print(f"{filename}: image not compared.")
 
 
 # @pytest.mark.skip(reason="temporarily disable")
