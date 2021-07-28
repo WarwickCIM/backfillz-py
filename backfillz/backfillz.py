@@ -1,9 +1,9 @@
 from datetime import datetime
 from enum import Enum
-import re
 import sys
 from typing import List
 
+import plotly.graph_objects as go
 from stan.fit import Fit  # type: ignore
 
 from backfillz.data import MCMCRun
@@ -84,15 +84,20 @@ class Backfillz:
         fig = SpiralStream.fig(self.mcmc_run, self.theme, self.verbose, param)
         self.plot_history.append(HistoryEntry(HistoryEvent.SPIRAL_STREAM, save_plot))
         fig.show(config=default_config())
-        found = fig.to_image(format="png")
-        filename: str = "tests/expected_spiral_stream"
-        try:
-            file = open(filename + ".png", "rb")
-            expected = file.read()
-            if expected != found:
-                file_new = open(filename + ".new.png", "wb")
-                file_new.write(found)
-                assert False
-        except FileNotFoundError:
-            file_new = open(filename + ".png", "wb")
+        expect_fig(fig, "tests/expected_spiral_stream")
+
+
+# Plotly doesn't generate SVGs deterministically, so use PNGs instead.
+def expect_fig(fig: go.Figure, filename: str) -> None:
+    """Check for pixel-for-pixel equivalence to stored image."""
+    found = fig.to_image(format="png")
+    try:
+        file = open(filename + ".png", "rb")
+        expected = file.read()
+        if expected != found:
+            file_new = open(filename + ".new.png", "wb")
             file_new.write(found)
+            assert False
+    except FileNotFoundError:
+        file_new = open(filename + ".png", "wb")
+        file_new.write(found)
