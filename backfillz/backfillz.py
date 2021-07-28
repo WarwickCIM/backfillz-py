@@ -67,41 +67,23 @@ class Backfillz:
             print("Setting backfillz object theme to " + theme.name)
         self.theme = theme
 
-    def plot_slice_histogram(self, param: str, save_plot: bool = False) -> None:
+    def plot_slice_histogram(self, param: str, save_plot: bool = False) -> go.Figure:
         """Create and plot a slice histogram."""
         fig = TraceSliceHistogram.fig(self.mcmc_run, self.theme, self.verbose, param)
         self.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
         fig.show(config=default_config())
-        expect_fig(fig, "tests/expected_slice_histogram")
+        return fig
 
-    def plot_trace_dial(self, param: str, save_plot: bool = False) -> None:
+    def plot_trace_dial(self, param: str, save_plot: bool = False) -> go.Figure:
         """Create and plot a trace dial."""
         fig = TraceDial.fig(self.mcmc_run, self.theme, self.verbose, param)
         self.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
         fig.show(config=default_config())
-        expect_fig(fig, "tests/expected_trace_dial")
+        return fig
 
-    def plot_spiral_stream(self, param: str, save_plot: bool = False) -> None:
+    def plot_spiral_stream(self, param: str, save_plot: bool = False) -> go.Figure:
         """Create and plot a spiral stream."""
         fig = SpiralStream.fig(self.mcmc_run, self.theme, self.verbose, param)
         self.plot_history.append(HistoryEntry(HistoryEvent.SPIRAL_STREAM, save_plot))
         fig.show(config=default_config())
-        expect_fig(fig, "tests/expected_spiral_stream")
-
-
-# Plotly doesn't generate SVGs deterministically, so use PNGs instead.
-def expect_fig(fig: go.Figure, filename: str) -> None:
-    """Check for pixel-for-pixel equivalence to stored image."""
-    found = fig.to_image(format="png")
-    try:
-        file = open(filename + ".png", "rb")
-        expected = file.read()
-        if expected != found:
-            file_new = open(filename + ".new.png", "wb")
-            file_new.write(found)
-            assert False
-        else:
-            print("Image identical.")
-    except FileNotFoundError:
-        file_new = open(filename + ".png", "wb")
-        file_new.write(found)
+        return fig

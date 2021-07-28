@@ -2,6 +2,8 @@
 
 import pytest
 
+import plotly.graph_objects as go  # type: ignore
+
 from backfillz import Backfillz
 from backfillz.example.eight_schools import generate_fit
 from backfillz.stan import Stan
@@ -12,6 +14,31 @@ from backfillz.theme import default, demo_1, demo_2
 def stan() -> Stan:
     """Stan model shared by all tests."""
     return generate_fit()
+
+
+@pytest.fixture()
+def compare_images(pytestconfig) -> bool:
+    """Whether to compare generated images with stored expected images."""
+    return pytestconfig.getoption("compare-images")
+
+
+# Plotly doesn't generate SVGs deterministically, so use PNGs instead.
+def expect_fig(fig: go.Figure, filename: str, check: bool) -> None:
+    """Check for pixel-for-pixel equivalence to stored image."""
+    if check:
+        found = fig.to_image(format="png")
+        try:
+            file = open(filename + ".png", "rb")
+            expected = file.read()
+            if expected != found:
+                file_new = open(filename + ".new.png", "wb")
+                file_new.write(found)
+                assert False
+            else:
+                print("Image identical.")
+        except FileNotFoundError:
+            file_new = open(filename + ".png", "wb")
+            file_new.write(found)
 
 
 # @pytest.mark.skip(reason="temporarily disable")
@@ -31,7 +58,8 @@ def test_trace_slice_histogram(stan: Stan) -> None:
     """Slice histogram plot is generated without error."""
     backfillz = Backfillz(stan.fit, verbose=True)
     backfillz.set_theme(demo_1)
-    backfillz.plot_slice_histogram('mu')
+    fig: go.Figure = backfillz.plot_slice_histogram('mu')
+    expect_fig(fig, "tests/expected_slice_histogram", compare_images)
 
 
 # @pytest.mark.skip(reason="temporarily disable")
@@ -39,7 +67,8 @@ def test_trace_dial(stan: Stan) -> None:
     """Trace dial plot is generated without error."""
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(default)
-    backfillz.plot_trace_dial('mu')
+    fig: go.Figure = backfillz.plot_trace_dial('mu')
+    expect_fig(fig, "tests/expected_trace_dial", compare_images)
 
 
 # @pytest.mark.skip(reason="temporarily disable")
@@ -47,4 +76,5 @@ def test_spiral_stream(stan: Stan) -> None:
     """Trace dial plot is generated without error."""
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(demo_2)
-    backfillz.plot_spiral_stream('mu')
+    fig: go.Figure = backfillz.plot_spiral_stream('mu')
+    expect_fig(fig, "tests/expected_spiral_stream", compare_images)
