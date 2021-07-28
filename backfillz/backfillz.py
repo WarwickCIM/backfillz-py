@@ -100,6 +100,8 @@ def expect_fig(fig: go.Figure, filename: str) -> None:
             file_new = open(filename + ".new.png", "wb")
             file_new.write(found)
             assert False
+        else:
+            print("Image identical.")
     except FileNotFoundError:
         file_new = open(filename + ".png", "wb")
         file_new.write(found)
