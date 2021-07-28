@@ -43,7 +43,7 @@ def expect_fig(fig: go.Figure, filename: str, check: bool) -> None:
         print(f"{filename}: image not compared.")
 
 
-@pytest.mark.skip(reason="temporarily disable")
+# @pytest.mark.skip(reason="temporarily disable")
 def test_sample_fit(stan: Stan) -> None:
     """Backfillz object can be created."""
     Backfillz(stan.fit)
