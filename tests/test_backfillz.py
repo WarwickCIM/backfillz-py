@@ -18,7 +18,6 @@ def stan() -> Stan:
 @pytest.fixture()
 def compare_images(pytestconfig) -> bool:
     """Whether to compare generated images with stored expected images."""
-    print("Printing something")
     return pytestconfig.getoption("compare_images") == "True"
 
 
@@ -33,6 +32,7 @@ def expect_fig(fig: go.Figure, filename: str, check: bool) -> None:
             if expected != found:
                 file_new = open(filename + ".new.png", "wb")
                 file_new.write(found)
+                print(f"{filename}: image changed.")
                 assert False
             else:
                 print(f"{filename}: image identical.")
@@ -43,15 +43,13 @@ def expect_fig(fig: go.Figure, filename: str, check: bool) -> None:
         print(f"{filename}: image not compared.")
 
 
-# @pytest.mark.skip(reason="temporarily disable")
+@pytest.mark.skip(reason="temporarily disable")
 def test_sample_fit(stan: Stan) -> None:
     """Backfillz object can be created."""
     Backfillz(stan.fit)
     file = "tests/expected_sample_fit"
 #    stan.save(file)
     expected_stan = Stan.load(file)
-    print(str(expected_stan))
-    print(str(stan))
     assert expected_stan.equal(stan)
 
 
