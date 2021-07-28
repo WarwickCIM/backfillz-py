@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional
 
 from plotly.basedatatypes import BaseTraceType  # type: ignore
-from plotly.colors import unlabel_rgb  # type: ignore
+from plotly.colors import hex_to_rgb  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import Domain, ParameterSlices, Point, Props
@@ -45,9 +45,9 @@ def segment(domain: Domain, n: int, m: int) -> Domain:
 
 
 def alpha(colour: str, a: float) -> str:
-    """Add an alpha component to a colour represented as an RGB string."""
-    rgb: tuple[int, int, int] = unlabel_rgb(colour)
-    return f"rgb({rgb[0]},{rgb[1]},{rgb[2]},{a})"
+    """Add an alpha component to a colour represented as an hex string without an alpha component."""
+    rgb: tuple[int, int, int] = hex_to_rgb(colour)
+    return f"rgba({rgb[0]},{rgb[1]},{rgb[2]},{a})"
 
 
 def annotate(
