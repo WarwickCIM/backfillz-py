@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: macos-10.15  # ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
@@ -23,11 +23,11 @@ jobs:
       - name: Check type hinting with mypy
         run: poetry run mypy --strict --config-file=mypy.ini backfillz/
       - name: Unit & coverage test with pytest
-        run: poetry run pytest
+        run: poetry run pytest --compare_images=False -rP
 
   docs:
     if: ${{ false }}  # mkdocs no longer pushes successfully to gh-pages -- disable for now
-    runs-on: ubuntu-20.04
+    runs-on: macos-10.15  # ubuntu-20.04
     needs:
         build
     steps:
@@ -39,7 +39,7 @@ jobs:
       - run: mkdocs gh-deploy --force
 
   publish:
-    runs-on: ubuntu-20.04
+    runs-on: macos-10.15  # ubuntu-20.04
     needs:
         build  # docs
     if: github.ref == 'refs/heads/release'

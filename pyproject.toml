@@ -26,6 +26,7 @@ plotly = "^4.14.3"
 scipy = "^1.6.3"
 numpy = "1.20.3"
 nbval = "^0.9.6"
+kaleido = "0.2.1" # 0.2.1.post1 won't install
 
 [tool.poetry.dev-dependencies]
 mkdocs-material = "^6.1.5"

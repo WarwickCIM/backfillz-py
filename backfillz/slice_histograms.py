@@ -16,18 +16,18 @@ Bins = Tuple[List[float], List[float]]
 
 @dataclass
 class SliceHistogram(LeafPlot[ParameterSlices]):
-    """Plot histograms for arbitrary subsets of chains, plus optional KDE plots for individual chains."""
+    """Histogram for arbitrary subsets of chains, plus optional KDE plots for individual chains."""
 
     slc: Slice
     n_slc: int
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        """Histogram for a slice (aggregating all chains) plus density plot for each chain."""
+        """Histogram for a slice (aggregating subset of chains) plus density plot for each chain."""
         ns: List[int] = [*range(0, len(self.data.chains))]
         return [self.histo(ns, self.theme.fg_colour, 1), *[self.chain_plot(n) for n in ns]]
 
-    # Histogram bins for a specified subset of the chains.
+    # Histogram bins for specified subset of chains.
     def bins(self, ns: List[int], bin_size: float) -> Bins:
         return cast(Bins, np.histogram(
             [x for n in ns for x in self.data.chain_slices(self.slc)[n]],
@@ -35,7 +35,7 @@ class SliceHistogram(LeafPlot[ParameterSlices]):
             density=True,
         ))
 
-    # Histogram for a specified subset of the chains. Compute our own bins so we're in full control.
+    # Histogram for specified subset of chains. Compute our own bins so we're in full control.
     def histo(self, ns: List[int], color: str, bin_size: float) -> go.Bar:
         ys, xs = self.bins(ns, bin_size)
         return go.Bar(
