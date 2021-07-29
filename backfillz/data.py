@@ -40,6 +40,12 @@ Props = Dict[str, Any]
 Point = Tuple[float, float]
 
 
+def size(domain: Domain) -> float:
+    """Size of a domain."""
+    lower, upper = domain
+    return upper - lower
+
+
 @dataclass
 class ParameterSlices:
     """The MCMC data being presented."""
