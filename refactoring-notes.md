@@ -10,7 +10,6 @@
     - new bug
     - unintended change in behaviour
     - weak algebraic properties of graphics libraries
-
   - over-specialisation, need to re-generalise
   - lots of "fine-grained" (micro-)refactorings
 
