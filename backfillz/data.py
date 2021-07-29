@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import floor
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Sequence, Tuple
 
 import numpy as np
 from stan.fit import Fit  # type: ignore
@@ -64,3 +64,10 @@ class ParameterSlices:
             ]
             for n, _ in enumerate(self.chains)
         ]
+
+
+def normalise(xs: Sequence[float]) -> List[float]:
+    """Normalise a sequence of floats."""
+    min_x: float = min(xs)
+    max_x: float = max(xs)
+    return [(x - min_x) / (max_x - min_x) for x in xs]

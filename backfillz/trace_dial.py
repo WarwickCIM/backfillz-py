@@ -6,10 +6,28 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, ParameterSlices, Props, Slice
+from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, Slice
 from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot, segment
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
+
+
+def to_angular(x: float, domain: Domain) -> float:
+    """Convert normalised x coordinate to coordinate within supplied angular domain."""
+    start, end = domain
+    return start + x * (end - start)
+
+
+def to_radial(y: float) -> float:
+    """Map a normalised y coordinate into upper 2/3 of radius."""
+    return DialPlot.hole_size + y * (1 - DialPlot.hole_size)
+
+
+def polar_plot(xs: Sequence[float], ys: Sequence[float]) -> Tuple[List[float], List[float]]:
+    """Plot normalised data into angular domain and then Cartesian coordinate space."""
+    xs_ang = [to_angular(x, DialPlot.donut_domain) for x in xs]
+    return ([math.cos(x) * ys[n] for n, x in enumerate(xs_ang)],
+            [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)])
 
 
 @dataclass
@@ -33,35 +51,11 @@ class DialPlot(LeafPlot):
     def yaxis_props(self) -> Props:
         return dict(range=[-1, 1], visible=False)
 
-    @staticmethod
-    def to_angular(x: float, domain: Domain) -> float:
-        """Convert normalised x coordinate to angular coordinate within supplied domain."""
-        start, end = domain
-        return start + x * (end - start)
-
-    @staticmethod
-    def to_radial(y: float) -> float:
-        """Map a normalised y coordinate into upper 2/3 of radius."""
-        return DialPlot.hole_size + y * (1 - DialPlot.hole_size)
-
-    # Bit inefficient for chains (we compute min/max rather than used the cached property on self.data).
-    @staticmethod
-    def normalise(xs: Sequence[float]) -> List[float]:
-        min_x: float = min(xs)
-        max_x: float = max(xs)
-        return [(x - min_x) / (max_x - min_x) for x in xs]
-
-    @staticmethod
-    def polar_plot(xs: Sequence[float], ys: Sequence[float]) -> Tuple[List[float], List[float]]:
-        xs_ang = [DialPlot.to_angular(x, DialPlot.donut_domain) for x in xs]
-        return ([math.cos(x) * ys[n] for n, x in enumerate(xs_ang)],
-                [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)])
-
     def polar_trace(self, n: int) -> go.Scatter:
         chain = self.data.chains[n]
-        xs = DialPlot.normalise([*range(0, len(chain))])
-        ys = [DialPlot.to_radial(y) for y in DialPlot.normalise([*chain])]
-        xs_circ, ys_circ = DialPlot.polar_plot(xs, ys)
+        xs = normalise([*range(0, len(chain))])
+        ys = [to_radial(y) for y in normalise([*chain])]
+        xs_circ, ys_circ = polar_plot(xs, ys)
         return go.Scatter(
             x=xs_circ, y=ys_circ,
             line=dict(color=self.theme.palette[n]),
@@ -73,7 +67,7 @@ class DialPlot(LeafPlot):
         xs = [0.0] + [*range(0, n_segments)] + [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
         ys = [DialPlot.hole_size] + [1.0] * n_segments + [1.0] + [DialPlot.hole_size] * n_segments
         assert len(xs) == len(ys)
-        xs, ys = DialPlot.polar_plot(DialPlot.normalise(xs), ys)
+        xs, ys = polar_plot(normalise(xs), ys)
         return go.Scatter(
             x=xs, y=ys,
             line=dict(width=0),
