@@ -16,7 +16,8 @@ from backfillz.theme import default, demo_1, demo_2
 @pytest.fixture(scope='session')
 def stan() -> Stan:
     """Stan model shared by all tests."""
-    return generate_fit()
+    file = "tests/expected_sample_fit"
+    return Stan.load(file)
 
 
 @pytest.fixture()
@@ -50,13 +51,11 @@ def expect_fig(fig: go.Figure, filename: str, check: bool) -> None:
 
 # @pytest.mark.skip(reason="temporarily disable")
 def test_sample_fit(stan: Stan) -> None:
-    """Backfillz object can be created."""
+    """Backfillz object can be created, and the test fixture is the expected reference one."""
     Backfillz(stan.fit)
-    file = "tests/expected_sample_fit"
-#    stan.save(file)
-    expected_stan = Stan.load(file)
-    print(str(expected_stan))
-    print(str(stan))
+    expected_stan: Stan = generate_fit()
+#    print(str(expected_stan))
+#    print(str(stan))
     assert expected_stan.equal(stan)
 
 
