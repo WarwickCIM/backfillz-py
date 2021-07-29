@@ -70,13 +70,10 @@ class DialPlot(LeafPlot):
     @property
     def donut_segment(self) -> go.Scatter:
         n_segments: int = 100
-        xs1 = [0] + [*range(0, n_segments)]
-        ys1 = [DialPlot.hole_size] + [1.0] * n_segments
-        assert len(xs1) == len(ys1)
-        xs2 = [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
-        ys2 = [1.0] + [DialPlot.hole_size] * n_segments
-        assert len(xs2) == len(ys2)
-        xs, ys = DialPlot.polar_plot(DialPlot.normalise(xs1 + xs2), ys1 + ys2)
+        xs = [0.0] + [*range(0, n_segments)] + [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
+        ys = [DialPlot.hole_size] + [1.0] * n_segments + [1.0] + [DialPlot.hole_size] * n_segments
+        assert len(xs) == len(ys)
+        xs, ys = DialPlot.polar_plot(DialPlot.normalise(xs), ys)
         return go.Scatter(
             x=xs, y=ys,
             line=dict(width=0),
