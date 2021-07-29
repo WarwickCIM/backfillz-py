@@ -1,10 +1,14 @@
 """Test module for backfillz."""
 
+import errno
+import os
+
 import plotly.graph_objects as go  # type: ignore
 import pytest
 
 from backfillz import Backfillz
 from backfillz.example.eight_schools import generate_fit
+from backfillz.plot import default_config
 from backfillz.stan import Stan
 from backfillz.theme import default, demo_1, demo_2
 
@@ -18,27 +22,28 @@ def stan() -> Stan:
 @pytest.fixture()
 def compare_images(pytestconfig) -> bool:
     """Whether to compare generated images with stored expected images."""
-    print("Printing something")
     return pytestconfig.getoption("compare_images") == "True"
 
 
-# Plotly doesn't generate SVGs deterministically, so use PNGs instead.
+# Plotly doesn't generate SVG deterministically; use PNG instead.
 def expect_fig(fig: go.Figure, filename: str, check: bool) -> None:
     """Check for pixel-for-pixel equivalence to stored image."""
+    ext = "png"
     if check:
-        found = fig.to_image(format="png")
+        found = fig.to_image(format=ext)
         try:
-            file = open(filename + ".png", "rb")
+            file = open(filename + "." + ext, "rb")
             expected = file.read()
             if expected != found:
-                file_new = open(filename + ".new.png", "wb")
-                file_new.write(found)
-                assert False
-            else:
-                print(f"{filename}: image identical.")
-        except FileNotFoundError:
-            file_new = open(filename + ".png", "wb")
+                print(f"{filename}: differs from reference image.")
+                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filename + ".new." + ext)
+            print(f"{filename}: image identical.")
+        except FileNotFoundError as e:
+            file_new = open(e.filename, "wb")
             file_new.write(found)
+            print(f"{filename}: creating new reference image.")
+            fig.show(config=default_config())
+            assert False
     else:
         print(f"{filename}: image not compared.")
 

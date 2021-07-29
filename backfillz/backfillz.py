@@ -7,7 +7,6 @@ import plotly.graph_objects as go  # type: ignore
 from stan.fit import Fit  # type: ignore
 
 from backfillz.data import MCMCRun
-from backfillz.plot import default_config
 from backfillz.spiral_stream import SpiralStream
 from backfillz.theme import BackfillzTheme, default
 from backfillz.trace_dial import TraceDial
@@ -71,19 +70,16 @@ class Backfillz:
         """Create and plot a slice histogram."""
         fig = TraceSliceHistogram.fig(self.mcmc_run, self.theme, self.verbose, param)
         self.plot_history.append(HistoryEntry(HistoryEvent.SLICE_HISTOGRAM, save_plot))
-        fig.show(config=default_config())
         return fig
 
     def plot_trace_dial(self, param: str, save_plot: bool = False) -> go.Figure:
         """Create and plot a trace dial."""
         fig = TraceDial.fig(self.mcmc_run, self.theme, self.verbose, param)
         self.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
-        fig.show(config=default_config())
         return fig
 
     def plot_spiral_stream(self, param: str, save_plot: bool = False) -> go.Figure:
         """Create and plot a spiral stream."""
         fig = SpiralStream.fig(self.mcmc_run, self.theme, self.verbose, param)
         self.plot_history.append(HistoryEntry(HistoryEvent.SPIRAL_STREAM, save_plot))
-        fig.show(config=default_config())
         return fig
