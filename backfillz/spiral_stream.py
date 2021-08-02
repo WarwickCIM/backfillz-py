@@ -113,9 +113,8 @@ class SpiralStream(RootPlot[ParameterSteps]):
         return dict(width=length, height=length * len(self.data.chains) / len(self.data.steps))
 
     @staticmethod
-    def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
+    def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str, steps: List[int]) -> go.Figure:
         """Create a spiral stream plot."""
-        steps: List[int] = [3, 8, 15]  # defaults for now
         return SpiralStream(
             x_domain=(0.0, 1.0),
             y_domain=(0.0, 1.0),
