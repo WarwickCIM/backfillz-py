@@ -5,7 +5,9 @@ from typing import List, Sequence, Tuple
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import Domain, MCMCRun, ParameterData, Props, segment
-from backfillz.plot import AggregatePlot, annotate, Axis, fresh_axis_id, LeafPlot, RootPlot, spiral_plot
+from backfillz.plot import (
+    AggregatePlot, alpha, annotate, Axis, fresh_axis_id, LeafPlot, RootPlot, spiral_plot
+)
 from backfillz.theme import BackfillzTheme
 
 
@@ -28,16 +30,16 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
     @property
     def plot_elements(self) -> List[go.Scatter]:
         chain: List[float] = self.data.variance(self.n_chain, 20)
-        xs, ys = spiral_plot(
-            [*range(0, len(chain))],
-            chain,
-            Axis((0, len(chain)), SpiralPlot.angular_domain),
-            Axis((min(chain), max(chain)), (0, 1)),
-            1 / (2 * pi),
-        )
+        xs: List[int] = [*range(0, len(chain))]
+        x_axis: Axis = Axis((0, len(chain)), SpiralPlot.angular_domain)
+        y_range: Domain = min(chain), max(chain)
+        xs1, ys1 = spiral_plot(xs, chain, x_axis, Axis(y_range, (0, 0.5)), 1 / (2 * pi))
+        xs2, ys2 = spiral_plot(xs, chain, x_axis, Axis(y_range, (0, -0.5)), 1 / (2 * pi))
         return [go.Scatter(
-            x=xs,
-            y=ys,
+            x=xs1 + xs2[::-1],
+            y=ys1 + ys2[::-1],
+            fill='toself',
+            fillcolor=alpha(self.theme.palette[self.n_chain], 0.5),
             line=dict(width=1, color=self.theme.palette[self.n_chain]),
             xaxis='x' + self.axis_id,
             yaxis='y' + self.axis_id,
