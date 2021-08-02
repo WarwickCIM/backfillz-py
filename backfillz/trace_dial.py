@@ -46,9 +46,9 @@ class DialPlot(LeafPlot[ParameterSlices]):
     def donut_segment(x_domain: Domain, fillcolor: str) -> go.Scatter:
         xs1, ys1 = DialPlot.arc(x_domain, 1.0, 100)
         xs2, ys2 = DialPlot.arc(x_domain, 0.0, 50)
-        x = xs1 + xs2[::-1]
-        y = ys1 + ys2[::-1]
-        return go.Scatter(x=x, y=y, line=dict(width=0), fill='toself', fillcolor=fillcolor)
+        xs = xs1 + xs2[::-1]
+        ys = ys1 + ys2[::-1]
+        return go.Scatter(x=xs, y=ys, line=dict(width=0), fill='toself', fillcolor=fillcolor)
 
     @staticmethod
     def slice_domain(slc: Slice) -> Domain:

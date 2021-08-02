@@ -78,8 +78,8 @@ class Backfillz:
         self.plot_history.append(HistoryEntry(HistoryEvent.TRACE_DIAL, save_plot))
         return fig
 
-    def plot_spiral_stream(self, param: str, save_plot: bool = False) -> go.Figure:
+    def plot_spiral_stream(self, param: str, steps: List[int], save_plot: bool = False) -> go.Figure:
         """Create and plot a spiral stream."""
-        fig = SpiralStream.fig(self.mcmc_run, self.theme, self.verbose, param)
+        fig = SpiralStream.fig(self.mcmc_run, self.theme, self.verbose, param, steps)
         self.plot_history.append(HistoryEntry(HistoryEvent.SPIRAL_STREAM, save_plot))
         return fig
