@@ -85,6 +85,14 @@ class ParameterData:
         """Return number of MCMC iterations per chain."""
         return int(self.chains.shape[1])
 
+    def variance(self, n: int, span: int) -> List[float]:
+        """For chain n, the variance over the interval [-span, span], computed pointwise."""
+        assert span >= 0
+        return [
+            np.var(self.chains[n][max(0, i - span):min(self.n_iter + 1, i + span + 1)])
+            for i in range(0, self.n_iter)
+        ]
+
 
 @dataclass
 class ParameterSlices(ParameterData):

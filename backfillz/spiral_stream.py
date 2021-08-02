@@ -27,7 +27,7 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
 
     @property
     def plot_elements(self) -> List[go.Scatter]:
-        chain: List[float] = [*self.data.chains[self.n_chain]]
+        chain: List[float] = self.data.variance(self.n_chain, 20)
         xs, ys = spiral_plot(
             [*range(0, len(chain))],
             chain,
