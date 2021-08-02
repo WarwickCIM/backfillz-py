@@ -82,5 +82,5 @@ def test_spiral_stream(stan: Stan, compare_images: bool) -> None:
     """Trace dial plot is generated without error."""
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(demo_2)
-    fig: go.Figure = backfillz.plot_spiral_stream('mu', [3, 8, 15])
+    fig: go.Figure = backfillz.plot_spiral_stream('mu', [2, 8, 15, 65, 250, 600])
     expect_fig(fig, "tests/expected_spiral_stream", compare_images)

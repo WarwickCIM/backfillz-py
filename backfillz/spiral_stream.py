@@ -29,7 +29,7 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
 
     @property
     def plot_elements(self) -> List[go.Scatter]:
-        chain: List[float] = self.data.variance(self.n_chain, 20)
+        chain: List[float] = self.data.variance(self.n_chain, self.step)
         xs: List[int] = [*range(0, len(chain))]
         x_axis: Axis = Axis((0, len(chain)), SpiralPlot.angular_domain)
         y_range: Domain = min(chain), max(chain)
@@ -109,11 +109,17 @@ class SpiralStream(RootPlot[ParameterSteps]):
     @property
     def layout_props(self) -> Props:
         # ensure each individual spiral plot is square; see trace_dial
-        length: int = 600
+        length: int = 800
         return dict(width=length, height=length * len(self.data.chains) / len(self.data.steps))
 
     @staticmethod
-    def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str, steps: List[int]) -> go.Figure:
+    def fig(
+        mcmc_run: MCMCRun,
+        theme: BackfillzTheme,
+        verbose: bool,
+        param: str,
+        steps: List[int]
+    ) -> go.Figure:
         """Create a spiral stream plot."""
         return SpiralStream(
             x_domain=(0.0, 1.0),
