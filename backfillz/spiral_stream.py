@@ -32,7 +32,7 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
             [*range(0, len(chain))],
             chain,
             Axis((0, len(chain)), SpiralPlot.angular_domain),
-            Axis((self.data.min_sample, self.data.max_sample), (0, 1)),
+            Axis((min(chain), max(chain)), (0, 1)),
             1 / (2 * pi),
         )
         return [go.Scatter(
