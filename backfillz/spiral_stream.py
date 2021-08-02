@@ -40,7 +40,7 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
             y=ys1 + ys2[::-1],
             fill='toself',
             fillcolor=alpha(self.theme.palette[self.n_chain], 0.5),
-            line=dict(width=1, color=self.theme.palette[self.n_chain]),
+            line=dict(width=0.5, color=self.theme.palette[self.n_chain]),
             xaxis='x' + self.axis_id,
             yaxis='y' + self.axis_id,
         )]
