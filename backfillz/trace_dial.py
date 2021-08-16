@@ -196,8 +196,8 @@ class DerivativeColours:
 
     @property
     def burn_in_segment(self) -> str:
-        return alpha(self.theme.mg_colour, self.theme.alpha + 0.2)
+        return alpha(self.theme.fg_colour, 0.3)
 
     @property
     def remaining_segment(self) -> str:
-        return alpha(self.theme.mg_colour, self.theme.alpha - 0.3)
+        return alpha(self.theme.fg_colour, 0.1)
