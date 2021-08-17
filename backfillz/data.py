@@ -47,7 +47,7 @@ def size(domain: Domain) -> float:
 
 
 def scale(factor: float, xs: List[float]) -> List[float]:
-    """Element-wise product."""
+    """Element-wise multiplication by a constant."""
     return [x * factor for x in xs]
 
 
