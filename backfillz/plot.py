@@ -32,18 +32,6 @@ def default_config() -> Props:
     return dict(displayModeBar=False, showAxisDragHandles=False)
 
 
-def scale(factor: float, xs: List[float]) -> List[float]:
-    """Element-wise product."""
-    return [x * factor for x in xs]
-
-
-def segment(domain: Domain, n: int, m: int) -> Domain:
-    """Break supplied "domain" into n equal-sized segments, and return the mth."""
-    start, end = domain
-    width = (end - start) / n
-    return start + m * width, start + (m + 1) * width
-
-
 def alpha(hex_colour: str, a: float) -> str:
     """Add an alpha component to a colour represented as an hex string without an alpha component."""
     rgb: tuple[int, int, int] = hex_to_rgb(hex_colour)

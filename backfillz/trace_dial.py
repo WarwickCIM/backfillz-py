@@ -6,8 +6,8 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, Slice
-from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot, segment
+from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, segment, Slice
+from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
