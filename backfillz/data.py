@@ -58,6 +58,13 @@ def segment(domain: Domain, n: int, m: int) -> Domain:
     return start + m * width, start + (m + 1) * width
 
 
+def normalise(xs: Sequence[float]) -> List[float]:
+    """Normalise a sequence of floats."""
+    min_x: float = min(xs)
+    max_x: float = max(xs)
+    return [(x - min_x) / (max_x - min_x) for x in xs]
+
+
 @dataclass
 class ParameterSlices:
     """The MCMC data being presented."""
@@ -82,10 +89,3 @@ class ParameterSlices:
             ]
             for n, _ in enumerate(self.chains)
         ]
-
-
-def normalise(xs: Sequence[float]) -> List[float]:
-    """Normalise a sequence of floats."""
-    min_x: float = min(xs)
-    max_x: float = max(xs)
-    return [(x - min_x) / (max_x - min_x) for x in xs]
