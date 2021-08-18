@@ -62,6 +62,10 @@ class DialPlot(LeafPlot):
         )
 
     @property
+    def polar_traces(self) -> List[go.Scatter]:
+        return [self.polar_trace(n) for n, _ in enumerate(self.data.chains)]
+
+    @property
     def donut_segment(self) -> go.Scatter:
         n_segments: int = 100
         xs = [0.0] + [*range(0, n_segments)] + [n_segments - 1] + [*range(n_segments - 1, -1, -1)]
@@ -74,10 +78,6 @@ class DialPlot(LeafPlot):
             fill='toself',
             fillcolor=self.theme.mg_colour,
         )
-
-    @property
-    def polar_traces(self) -> List[go.Scatter]:
-        return [self.polar_trace(n) for n, _ in enumerate(self.data.chains)]
 
 
 @dataclass
