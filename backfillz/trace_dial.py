@@ -75,6 +75,7 @@ class DialPlot(LeafPlot):
         return go.Scatter(
             x=xs, y=ys,
             line=dict(width=0),
+            mode='lines',
             fill='toself',
             fillcolor=self.theme.mg_colour,
         )
