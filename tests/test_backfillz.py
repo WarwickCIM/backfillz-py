@@ -37,6 +37,7 @@ def expect_fig(fig: go.Figure, filename: str, check: bool) -> None:
             if expected != found:
                 print(f"{filename}: image changed.")
                 raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filename + ".new." + ext)
+#            fig.show(config=default_config())
             print(f"{filename}: image identical.")
         except FileNotFoundError as e:
             file_new = open(e.filename, "wb")
