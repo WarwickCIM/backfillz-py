@@ -46,6 +46,13 @@ def size(domain: Domain) -> float:
     return upper - lower
 
 
+def normalise(xs: List[float]) -> List[float]:
+    """Normalise a list of floats."""
+    min_x: float = min(xs)
+    max_x: float = max(xs)
+    return [(x - min_x) / (max_x - min_x) for x in xs]
+
+
 def scale(factor: float, xs: List[float]) -> List[float]:
     """Element-wise multiplication by a constant."""
     return [x * factor for x in xs]
@@ -56,13 +63,6 @@ def segment(domain: Domain, n: int, m: int) -> Domain:
     start, end = domain
     width = (end - start) / n
     return start + m * width, start + (m + 1) * width
-
-
-def normalise(xs: List[float]) -> List[float]:
-    """Normalise a list of floats."""
-    min_x: float = min(xs)
-    max_x: float = max(xs)
-    return [(x - min_x) / (max_x - min_x) for x in xs]
 
 
 @dataclass
