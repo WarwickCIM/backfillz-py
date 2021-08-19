@@ -20,12 +20,13 @@ def to_angular(x: float, domain: Domain) -> float:
 
 def to_radial(y: float) -> float:
     """Map a normalised y coordinate into upper 2/3 of radius."""
-    return DialPlot.hole_size + y * (1 - DialPlot.hole_size)
+    start, end = DialPlot.radial_domain
+    return start + y * (end - start)
 
 
 def polar_plot(xs: Sequence[float], ys: Sequence[float]) -> Tuple[List[float], List[float]]:
     """Plot normalised data into angular domain and then Cartesian coordinate space."""
-    xs_ang = [to_angular(x, DialPlot.donut_domain) for x in xs]
+    xs_ang = [to_angular(x, DialPlot.angular_domain) for x in xs]
     return ([math.cos(x) * ys[n] for n, x in enumerate(xs_ang)],
             [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)])
 
@@ -34,8 +35,8 @@ def polar_plot(xs: Sequence[float], ys: Sequence[float]) -> Tuple[List[float], L
 class DialPlot(LeafPlot):
     """Trace dial plot on the left."""
 
-    hole_size: float = 1 / 3
-    donut_domain: Domain = 0.5 * math.pi, 2 * math.pi  # radians
+    radial_domain: Domain = 1 / 3, 1
+    angular_domain: Domain = 0.5 * math.pi, 2 * math.pi  # radians
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
@@ -69,9 +70,9 @@ class DialPlot(LeafPlot):
     def donut_segment(self) -> go.Scatter:
         n_steps: int = 100
         xs = [0.0] + [*range(0, n_steps)] + [n_steps - 1] + [*range(n_steps - 1, -1, -1)]
-        ys = [DialPlot.hole_size] + [1.0] * n_steps + [1.0] + [DialPlot.hole_size] * n_steps
+        ys = [0.0] + [1.0] * n_steps + [1.0] + [0.0] * n_steps
         assert len(xs) == len(ys)
-        xs, ys = polar_plot(normalise(xs), ys)
+        xs, ys = polar_plot(normalise(xs), [to_radial(y) for y in ys])
         return go.Scatter(
             x=xs, y=ys,
             line=dict(width=0),
@@ -135,8 +136,9 @@ class TraceDial(RootPlot):
 
     @property
     def histograms(self) -> SliceHistograms:
+        x_start, x_end = DialPlot.radial_domain
         return SliceHistograms(
-            x_domain=(0.5 + DialPlot.hole_size / 2, 1.0),
+            x_domain=(0.5 + x_start / 2, 0.5 + x_end / 2),
             y_domain=(0.5, 1.0),
             data=self.data,
             theme=self.theme,
