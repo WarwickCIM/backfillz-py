@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import List, Sequence, Tuple
+from typing import List, Tuple
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
@@ -18,7 +18,7 @@ def to_domain(x: float, domain: Domain) -> float:
     return start + x * (end - start)
 
 
-def polar_plot(xs: Sequence[float], ys: Sequence[float]) -> Tuple[List[float], List[float]]:
+def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
     """Plot normalised data into angular domain and then Cartesian coordinate space."""
     xs_ang = [to_domain(x, DialPlot.angular_domain) for x in xs]
     return ([math.cos(x) * ys[n] for n, x in enumerate(xs_ang)],

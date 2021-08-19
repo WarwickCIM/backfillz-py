@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import floor
-from typing import Any, Dict, List, Sequence, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from stan.fit import Fit  # type: ignore
@@ -58,8 +58,8 @@ def segment(domain: Domain, n: int, m: int) -> Domain:
     return start + m * width, start + (m + 1) * width
 
 
-def normalise(xs: Sequence[float]) -> List[float]:
-    """Normalise a sequence of floats."""
+def normalise(xs: List[float]) -> List[float]:
+    """Normalise a list of floats."""
     min_x: float = min(xs)
     max_x: float = max(xs)
     return [(x - min_x) / (max_x - min_x) for x in xs]
