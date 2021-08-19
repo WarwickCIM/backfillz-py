@@ -18,11 +18,6 @@ def to_domain(x: float, domain: Domain) -> float:
     return start + x * (end - start)
 
 
-def to_radial(y: float) -> float:
-    """Map a normalised y coordinate into upper 2/3 of radius."""
-    return to_domain(y, DialPlot.radial_domain)
-
-
 def polar_plot(xs: Sequence[float], ys: Sequence[float]) -> Tuple[List[float], List[float]]:
     """Plot normalised data into angular domain and then Cartesian coordinate space."""
     xs_ang = [to_domain(x, DialPlot.angular_domain) for x in xs]
@@ -54,7 +49,7 @@ class DialPlot(LeafPlot):
     def polar_trace(self, n: int) -> go.Scatter:
         chain = self.data.chains[n]
         xs = normalise([*range(0, len(chain))])
-        ys = [to_radial(y) for y in normalise([*chain])]
+        ys = [to_domain(y, DialPlot.radial_domain) for y in normalise([*chain])]
         xs_circ, ys_circ = polar_plot(xs, ys)
         return go.Scatter(
             x=xs_circ, y=ys_circ,
@@ -71,7 +66,7 @@ class DialPlot(LeafPlot):
         xs = [0.0] + [*range(0, n_steps)] + [n_steps - 1] + [*range(n_steps - 1, -1, -1)]
         ys = [0.0] + [1.0] * n_steps + [1.0] + [0.0] * n_steps
         assert len(xs) == len(ys)
-        xs, ys = polar_plot(normalise(xs), [to_radial(y) for y in ys])
+        xs, ys = polar_plot(normalise(xs), [to_domain(y, DialPlot.radial_domain) for y in ys])
         return go.Scatter(
             x=xs, y=ys,
             line=dict(width=0),
