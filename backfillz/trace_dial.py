@@ -12,7 +12,7 @@ from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
 
-def to_angular(x: float, domain: Domain) -> float:
+def to_domain(x: float, domain: Domain) -> float:
     """Convert normalised x coordinate to coordinate within supplied angular domain."""
     start, end = domain
     return start + x * (end - start)
@@ -20,13 +20,12 @@ def to_angular(x: float, domain: Domain) -> float:
 
 def to_radial(y: float) -> float:
     """Map a normalised y coordinate into upper 2/3 of radius."""
-    start, end = DialPlot.radial_domain
-    return start + y * (end - start)
+    return to_domain(y, DialPlot.radial_domain)
 
 
 def polar_plot(xs: Sequence[float], ys: Sequence[float]) -> Tuple[List[float], List[float]]:
     """Plot normalised data into angular domain and then Cartesian coordinate space."""
-    xs_ang = [to_angular(x, DialPlot.angular_domain) for x in xs]
+    xs_ang = [to_domain(x, DialPlot.angular_domain) for x in xs]
     return ([math.cos(x) * ys[n] for n, x in enumerate(xs_ang)],
             [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)])
 
