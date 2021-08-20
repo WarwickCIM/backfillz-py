@@ -20,9 +20,9 @@ def to_domain(x: float, domain: Domain) -> float:
 
 def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
     """Plot normalised data into angular domain and then Cartesian coordinate space."""
-    xs_ang = [to_domain(x, DialPlot.angular_domain) for x in xs]
-    return ([math.cos(x) * ys[n] for n, x in enumerate(xs_ang)],
-            [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)])
+    xs = [to_domain(x, DialPlot.angular_domain) for x in xs]
+    return ([math.cos(x) * ys[n] for n, x in enumerate(xs)],
+            [math.sin(x) * ys[n] for n, x in enumerate(xs)])
 
 
 @dataclass
