@@ -44,13 +44,18 @@ class DialPlot(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [*self.donut_segments, *self.polar_traces]
+        return [*self.donut_segments, *self.polar_traces, self.radial_axis]
 
     @property
     def xaxis_props(self) -> Props:
         # scaleanchor='y', scaleratio=1 would force an exact square/circle, but then can't
         # set histogram widths correctly
         return dict(visible=False)
+
+    @property
+    def radial_axis(self) -> go.Scatter:
+        xs, ys = arc(-0.1, DialPlot.angular_domain, 100)
+        return go.Scatter(x=xs, y=ys, line=dict(width=1, color=self.theme.fg_colour))
 
     @property
     def yaxis_props(self) -> Props:
