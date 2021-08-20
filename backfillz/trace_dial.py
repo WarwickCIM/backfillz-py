@@ -49,11 +49,10 @@ class DialPlot(LeafPlot):
     def yaxis_props(self) -> Props:
         return dict(range=[-1, 1], visible=False)
 
-    def polar_trace(self, n: int, x_axis: Axis) -> go.Scatter:
+    def polar_trace(self, n: int, x_axis: Axis, y_axis: Axis) -> go.Scatter:
         chain = self.data.chains[n]
         xs = [*range(0, self.data.n_iter)]
         ys = [*chain]
-        y_axis = axis(ys, DialPlot.radial_domain)
         xs_circ, ys_circ = polar_plot(xs, ys, x_axis, y_axis)
         return go.Scatter(
             x=xs_circ, y=ys_circ,
@@ -63,7 +62,8 @@ class DialPlot(LeafPlot):
     @property
     def polar_traces(self) -> List[go.Scatter]:
         x_axis = Axis((0, self.data.n_iter - 1), DialPlot.angular_domain)
-        return [self.polar_trace(n, x_axis) for n, _ in enumerate(self.data.chains)]
+        y_axis = Axis((self.data.min_sample, self.data.max_sample), DialPlot.radial_domain)
+        return [self.polar_trace(n, x_axis, y_axis) for n, _ in enumerate(self.data.chains)]
 
     def donut_segment(self, x_domain: Domain, fillcolor: str) -> go.Scatter:
         n_steps: int = math.floor(100 * size(x_domain) / size(DialPlot.angular_domain))
