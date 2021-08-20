@@ -61,11 +61,10 @@ def to_domain(x: float, domain: Domain) -> float:
     return start + x * (end - start)
 
 
-def map_domain(range: Domain, domain: Domain) -> Domain:
-    """Map a domain into another."""
-    x_axis: Axis = Axis(range, domain)
-    start, end = range
-    return x_axis.map(start), x_axis.map(end)
+def map_domain(src: Domain, tgt: Domain) -> Domain:
+    """Map a normalised domain into another."""
+    start, end = src
+    return to_domain(start, tgt), to_domain(end, tgt)
 
 
 def normalise(xs: List[float]) -> List[float]:
