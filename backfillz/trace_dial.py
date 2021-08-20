@@ -7,7 +7,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import (
-    Domain, map_domain, MCMCRun, normalise, ParameterSlices, Props, segment, size, to_domain
+    Axis, axis, Domain, map_domain, MCMCRun, normalise, ParameterSlices, Props, segment, size, to_domain
 )
 from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot
 from backfillz.slice_histograms import SliceHistogram
@@ -17,7 +17,8 @@ from backfillz.theme import BackfillzTheme
 def polar_plot(xs: List[float], ys: List[float], x_domain: Domain) -> Tuple[List[float], List[float]]:
     """Normalise and plot data into angular domain and then Cartesian coordinate space."""
     assert len(xs) == len(ys)
-    xs_ang = [to_domain(x, x_domain) for x in normalise(xs)]
+    x_axis: Axis = axis(xs, (0, 1))
+    xs_ang = [to_domain(x, x_domain) for x in [x_axis.map(x) for x in xs]]
     ys_rad = [to_domain(y, DialPlot.radial_domain) for y in normalise(ys)]
     return ([math.cos(x) * ys_rad[n] for n, x in enumerate(xs_ang)],
             [math.sin(x) * ys_rad[n] for n, x in enumerate(xs_ang)])
