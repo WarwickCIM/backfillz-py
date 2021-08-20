@@ -30,7 +30,7 @@ class DialPlot(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [self.donut_segment, *self.polar_traces]
+        return [self.donut_segment(DialPlot.angular_domain), *self.polar_traces]
 
     @property
     def xaxis_props(self) -> Props:
@@ -56,12 +56,11 @@ class DialPlot(LeafPlot):
     def polar_traces(self) -> List[go.Scatter]:
         return [self.polar_trace(n) for n, _ in enumerate(self.data.chains)]
 
-    @property
-    def donut_segment(self) -> go.Scatter:
+    def donut_segment(self, x_domain: Domain) -> go.Scatter:
         n_steps: int = 100
         xs = [*range(0, n_steps)] + [*range(n_steps - 1, -1, -1)]
         ys = [1.0] * n_steps + [0.0] * n_steps
-        xs, ys = polar_plot(xs, ys, DialPlot.angular_domain)
+        xs, ys = polar_plot(xs, ys, x_domain)
         return go.Scatter(
             x=xs, y=ys,
             line=dict(width=0),
