@@ -6,7 +6,7 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, segment, to_domain
+from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, segment, size, to_domain
 from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
@@ -57,7 +57,7 @@ class DialPlot(LeafPlot):
         return [self.polar_trace(n) for n, _ in enumerate(self.data.chains)]
 
     def donut_segment(self, x_domain: Domain) -> go.Scatter:
-        n_steps: int = 100
+        n_steps: int = math.floor(100 * size(x_domain) / size(DialPlot.angular_domain))
         xs = [*range(0, n_steps)] + [*range(n_steps - 1, -1, -1)]
         ys = [1.0] * n_steps + [0.0] * n_steps
         xs, ys = polar_plot(xs, ys, x_domain)
