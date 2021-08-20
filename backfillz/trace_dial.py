@@ -61,7 +61,7 @@ class DialPlot(LeafPlot):
         xs = [*range(0, n_steps)] + [*range(n_steps - 1, -1, -1)]
         ys = [1.0] * n_steps + [0.0] * n_steps
         assert len(xs) == len(ys)
-        xs, ys = polar_plot(xs, ys)
+        xs, ys = polar_plot(xs, normalise(ys))
         return go.Scatter(
             x=xs, y=ys,
             line=dict(width=0),
