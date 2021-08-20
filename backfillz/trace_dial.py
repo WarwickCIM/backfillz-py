@@ -7,17 +7,16 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import (
-    Axis, axis, Domain, map_domain, MCMCRun, ParameterSlices, Props, segment, size, to_domain
+    Axis, axis, Domain, map_domain, MCMCRun, ParameterSlices, Props, segment, size
 )
 from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
 
-def polar_plot(xs: List[float], ys: List[float], x_domain: Domain) -> Tuple[List[float], List[float]]:
+def polar_plot(xs: List[float], ys: List[float], x_axis: Axis) -> Tuple[List[float], List[float]]:
     """Normalise and plot data into angular domain and then Cartesian coordinate space."""
     assert len(xs) == len(ys)
-    x_axis: Axis = axis(xs, x_domain)
     xs_ang = [x_axis.map(x) for x in xs]
     y_axis: Axis = axis(ys, DialPlot.radial_domain)
     ys_rad = [y_axis.map(y) for y in ys]
@@ -50,7 +49,7 @@ class DialPlot(LeafPlot):
         chain = self.data.chains[n]
         xs = [*range(0, len(chain))]
         ys = [*chain]
-        xs_circ, ys_circ = polar_plot(xs, ys, DialPlot.angular_domain)
+        xs_circ, ys_circ = polar_plot(xs, ys, axis(xs, DialPlot.angular_domain))
         return go.Scatter(
             x=xs_circ, y=ys_circ,
             line=dict(color=self.theme.palette[n]),
@@ -64,7 +63,7 @@ class DialPlot(LeafPlot):
         n_steps: int = math.floor(100 * size(x_domain) / size(DialPlot.angular_domain))
         xs = [*range(0, n_steps)] + [*range(n_steps - 1, -1, -1)]
         ys = [1.0] * n_steps + [0.0] * n_steps
-        xs, ys = polar_plot(xs, ys, x_domain)
+        xs, ys = polar_plot(xs, ys, axis(xs, x_domain))
         return go.Scatter(
             x=xs, y=ys,
             line=dict(width=0),
