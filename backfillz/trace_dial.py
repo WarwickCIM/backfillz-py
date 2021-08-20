@@ -15,7 +15,7 @@ from backfillz.theme import BackfillzTheme
 def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
     """Normalise and plot data into angular domain and then Cartesian coordinate space."""
     xs_ang = [to_domain(x, DialPlot.angular_domain) for x in normalise(xs)]
-    ys_rad = [to_domain(y, DialPlot.radial_domain) for y in ys]
+    ys_rad = [to_domain(y, DialPlot.radial_domain) for y in normalise(ys)]
     return ([math.cos(x) * ys_rad[n] for n, x in enumerate(xs_ang)],
             [math.sin(x) * ys_rad[n] for n, x in enumerate(xs_ang)])
 
@@ -45,7 +45,7 @@ class DialPlot(LeafPlot):
         chain = self.data.chains[n]
         xs = [*range(0, len(chain))]
         ys = [*chain]
-        xs_circ, ys_circ = polar_plot(xs, normalise(ys))
+        xs_circ, ys_circ = polar_plot(xs, ys)
         return go.Scatter(
             x=xs_circ, y=ys_circ,
             line=dict(color=self.theme.palette[n]),
@@ -61,7 +61,7 @@ class DialPlot(LeafPlot):
         xs = [*range(0, n_steps)] + [*range(n_steps - 1, -1, -1)]
         ys = [1.0] * n_steps + [0.0] * n_steps
         assert len(xs) == len(ys)
-        xs, ys = polar_plot(xs, normalise(ys))
+        xs, ys = polar_plot(xs, ys)
         return go.Scatter(
             x=xs, y=ys,
             line=dict(width=0),
