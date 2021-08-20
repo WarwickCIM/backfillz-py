@@ -45,6 +45,7 @@ class DialPlot(LeafPlot):
         chain = self.data.chains[n]
         xs = [*range(0, len(chain))]
         ys = [*chain]
+        assert len(xs) == len(ys)
         xs_circ, ys_circ = polar_plot(xs, ys)
         return go.Scatter(
             x=xs_circ, y=ys_circ,
