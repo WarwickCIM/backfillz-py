@@ -6,7 +6,9 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, segment, size, to_domain
+from backfillz.data import (
+    Domain, map_domain, MCMCRun, normalise, ParameterSlices, Props, segment, size, to_domain
+)
 from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
@@ -71,7 +73,10 @@ class DialPlot(LeafPlot):
 
     @property
     def donut_segments(self) -> List[go.Scatter]:
-        return [self.donut_segment(DialPlot.angular_domain)]
+        return [
+            self.donut_segment(map_domain(self.data.slcs[0], DialPlot.angular_domain)),
+            self.donut_segment(map_domain(self.data.slcs[1], DialPlot.angular_domain)),
+        ]
 
 
 @dataclass
