@@ -30,7 +30,7 @@ class DialPlot(LeafPlot):
 
     @property
     def plot_elements(self) -> List[BaseTraceType]:
-        return [self.donut_segment(DialPlot.angular_domain), *self.polar_traces]
+        return [*self.donut_segments, *self.polar_traces]
 
     @property
     def xaxis_props(self) -> Props:
@@ -68,6 +68,10 @@ class DialPlot(LeafPlot):
             fill='toself',
             fillcolor=self.theme.mg_colour,
         )
+
+    @property
+    def donut_segments(self) -> List[go.Scatter]:
+        return [self.donut_segment(DialPlot.angular_domain)]
 
 
 @dataclass
