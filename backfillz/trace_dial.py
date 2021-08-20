@@ -51,13 +51,8 @@ class DialPlot(LeafPlot):
 
     def polar_trace(self, n: int, x_axis: Axis, y_axis: Axis) -> go.Scatter:
         chain = self.data.chains[n]
-        xs = [*range(0, self.data.n_iter)]
-        ys = [*chain]
-        xs_circ, ys_circ = polar_plot(xs, ys, x_axis, y_axis)
-        return go.Scatter(
-            x=xs_circ, y=ys_circ,
-            line=dict(color=self.theme.palette[n]),
-        )
+        xs_circ, ys_circ = polar_plot([*range(0, self.data.n_iter)], [*chain], x_axis, y_axis)
+        return go.Scatter(x=xs_circ, y=ys_circ, line=dict(color=self.theme.palette[n]))
 
     @property
     def polar_traces(self) -> List[go.Scatter]:
