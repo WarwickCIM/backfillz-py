@@ -6,23 +6,17 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, segment, Slice
+from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, segment, Slice, to_domain
 from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
 
-def to_domain(x: float, domain: Domain) -> float:
-    """Convert normalised x coordinate to coordinate within supplied angular domain."""
-    start, end = domain
-    return start + x * (end - start)
-
-
 def polar_plot(xs: List[float], ys: List[float]) -> Tuple[List[float], List[float]]:
     """Normalise and plot data into angular domain and then Cartesian coordinate space."""
-    xs = [to_domain(x, DialPlot.angular_domain) for x in normalise(xs)]
-    return ([math.cos(x) * ys[n] for n, x in enumerate(xs)],
-            [math.sin(x) * ys[n] for n, x in enumerate(xs)])
+    xs_ang = [to_domain(x, DialPlot.angular_domain) for x in normalise(xs)]
+    return ([math.cos(x) * ys[n] for n, x in enumerate(xs_ang)],
+            [math.sin(x) * ys[n] for n, x in enumerate(xs_ang)])
 
 
 @dataclass

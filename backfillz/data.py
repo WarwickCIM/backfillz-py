@@ -46,11 +46,33 @@ def size(domain: Domain) -> float:
     return upper - lower
 
 
+@dataclass
+class Axis:
+    """Map a range into a domain."""
+
+    range: Domain
+    domain: Domain
+
+    def map(self, x: float) -> float:
+        x_start, x_end = self.range
+        return to_domain((x - x_start) / (x_end - x_start), self.domain)
+
+
+def axis(xs: List[float], x_domain: Domain) -> Axis:
+    """Map range of numbers to a domain."""
+    return Axis((min(xs), max(xs)), x_domain)
+
+
+def to_domain(x: float, domain: Domain) -> float:
+    """Convert normalised x coordinate to coordinate within supplied angular domain."""
+    start, end = domain
+    return start + x * (end - start)
+
+
 def normalise(xs: List[float]) -> List[float]:
     """Normalise a list of floats."""
-    min_x: float = min(xs)
-    max_x: float = max(xs)
-    return [(x - min_x) / (max_x - min_x) for x in xs]
+    x_axis: Axis = axis(xs, (0, 1))
+    return [x_axis.map(x) for x in xs]
 
 
 def scale(factor: float, xs: List[float]) -> List[float]:
