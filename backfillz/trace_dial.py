@@ -14,11 +14,15 @@ from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
 
-def polar_plot(xs: List[float], ys: List[float], x_axis: Axis) -> Tuple[List[float], List[float]]:
+def polar_plot(
+    xs: List[float],
+    ys: List[float],
+    x_axis: Axis,
+    y_axis: Axis
+) -> Tuple[List[float], List[float]]:
     """Normalise and plot data into angular domain and then Cartesian coordinate space."""
     assert len(xs) == len(ys)
     xs_ang = [x_axis.map(x) for x in xs]
-    y_axis: Axis = axis(ys, DialPlot.radial_domain)
     ys_rad = [y_axis.map(y) for y in ys]
     return ([math.cos(x) * ys_rad[n] for n, x in enumerate(xs_ang)],
             [math.sin(x) * ys_rad[n] for n, x in enumerate(xs_ang)])
@@ -49,7 +53,9 @@ class DialPlot(LeafPlot):
         chain = self.data.chains[n]
         xs = [*range(0, len(chain))]
         ys = [*chain]
-        xs_circ, ys_circ = polar_plot(xs, ys, axis(xs, DialPlot.angular_domain))
+        x_axis = axis(xs, DialPlot.angular_domain)
+        y_axis = axis(ys, DialPlot.radial_domain)
+        xs_circ, ys_circ = polar_plot(xs, ys, x_axis, y_axis)
         return go.Scatter(
             x=xs_circ, y=ys_circ,
             line=dict(color=self.theme.palette[n]),
@@ -63,7 +69,9 @@ class DialPlot(LeafPlot):
         n_steps: int = math.floor(100 * size(x_domain) / size(DialPlot.angular_domain))
         xs = [*range(0, n_steps)] + [*range(n_steps - 1, -1, -1)]
         ys = [1.0] * n_steps + [0.0] * n_steps
-        xs, ys = polar_plot(xs, ys, axis(xs, x_domain))
+        x_axis = axis(xs, x_domain)
+        y_axis = axis(ys, DialPlot.radial_domain)
+        xs, ys = polar_plot(xs, ys, x_axis, y_axis)
         return go.Scatter(
             x=xs, y=ys,
             line=dict(width=0),
