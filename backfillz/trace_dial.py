@@ -64,11 +64,12 @@ class DialPlot(LeafPlot):
         n_steps: int = math.floor(100 * size(x_domain) / size(DialPlot.angular_domain))
         x_axis = Axis((0, n_steps - 1), x_domain)
         y_axis = Axis((0, 1), DialPlot.radial_domain)
-        xs = [*range(0, n_steps)] + [*range(n_steps - 1, -1, -1)]
-        ys = [1.0] * n_steps + [0.0] * n_steps
+        xs = [*range(n_steps - 1, -1, -1)]
+        ys = [0.0] * n_steps
+        xs0, ys0 = polar_plot([*range(0, n_steps)], [1.0] * n_steps, x_axis, y_axis)
         xs, ys = polar_plot(xs, ys, x_axis, y_axis)
         return go.Scatter(
-            x=xs, y=ys,
+            x=xs0 + xs, y=ys0 + ys,
             line=dict(width=0),
             mode='lines',
             fill='toself',
