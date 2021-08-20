@@ -25,17 +25,9 @@ class MCMCRun:
         return list(self.samples.param_names)
 
 
-@dataclass
-class Slice:
-    """A slice of an MCMC trace."""
-
-    lower: float
-    upper: float
-
-
 Domain = Tuple[float, float]  # normalised domain of a plot
 Param = str
-Slices = Dict[Param, List[Slice]]
+Slices = Dict[Param, List[Domain]]
 Props = Dict[str, Any]
 Point = Tuple[float, float]
 
@@ -91,7 +83,7 @@ def segment(domain: Domain, n: int, m: int) -> Domain:
 class ParameterSlices:
     """The MCMC data being presented."""
 
-    slcs: List[Slice]
+    slcs: List[Domain]
     param: str
     chains: np.ndarray  # shape is [n, n_iter] where n is number of chains
     max_sample: float
@@ -102,12 +94,10 @@ class ParameterSlices:
         """Return number of MCMC iterations per chain."""
         return int(self.chains.shape[1])
 
-    def chain_slices(self, slc: Slice) -> List[np.ndarray]:
+    def chain_slices(self, slc: Domain) -> List[np.ndarray]:
         """The specified slice of each chain."""
+        lower, upper = slc
         return [
-            self.chains[
-                n,
-                floor(slc.lower * self.n_iter):floor(slc.upper * self.n_iter)
-            ]
+            self.chains[n, floor(lower * self.n_iter):floor(upper * self.n_iter)]
             for n, _ in enumerate(self.chains)
         ]

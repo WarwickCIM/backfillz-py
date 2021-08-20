@@ -7,7 +7,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 import scipy.stats as stats  # type: ignore
 
-from backfillz.data import Props, Slice
+from backfillz.data import Domain, Props
 from backfillz.plot import LeafPlot
 
 
@@ -15,7 +15,7 @@ from backfillz.plot import LeafPlot
 class SliceHistogram(LeafPlot):
     """Plot histograms for arbitrary subsets of chains, plus optional KDE plots for individual chains."""
 
-    slc: Slice
+    slc: Domain
     n_slc: int
 
     @property

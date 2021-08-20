@@ -6,7 +6,7 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, segment, Slice, to_domain
+from backfillz.data import Domain, MCMCRun, normalise, ParameterSlices, Props, segment, to_domain
 from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
@@ -159,7 +159,7 @@ class TraceDial(RootPlot):
             x_domain=(0.0, 1.0),
             y_domain=(0.0, 1.0),
             data=ParameterSlices(
-                slcs=[Slice(0.0, burn_in_end), Slice(burn_in_end, 1)],
+                slcs=[(0.0, burn_in_end), (burn_in_end, 1)],
                 param=param,
                 chains=mcmc_run.iter_chains(param),
                 max_sample=np.amax(mcmc_run.samples[param]),
