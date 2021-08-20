@@ -73,10 +73,11 @@ class DialPlot(LeafPlot):
 
     @property
     def donut_segments(self) -> List[go.Scatter]:
-        burn_in, remainder = self.data.slcs
+        burn_in, remaining = self.data.slcs
+        cols = DerivativeColours(self.theme)
         return [
-            self.donut_segment(map_domain(burn_in, DialPlot.angular_domain), self.theme.mg_colour),
-            self.donut_segment(map_domain(remainder, DialPlot.angular_domain), self.theme.mg_colour),
+            self.donut_segment(map_domain(burn_in, DialPlot.angular_domain), cols.burn_in_segment),
+            self.donut_segment(map_domain(remaining, DialPlot.angular_domain), cols.remaining_segment),
         ]
 
 
