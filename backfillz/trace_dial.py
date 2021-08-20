@@ -19,8 +19,8 @@ def polar_plot(xs: List[float], ys: List[float], x_domain: Domain) -> Tuple[List
     assert len(xs) == len(ys)
     x_axis: Axis = axis(xs, x_domain)
     xs_ang = [x_axis.map(x) for x in xs]
-    y_axis: Axis = axis(ys, (0, 1))
-    ys_rad = [to_domain(y, DialPlot.radial_domain) for y in [y_axis.map(y) for y in ys]]
+    y_axis: Axis = axis(ys, DialPlot.radial_domain)
+    ys_rad = [y_axis.map(y) for y in ys]
     return ([math.cos(x) * ys_rad[n] for n, x in enumerate(xs_ang)],
             [math.sin(x) * ys_rad[n] for n, x in enumerate(xs_ang)])
 
