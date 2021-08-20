@@ -7,7 +7,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import (
-    Axis, axis, Domain, map_domain, MCMCRun, normalise, ParameterSlices, Props, segment, size, to_domain
+    Axis, axis, Domain, map_domain, MCMCRun, ParameterSlices, Props, segment, size, to_domain
 )
 from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot
 from backfillz.slice_histograms import SliceHistogram
@@ -19,7 +19,8 @@ def polar_plot(xs: List[float], ys: List[float], x_domain: Domain) -> Tuple[List
     assert len(xs) == len(ys)
     x_axis: Axis = axis(xs, x_domain)
     xs_ang = [x_axis.map(x) for x in xs]
-    ys_rad = [to_domain(y, DialPlot.radial_domain) for y in normalise(ys)]
+    y_axis: Axis = axis(ys, (0, 1))
+    ys_rad = [to_domain(y, DialPlot.radial_domain) for y in [y_axis.map(y) for y in ys]]
     return ([math.cos(x) * ys_rad[n] for n, x in enumerate(xs_ang)],
             [math.sin(x) * ys_rad[n] for n, x in enumerate(xs_ang)])
 

@@ -67,12 +67,6 @@ def map_domain(src: Domain, tgt: Domain) -> Domain:
     return to_domain(start, tgt), to_domain(end, tgt)
 
 
-def normalise(xs: List[float]) -> List[float]:
-    """Normalise a list of floats."""
-    x_axis: Axis = axis(xs, (0, 1))
-    return [x_axis.map(x) for x in xs]
-
-
 def scale(factor: float, xs: List[float]) -> List[float]:
     """Element-wise multiplication by a constant."""
     return [x * factor for x in xs]
