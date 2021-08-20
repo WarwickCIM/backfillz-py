@@ -28,11 +28,11 @@ def polar_plot(
             [math.sin(x) * ys_rad[n] for n, x in enumerate(xs_ang)])
 
 
-def arc(x_domain: Domain, n_steps: int) -> Tuple[List[float], List[float]]:
-    """An arc at distance 1.0 from (0, 0)."""
+def arc(y: float, x_domain: Domain, n_steps: int) -> Tuple[List[float], List[float]]:
+    """An arc at distance y from (0, 0)."""
     x_axis = Axis((0, n_steps - 1), x_domain)
     y_axis = Axis((0, 1), DialPlot.radial_domain)
-    return polar_plot([*range(0, n_steps)], [1.0] * n_steps, x_axis, y_axis)
+    return polar_plot([*range(0, n_steps)], [y] * n_steps, x_axis, y_axis)
 
 
 @dataclass
@@ -71,7 +71,7 @@ class DialPlot(LeafPlot):
         n_steps: int = math.floor(100 * size(x_domain) / size(DialPlot.angular_domain))
         x_axis = Axis((0, n_steps - 1), x_domain)
         y_axis = Axis((0, 1), DialPlot.radial_domain)
-        xs0, ys0 = arc(x_domain, n_steps)
+        xs0, ys0 = arc(1.0, x_domain, n_steps)
         xs1, ys1 = polar_plot([*range(n_steps - 1, -1, -1)], [0.0] * n_steps, x_axis, y_axis)
         return go.Scatter(
             x=xs0 + xs1, y=ys0 + ys1,
