@@ -17,8 +17,8 @@ from backfillz.theme import BackfillzTheme
 def polar_plot(xs: List[float], ys: List[float], x_domain: Domain) -> Tuple[List[float], List[float]]:
     """Normalise and plot data into angular domain and then Cartesian coordinate space."""
     assert len(xs) == len(ys)
-    x_axis: Axis = axis(xs, (0, 1))
-    xs_ang = [to_domain(x, x_domain) for x in [x_axis.map(x) for x in xs]]
+    x_axis: Axis = axis(xs, x_domain)
+    xs_ang = [x_axis.map(x) for x in xs]
     ys_rad = [to_domain(y, DialPlot.radial_domain) for y in normalise(ys)]
     return ([math.cos(x) * ys_rad[n] for n, x in enumerate(xs_ang)],
             [math.sin(x) * ys_rad[n] for n, x in enumerate(xs_ang)])
