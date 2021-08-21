@@ -134,7 +134,7 @@ class TraceDial(RootPlot):
 
     @property
     def title(self) -> str:
-        return f"Pretzel plot for {self.data.param}"
+        return f"Trace dial plot for {self.data.param}"
 
     @property
     def layout_props(self) -> Props:
