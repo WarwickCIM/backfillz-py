@@ -50,11 +50,6 @@ class Axis:
         return to_domain((x - x_start) / (x_end - x_start), self.domain)
 
 
-def axis(xs: List[float], x_domain: Domain) -> Axis:
-    """Map range of numbers to a domain."""
-    return Axis((min(xs), max(xs)), x_domain)
-
-
 def to_domain(x: float, domain: Domain) -> float:
     """Convert normalised x coordinate to coordinate within supplied angular domain."""
     start, end = domain
@@ -63,7 +58,7 @@ def to_domain(x: float, domain: Domain) -> float:
 
 def normalise(xs: List[float]) -> List[float]:
     """Normalise a list of floats."""
-    x_axis: Axis = axis(xs, (0, 1))
+    x_axis = Axis((min(xs), max(xs)), (0, 1))
     return [x_axis.map(x) for x in xs]
 
 
