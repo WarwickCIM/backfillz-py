@@ -18,6 +18,6 @@ max-complexity = 10
 import-order-style = google
 application-import-names = backfillz
 format = ${cyan}%(path)s${reset}:${yellow_bold}%(row)d${reset}:${green_bold}%(col)d${reset}: ${red_bold}%(code)s${reset} %(text)s
-ignore = D100, D102, D105, D107, D401, W504
+ignore = D100, D102, D105, D107, D401, W504, F401
 per-file-ignores =
     backfillz/__init__.py:F401
