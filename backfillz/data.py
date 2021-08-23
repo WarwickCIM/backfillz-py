@@ -56,6 +56,12 @@ def to_domain(x: float, tgt: Domain) -> float:
     return start + x * (end - start)
 
 
+def map_domain(src: Domain, tgt: Domain) -> Domain:
+    """Map a normalised domain into another."""
+    start, end = src
+    return to_domain(start, tgt), to_domain(end, tgt)
+
+
 def normalise(xs: List[float]) -> List[float]:
     """Normalise a list of floats."""
     x_axis = Axis((min(xs), max(xs)), (0, 1))
