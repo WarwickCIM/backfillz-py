@@ -46,13 +46,13 @@ class Axis:
     domain: Domain
 
     def map(self, x: float) -> float:
-        x_start, x_end = self.range
-        return to_domain((x - x_start) / (x_end - x_start), self.domain)
+        start, end = self.range
+        return to_domain((x - start) / (end - start), self.domain)
 
 
-def to_domain(x: float, domain: Domain) -> float:
-    """Convert normalised x coordinate to coordinate within supplied angular domain."""
-    start, end = domain
+def to_domain(x: float, tgt: Domain) -> float:
+    """Map normalised x position into supplied domain."""
+    start, end = tgt
     return start + x * (end - start)
 
 
