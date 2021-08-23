@@ -25,7 +25,7 @@ class MCMCRun:
         return list(self.samples.param_names)
 
 
-Domain = Tuple[float, float]  # normalised domain of a plot
+Domain = Tuple[float, float]
 Param = str
 Slices = Dict[Param, List[Domain]]
 Props = Dict[str, Any]
