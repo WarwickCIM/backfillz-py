@@ -40,14 +40,14 @@ def size(domain: Domain) -> float:
 
 @dataclass
 class Axis:
-    """Map a range into a domain."""
+    """Map one domain into another by shifting and rescaling."""
 
-    range: Domain
-    domain: Domain
+    src: Domain
+    tgt: Domain
 
     def map(self, x: float) -> float:
-        start, end = self.range
-        return to_domain((x - start) / (end - start), self.domain)
+        start, end = self.src
+        return to_domain((x - start) / (end - start), self.tgt)
 
 
 def to_domain(x: float, tgt: Domain) -> float:
@@ -63,7 +63,7 @@ def map_domain(src: Domain, tgt: Domain) -> Domain:
 
 
 def normalise(xs: List[float]) -> List[float]:
-    """Normalise a list of floats."""
+    """Min-max scale a list of floats."""
     x_axis = Axis((min(xs), max(xs)), (0, 1))
     return [x_axis.map(x) for x in xs]
 
