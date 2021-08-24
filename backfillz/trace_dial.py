@@ -43,6 +43,7 @@ class DialPlot(LeafPlot):
         return dict(range=[-1, 1], visible=False)
 
     def polar_trace(self, n: int) -> go.Scatter:
+        """Trace plot for a given chain."""
         chain = self.data.chains[n]
         xs = [*range(0, len(chain))]
         ys = [to_domain(y, DialPlot.radial_domain) for y in normalise([*chain])]
@@ -54,10 +55,12 @@ class DialPlot(LeafPlot):
 
     @property
     def polar_traces(self) -> List[go.Scatter]:
+        """One trace plot per chain."""
         return [self.polar_trace(n) for n, _ in enumerate(self.data.chains)]
 
     @property
     def donut_segment(self) -> go.Scatter:
+        """Background 3/4 annulus, approximated as a polygon."""
         n_steps: int = 100
         xs = [*range(0, n_steps)] + [*range(n_steps - 1, -1, -1)]
         ys = [1.0] * n_steps + [0.0] * n_steps
