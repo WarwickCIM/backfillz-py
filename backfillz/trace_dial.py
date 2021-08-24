@@ -7,7 +7,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import (
-    Domain, map_domain, MCMCRun, normalise, ParameterSlices, Props, segment, size, to_domain
+    Axis, Domain, map_domain, MCMCRun, normalise, ParameterSlices, Props, segment, size, to_domain
 )
 from backfillz.plot import AggregatePlot, alpha, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot
 from backfillz.slice_histograms import SliceHistogram
