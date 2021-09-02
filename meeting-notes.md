@@ -4,6 +4,12 @@
 
 Present: Greg, James, Ed, Roly
 
+## Progress on trace dial plot
+
+- James only (missed 29 July meeting)
+  - radial axis on inside of donut -- 'arc' helper
+  - running in VS Code
+
 ## Progress on spiral stream plot
 
 - James: key changes from last time (see 29 July meeting notes)
