@@ -1,6 +1,43 @@
 # Meeting notes
 
+# 2 September 2021
+
+Present: Greg, James, Ed, Roly
+
+## Progress on spiral stream plot
+
+- James: key changes from last time (see 29 July meeting notes)
+  - radial axis on inside of donut -- 'arc' helper
+  - running in VS Code
+  - archimedian (arithmetic) spiral plotting: r = a + b * theta
+  - generalises polar_plot (b = 0)
+- plotting variance
+
+## Finalising backfillz
+
+- finalise `README.md`
+- add spiral stream plot to example notebook
+- publish final version to PyPI
+- finalise docs
+
+## To discuss: Backfillz object
+
+- not sure of the use case here
+- somewhat subsumed by notebooks?
+- reproducibility best practices usually want *code* not outputs
+- how is it used in the R version?
+
+# 19 August 2021
+
+Meeting cancelled (James ill)
+
+# 12 August 2021
+
+Meeting cancelled (James unable to make it, Greg ill)
+
 # 29 July 2021
+
+Present: Greg, Roly
 
 ## Progress on trace dial plot
 
@@ -20,6 +57,8 @@
 - What is "inner burn" vs. "outer burn" in trace dial colours?
 
 # 15 July 2021
+
+Present: James, Roly
 
 ## Progress
 

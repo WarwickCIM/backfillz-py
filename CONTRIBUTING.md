@@ -1,7 +1,6 @@
 # Contributing
 
-Contributions are welcome, and they are greatly appreciated! Every little bit
-helps, and credit will always be given.
+Contributions are welcome. Every little bit helps, and credit will always be given.
 
 You can contribute in many ways:
 
@@ -35,7 +34,7 @@ articles, and such.
 
 ### Submit Feedback
 
-The best way to send feedback is to file an issue at https://github.com/rolyp/backfillz/issues.
+The best way to send feedback is to file an issue at https://github.com/WarwickCIM/backfillz-py.
 
 If you are proposing a feature:
 

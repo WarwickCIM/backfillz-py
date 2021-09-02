@@ -56,10 +56,10 @@ class DialPlot(LeafPlot[ParameterSlices]):
 
     @property
     def donut_segments(self) -> List[go.Scatter]:
-        [burn, remaining] = self.data.slcs
+        [burn_in, remaining] = self.data.slcs
         colours = DerivativeColours(self.theme)
         return [
-            DialPlot.donut_segment(DialPlot.slice_domain(burn), colours.inner_burn_segment),
+            DialPlot.donut_segment(DialPlot.slice_domain(burn_in), colours.burn_in_segment),
             DialPlot.donut_segment(DialPlot.slice_domain(remaining), colours.remaining_segment)
         ]
 
@@ -214,7 +214,7 @@ class TraceDial(RootPlot[ParameterSlices]):
             width=length,
             height=length,
             shapes=[
-                background_rect(self.burn_in_histo, colours.inner_burn_segment),
+                background_rect(self.burn_in_histo, colours.burn_in_segment),
                 background_rect(self.sample_histo, colours.remaining_segment)
             ]
         )
@@ -237,7 +237,6 @@ class TraceDial(RootPlot[ParameterSlices]):
         ).make_fig()
 
 
-# Not using these properties yet.
 @dataclass
 class DerivativeColours:
     """Colours uniquely determined by a theme."""
@@ -245,20 +244,8 @@ class DerivativeColours:
     theme: BackfillzTheme
 
     @property
-    def trace_line(self) -> str:
-        return self.theme.text_font_colour
-
-    @property
-    def guide_lines(self) -> str:
-        return self.theme.fg_colour
-
-    @property
-    def inner_burn_segment(self) -> str:
+    def burn_in_segment(self) -> str:
         return alpha(self.theme.mg_colour, self.theme.alpha + 0.2)
-
-    @property
-    def outer_burn_segment(self) -> str:
-        return alpha(self.theme.mg_colour, self.theme.alpha + 0.1)
 
     @property
     def remaining_segment(self) -> str:
