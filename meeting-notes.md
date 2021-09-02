@@ -1,15 +1,81 @@
 # Meeting notes
 
+# 2 September 2021
+
+Present: Greg, James, Ed, Roly
+
+## Progress on trace dial plot
+
+- James only (missed 29 July meeting)
+  - radial axis on inside of donut -- 'arc' helper
+  - running in VS Code
+
+## Progress on spiral stream plot
+
+- James: key changes from last time (see 29 July meeting notes)
+  - radial axis on inside of donut -- 'arc' helper
+  - running in VS Code
+  - archimedian (arithmetic) spiral plotting: r = a + b * theta
+  - generalises polar_plot (b = 0)
+- plotting variance
+
+## Finalising backfillz
+
+- finalise `README.md`
+- add spiral stream plot to example notebook
+- publish final version to PyPI
+- finalise docs
+
+## To discuss: Backfillz object
+
+- not sure of the use case here
+- somewhat subsumed by notebooks?
+- reproducibility best practices usually want *code* not outputs
+- how is it used in the R version?
+
+# 19 August 2021
+
+Meeting cancelled (James ill)
+
+# 12 August 2021
+
+Meeting cancelled (James unable to make it, Greg ill)
+
+# 29 July 2021
+
+Present: Greg, Roly
+
+## Progress on trace dial plot
+
+- Greg: key changes from last time (see 15 July meeting notes)
+- radial axis on inside of donut
+- running in VS Code
+
+## Progress on spiral stream plot
+
+- archimedian (arithmetic) spiral plotting: r = a + b * theta
+- generalises polar_plot (b = 0)
+- so far just plot the chains, no variance
+- total ~125 LOC
+
+## Questions
+
+- What is "inner burn" vs. "outer burn" in trace dial colours?
+
 # 15 July 2021
 
-## Progress (on example notebook)
+Present: James, Roly
 
-- 
+## Progress
 
-## Still to do
-
-- Render chain colours as a step plot on top of histogram (cf. plot_histogram_lines in R version?)
-- Radial axis on inside of donut
+- example notebooks
+- consolidate polar plot infrastructure with existing plot design (including axis handling)
+- one segment of "donut" per slice
+- slice histograms aggregate all chains
+- step plot for each chain
+- using go.Histogram, we run into z-ordering problem trying to overlay step plots on top:
+  - implement our own histograms using go.Bar for plotting, and numpy for binning
+  - need this for consistency with step plots anyway (which also use numpy for binning)
 
 # 24 June May 2021
 
@@ -20,15 +86,13 @@
   - solves z-order problem
   - allows correct positioning of histograms (but have to enforce square figure)
 
-## Questions (mainly in relation to R version)
-
 # 10 June May 2021
 
 ## Progress on trace dial plot
 
 - Polar trace plot (one per chain)
 - "Ring" plot (pie chart with hole)
-- Generalise histogram from first plot to one histogram per chain  
+- Generalise histogram from first plot to one histogram per chain
 
 ## Questions (mainly in relation to R version)
 - How do we decide number of burn-in iterations?
@@ -48,12 +112,12 @@
  - save/load Backfillz object
 
 ## On the horizon
-- example notebooks, showing usage of Backfillz library + history object 
+- example notebooks, showing usage of Backfillz library + history object
 
 # 13 May 2021
 
 ## Progress on trace slice histogram plot
-- add density function plot to histogram (one per chain) 
+- add density function plot to histogram (one per chain)
 - histograms to aggregate all chains
 - performance experiment with 1,000,000 iterations
 - labels on "joining segments" to right of y-axis
@@ -74,7 +138,7 @@
 ## To discuss
 - Is Raftery-Lewis the right diagnostic, given no longer supported by PyMC3? (And is R dependency ok?)
 - Should each RL plot have its own x-axis? Perhaps should be max of expected/actual iterations for all chains?
-- Use cases to drive ledger requirements/design 
+- Use cases to drive ledger requirements/design
 
 # 29 April 2021
 
@@ -94,7 +158,7 @@
     - in Bokeh, gridplots and row/column plots (which aren't themselves "plots")
     - in Plotly, single flexible subplot grid with cell merging
   - Bokeh: difficult to precisely place subplots because decorations affect size of core plot region
-  - Plotly places subplots relative to parent and then attaches decorations independently 
+  - Plotly places subplots relative to parent and then attaches decorations independently
 
 # 13 Apr 2021
 
