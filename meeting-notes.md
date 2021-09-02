@@ -1,23 +1,31 @@
 # Meeting notes
 
-# 2 September 2021
-
-Present: Greg, James, Ed, Roly
+# 16 September 2021
 
 ## Progress on trace dial plot
 
-- James only (missed 29 July meeting)
-  - radial axis on inside of donut -- 'arc' helper
+- James only (missed meetings since 29 July)
+  - radial axis on inside of donut; 'arc' helper
   - running in VS Code
+  - tests (when running locally) check against expected image output (PNG)
 
 ## Progress on spiral stream plot
 
-- James: key changes from last time (see 29 July meeting notes)
-  - radial axis on inside of donut -- 'arc' helper
-  - running in VS Code
+- James only (missed meetings since 29 July)
   - archimedian (arithmetic) spiral plotting: r = a + b * theta
   - generalises polar_plot (b = 0)
-- plotting variance
+  - plotting variance
+
+## To discuss: Backfillz object
+
+- not sure of use case here -- somewhat subsumed by notebooks
+- maybe WAYS-related use case would help?
+- reproducibility best practices usually want *code* not outputs
+- how used in R version?
+
+# 2 September 2021
+
+Present: Greg, Ed, Roly
 
 ## Finalising backfillz
 
@@ -25,13 +33,6 @@ Present: Greg, James, Ed, Roly
 - add spiral stream plot to example notebook
 - publish final version to PyPI
 - finalise docs
-
-## To discuss: Backfillz object
-
-- not sure of the use case here
-- somewhat subsumed by notebooks?
-- reproducibility best practices usually want *code* not outputs
-- how is it used in the R version?
 
 # 19 August 2021
 
