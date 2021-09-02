@@ -15,6 +15,14 @@
   - archimedian (arithmetic) spiral plotting: r = a + b * theta
   - generalises polar_plot (b = 0)
   - plotting variance
+- added spiral stream plot to example notebook
+
+## To do: finalising backfillz
+
+- finalise `README.md`
+- publish final version to PyPI
+- performance of spiral stream plot
+- finalise docs
 
 ## To discuss: Backfillz object
 
@@ -26,13 +34,6 @@
 # 2 September 2021
 
 Present: Greg, Ed, Roly
-
-## Finalising backfillz
-
-- finalise `README.md`
-- add spiral stream plot to example notebook
-- publish final version to PyPI
-- finalise docs
 
 # 19 August 2021
 
