@@ -15,11 +15,11 @@ from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
 
-def arc(x_domain: Domain, y: float, n_segments: int) -> Tuple[List[float], List[float]]:
+def arc(x_domain: Domain, y: float, n_steps: int) -> Tuple[List[float], List[float]]:
     """An arc at distance y from (0,0) with angular extent x_domain."""
-    xs = [*range(0, n_segments)]
-    ys = [y] * n_segments
-    return polar_plot(xs, ys, Axis((0, n_segments - 1), x_domain), Axis((0.0, 1.0), DialPlot.radial_domain))
+    xs = [*range(0, n_steps)]
+    ys = [y] * n_steps
+    return polar_plot(xs, ys, Axis((0, n_steps - 1), x_domain), Axis((0.0, 1.0), DialPlot.radial_domain))
 
 
 @dataclass
