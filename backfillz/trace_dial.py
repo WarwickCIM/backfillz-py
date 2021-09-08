@@ -12,7 +12,7 @@ from backfillz.plot import (
     Plot, polar_plot, RootPlot, tick_every
 )
 from backfillz.slice_histograms import SliceHistogram
-from backfillz.theme import alpha, BackfillzTheme
+from backfillz.theme import BackfillzTheme
 
 
 def arc(x_domain: Domain, y: float, n_segments: int) -> Tuple[List[float], List[float]]:
@@ -244,8 +244,8 @@ class DerivativeColours:
 
     @property
     def burn_in_segment(self) -> str:
-        return alpha(self.theme.mg_colour, self.theme.alpha + 0.2)
+        return self.theme.burn_in_segment
 
     @property
     def remaining_segment(self) -> str:
-        return alpha(self.theme.mg_colour, self.theme.alpha - 0.3)
+        return self.theme.remaining_segment
