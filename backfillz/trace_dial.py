@@ -101,7 +101,7 @@ class DialPlot(LeafPlot[ParameterSlices]):
         y = [y for p in zip(y1, y2, [nan] * len(x2)) for y in p]  # nan to avoid joining all points
         return go.Scatter(x=x, y=y, mode='lines', line=dict(width=1, color=colour))
 
-    def polar_trace(self, n: int, x_axis: Axis, y_axis: Axis) -> go.Scatter:
+    def polar_trace(self, n: int) -> go.Scatter:
         chain: np.ndarray = self.data.chains[n]
         xs, ys = polar_plot([*range(0, len(chain))], [*chain], self.angular_axis, self.radial_axis)
         return go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[n]))
