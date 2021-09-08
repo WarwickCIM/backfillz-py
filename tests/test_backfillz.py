@@ -39,7 +39,7 @@ def expect_fig(fig: go.Figure, filename: str, check: bool) -> None:
                 print(f"{filename}: differs from reference image.")
                 raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filename + ".new." + ext)
             print(f"{filename}: image identical.")
-#            fig.show(config=default_config())
+#           fig.show(config=default_config())
         except FileNotFoundError as e:
             file_new = open(e.filename, "wb")
             file_new.write(found)
@@ -55,8 +55,8 @@ def test_sample_fit(stan: Stan) -> None:
     """Backfillz object can be created, and the test fixture is the expected reference one."""
     Backfillz(stan.fit)
     expected_stan: Stan = generate_fit()
-#    print(str(expected_stan))
-#    print(str(stan))
+#   print(str(expected_stan))
+#   print(str(stan))
     assert expected_stan.equal(stan)
 
 
