@@ -25,11 +25,11 @@ TODO
 
 # Emojis on commit messages
 
-Recent commits are prefixed with the following emojis:
+Recent commits are prefixed with the following emojis, loosely based on [gitmojis](https://gitmoji.dev/):
 
-- ✨ lint/reformat/document
-- 💚 refactor
-- ❗ change behaviour
+- 📝 document or lint fix
+- ♻️ refactor
+- ✨ functional change
 
 # Acknowledgements
 
