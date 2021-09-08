@@ -45,11 +45,6 @@ def scale(factor: float, xs: Sequence[float]) -> List[float]:
     return [x * factor for x in xs]
 
 
-def translate(offset: float, xs: Sequence[float]) -> List[float]:
-    """Element-wise addition of a constant."""
-    return [x + offset for x in xs]
-
-
 def segment(domain: Domain, n: int, m: int) -> Domain:
     """Break supplied "domain" into n equal-sized segments, and return the mth."""
     assert n > 0 and 0 <= m < n
