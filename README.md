@@ -66,4 +66,4 @@ refactor = "!f() { git commit -a -m \"♻️ : $1\"; }; f"
 
 # Acknowledgements
 
-We are grateful for funding from the Alan Turing Institute within the ‘Tools, Practices and Systems’ theme. Initial user research was carried out by GJM on the ‘2020 Science’ programme (www.2020science.net/) funded by the EPSRC Cross-Discipline Interface Programme (grant number EP/I017909/1).
+We are grateful for funding from the Alan Turing Institute within the [Tools, Practices and Systems](https://www.turing.ac.uk/research/research-programmes/tools-practices-and-systems) theme. Initial user research was carried out by GJM on the [2020 Science programme](www.2020science.net/) funded by the EPSRC Cross-Discipline Interface Programme (grant number EP/I017909/1).
