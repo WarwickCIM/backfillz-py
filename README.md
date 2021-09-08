@@ -15,9 +15,23 @@ BackFillz-py slices and dices MCMC chains so increasingly parameter rich, comple
 
 # Quick Start
 
-Install from [PyPI](https://pypi.org/project/backfillz/).
+Install from [PyPI](https://pypi.org/project/backfillz/) using `pip install backfillz`.
 
-TODO - code example
+````python
+from backfillz import Backfillz
+
+# Let's have an example Stan model.
+from backfillz.example.eight_schools import generate_fit
+
+backfillz = Backfillz(generate_fit().fit)
+
+# Plot some of the available plot types.
+backfillz.plot_slice_histogram('mu')
+backfillz.plot_trace_dial('theta')
+backfillz.plot_spiral_stream('mu', [2, 8, 15, 65, 250, 600])
+````
+
+See the [example notebook](https://github.com/WarwickCIM/backfillz-py/blob/develop/notebooks/example.ipynb) for running in JupyterLab.
 
 # Current prototype plots
 
