@@ -8,7 +8,7 @@ import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import Domain, MCMCRun, ParameterSlices, Props, segment, to_domain
 from backfillz.plot import (
-    AggregatePlot, alpha, Axis, background_rect, fresh_axis_id, LeafPlot, left_vertical_title, normalise,
+    AggregatePlot, alpha, Axis, background_rect, fresh_axis_id, LeafPlot, left_vertical_title,
     Plot, polar_plot, RootPlot, tick_every
 )
 from backfillz.slice_histograms import SliceHistogram
@@ -19,7 +19,7 @@ def arc(x_domain: Domain, y: float, n_segments: int) -> Tuple[List[float], List[
     """An arc at distance y from (0,0) with angular extent x_domain."""
     xs = [*range(0, n_segments)]
     ys = [y] * n_segments
-    return polar_plot(xs, ys, normalise(xs, x_domain), Axis((0.0, 1.0), DialPlot.radial_domain))
+    return polar_plot(xs, ys, Axis((0, n_segments - 1), x_domain), Axis((0.0, 1.0), DialPlot.radial_domain))
 
 
 @dataclass

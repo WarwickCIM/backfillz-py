@@ -184,11 +184,6 @@ class Axis:
         return [(x - r_start) / (r_end - r_start) * (d_end - d_start) + d_start for x in xs]
 
 
-def normalise(xs: Sequence[float], domain: Domain) -> Axis:
-    """Map a data range into a domain."""
-    return Axis((min(xs), max(xs)), domain)
-
-
 def fresh_axis_id() -> str:
     """Allocate an axis id that hasn't been used elsewhere."""
     global axis_count
