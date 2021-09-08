@@ -25,11 +25,14 @@ TODO
 
 # Emojis on commit messages
 
-Recent commits are prefixed with the following emojis, loosely based on [gitmojis](https://gitmoji.dev/):
+Recent commits use the following `git` aliases:
 
-- 📝 document or lint fix
-- ♻️ refactor
-- ✨ functional change
+````
+doc      = "!f() { git commit -a -m \"📚 : $1\"; }; f"
+lint     = "!f() { git commit -a -m \"✨ : $1\"; }; f"
+modify   = "!f() { git commit -a -m \"❗ : $1\"; }; f"
+refactor = "!f() { git commit -a -m \"♻️ : $1\"; }; f"
+````
 
 # Acknowledgements
 
