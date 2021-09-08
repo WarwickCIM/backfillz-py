@@ -17,7 +17,7 @@ BackFillz-py slices and dices MCMC chains so increasingly parameter rich, comple
 
 Install from [PyPI](https://pypi.org/project/backfillz/) using `pip install backfillz`.
 
-````python
+```python
 from backfillz import Backfillz
 
 # Let's have an example Stan model.
@@ -29,24 +29,40 @@ backfillz = Backfillz(generate_fit().fit)
 backfillz.plot_slice_histogram('mu')
 backfillz.plot_trace_dial('theta')
 backfillz.plot_spiral_stream('mu', [2, 8, 15, 65, 250, 600])
-````
+```
 
 See the [example notebook](https://github.com/WarwickCIM/backfillz-py/blob/develop/notebooks/example.ipynb) for running in JupyterLab.
 
-# Current prototype plots
+# Current supported plot types
 
-TODO
+## Pretzel Plot – plot_trace_dial()
+
+This plot shows the chain and summary histograms in a format that can be easily arranged as a grid. The trace plot is stretched, clearly indicating ‘burn-in’, with density plots showing the burn-in and remainder of the chain in context.
+
+<img src="tests/expected_trace_dial.png" width=100% alt=""/>
+
+## Slice plot - plot_slice_histogram()
+
+By partitioning chain slices, in a faceted view, users can assess chain convergence. The slices are currently specified by the user and display density plots for each slice. Have my chains converged? The slice plot offers a clear view of when and how convergence is achieved. Further statistical diagnostics can be embedded in these plots as colour encodings or additional layers and annotations.
+
+<img src="tests/expected_slice_histogram.png" width=100% alt=""/>
+
+## Splash plot - plot_spiral_stream()
+
+Based on a Theodorus spiral, we turn MCMC chains into glyphs and extract properties to answer – What does ‘good mixing’ look like? In these plots variance windows are calculated across chains and parameters. The glyphs have clear diagnostic features and will allow gridded plots to investigate large numbers of parameters.
+
+<img src="tests/expected_spiral_stream.png" width=100% alt=""/>
 
 # Emojis on commit messages
 
 Recent commits use the following `git` aliases:
 
-````
+```
 doc      = "!f() { git commit -a -m \"📚 : $1\"; }; f"
 lint     = "!f() { git commit -a -m \"✨ : $1\"; }; f"
 modify   = "!f() { git commit -a -m \"❗ : $1\"; }; f"
 refactor = "!f() { git commit -a -m \"♻️ : $1\"; }; f"
-````
+```
 
 # Acknowledgements
 
