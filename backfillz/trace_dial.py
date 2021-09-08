@@ -15,6 +15,13 @@ from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
 
+def arc(x_domain: Domain, y: float, n_segments: int) -> Tuple[List[float], List[float]]:
+    """An arc at distance y from (0,0) with angular extent x_domain."""
+    xs = [*range(0, n_segments)]
+    ys = [y] * n_segments
+    return polar_plot(xs, ys, normalise(xs, x_domain), Axis((0.0, 1.0), DialPlot.radial_domain))
+
+
 @dataclass
 class DialPlot(LeafPlot[ParameterSlices]):
     """Trace dial plot (3/4 segment)."""
@@ -37,15 +44,9 @@ class DialPlot(LeafPlot[ParameterSlices]):
         return dict(range=[-1, 1], visible=False)
 
     @staticmethod
-    def arc(x_domain: Domain, y: float, n_segments: int) -> Tuple[List[float], List[float]]:
-        xs = [*range(0, n_segments)]
-        ys = [y] * n_segments
-        return polar_plot(xs, ys, normalise(xs, x_domain), Axis((0.0, 1.0), DialPlot.radial_domain))
-
-    @staticmethod
     def donut_segment(x_domain: Domain, fillcolor: str) -> go.Scatter:
-        xs1, ys1 = DialPlot.arc(x_domain, 1.0, 100)
-        xs2, ys2 = DialPlot.arc(x_domain, 0.0, 50)
+        xs1, ys1 = arc(x_domain, 1.0, 100)
+        xs2, ys2 = arc(x_domain, 0.0, 50)
         xs = xs1 + xs2[::-1]
         ys = ys1 + ys2[::-1]
         return go.Scatter(x=xs, y=ys, line=dict(width=0), fill='toself', fillcolor=fillcolor)
