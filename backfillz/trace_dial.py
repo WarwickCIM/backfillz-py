@@ -8,11 +8,11 @@ import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import Domain, MCMCRun, ParameterSlices, Props, segment, to_domain
 from backfillz.plot import (
-    AggregatePlot, alpha, Axis, background_rect, fresh_axis_id, LeafPlot, left_vertical_title,
+    AggregatePlot, Axis, background_rect, fresh_axis_id, LeafPlot, left_vertical_title,
     Plot, polar_plot, RootPlot, tick_every
 )
 from backfillz.slice_histograms import SliceHistogram
-from backfillz.theme import BackfillzTheme
+from backfillz.theme import alpha, BackfillzTheme
 
 
 def arc(x_domain: Domain, y: float, n_segments: int) -> Tuple[List[float], List[float]]:

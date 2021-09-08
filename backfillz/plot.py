@@ -3,7 +3,6 @@ from math import cos, floor, log10, pi, sin
 from typing import Any, Dict, Generic, List, Literal, Optional, Sequence, Tuple, TypeVar
 
 from plotly.basedatatypes import BaseTraceType  # type: ignore
-from plotly.colors import hex_to_rgb  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
 from backfillz.data import Domain, ParameterData, Point, Props
@@ -195,12 +194,6 @@ def fresh_axis_id() -> str:
 def default_config() -> Props:
     """Preferred settings for Plotly figure."""
     return dict(displayModeBar=False, showAxisDragHandles=False)
-
-
-def alpha(hex_colour: str, a: float) -> str:
-    """Add an alpha component to a colour represented as a hex string without an alpha component."""
-    rgb: tuple[int, int, int] = hex_to_rgb(hex_colour)
-    return f"rgba({rgb[0]},{rgb[1]},{rgb[2]},{a})"
 
 
 def annotate(
