@@ -11,7 +11,7 @@ from backfillz.trace_slice_histogram import TraceSliceHistogram
 
 
 class Backfillz:
-    """Represents a Backfillz user session."""
+    """A Backfillz user session."""
 
     theme: BackfillzTheme
     mcmc_run: MCMCRun
