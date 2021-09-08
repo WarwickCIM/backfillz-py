@@ -59,10 +59,9 @@ class DialPlot(LeafPlot[ParameterSlices]):
     @property
     def donut_segments(self) -> List[go.Scatter]:
         [burn_in, remaining] = self.data.slcs
-        colours = DerivativeColours(self.theme)
         return [
-            DialPlot.donut_segment(DialPlot.slice_domain(burn_in), colours.burn_in_segment),
-            DialPlot.donut_segment(DialPlot.slice_domain(remaining), colours.remaining_segment)
+            DialPlot.donut_segment(DialPlot.slice_domain(burn_in), self.theme.burn_in_segment),
+            DialPlot.donut_segment(DialPlot.slice_domain(remaining), self.theme.remaining_segment)
         ]
 
     @property
@@ -206,15 +205,14 @@ class TraceDial(RootPlot[ParameterSlices]):
 
     @property
     def layout_props(self) -> Props:
-        colours = DerivativeColours(self.theme)
         # plotting region won't be exactly square but best we can do to align histogram width with donut
         length: int = 800
         return dict(
             width=length,
             height=length,
             shapes=[
-                background_rect(self.burn_in_histo, colours.burn_in_segment),
-                background_rect(self.sample_histo, colours.remaining_segment)
+                background_rect(self.burn_in_histo, self.theme.burn_in_segment),
+                background_rect(self.sample_histo, self.theme.remaining_segment)
             ]
         )
 
@@ -234,18 +232,3 @@ class TraceDial(RootPlot[ParameterSlices]):
             theme=theme,
             verbose=verbose
         ).make_fig()
-
-
-@dataclass
-class DerivativeColours:
-    """Colours uniquely determined by a theme."""
-
-    theme: BackfillzTheme
-
-    @property
-    def burn_in_segment(self) -> str:
-        return self.theme.burn_in_segment
-
-    @property
-    def remaining_segment(self) -> str:
-        return self.theme.remaining_segment
