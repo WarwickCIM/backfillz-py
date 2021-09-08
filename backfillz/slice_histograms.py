@@ -7,7 +7,7 @@ from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 import scipy.stats as stats  # type: ignore
 
-from backfillz.data import ParameterSlices, Props, Slice
+from backfillz.data import Domain, ParameterSlices, Props
 from backfillz.plot import LeafPlot
 
 
@@ -18,7 +18,7 @@ Bins = Tuple[List[float], List[float]]
 class SliceHistogram(LeafPlot[ParameterSlices]):
     """Histogram for arbitrary subsets of chains, plus optional KDE plots for individual chains."""
 
-    slc: Slice
+    slc: Domain
     n_slc: int
 
     @property

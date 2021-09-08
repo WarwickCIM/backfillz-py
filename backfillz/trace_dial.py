@@ -6,7 +6,7 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, ParameterSlices, Props, segment, Slice, to_domain
+from backfillz.data import Domain, MCMCRun, ParameterSlices, Props, segment, to_domain
 from backfillz.plot import (
     AggregatePlot, alpha, Axis, background_rect, fresh_axis_id, LeafPlot, left_vertical_title, normalise,
     Plot, polar_plot, RootPlot, tick_every
@@ -52,8 +52,9 @@ class DialPlot(LeafPlot[ParameterSlices]):
         return go.Scatter(x=xs, y=ys, line=dict(width=0), fill='toself', fillcolor=fillcolor)
 
     @staticmethod
-    def slice_domain(slc: Slice) -> Domain:
-        return to_domain(slc.lower, DialPlot.angular_domain), to_domain(slc.upper, DialPlot.angular_domain)
+    def slice_domain(slc: Domain) -> Domain:
+        start, end = slc
+        return to_domain(start, DialPlot.angular_domain), to_domain(end, DialPlot.angular_domain)
 
     @property
     def donut_segments(self) -> List[go.Scatter]:
@@ -108,10 +109,7 @@ class DialPlot(LeafPlot[ParameterSlices]):
 
     @property
     def polar_traces(self) -> List[go.Scatter]:
-        return [
-            self.polar_trace(n, self.angular_axis, self.radial_axis)
-            for n, _ in enumerate(self.data.chains)
-        ]
+        return [self.polar_trace(n) for n, _ in enumerate(self.data.chains)]
 
 
 @dataclass
@@ -228,7 +226,7 @@ class TraceDial(RootPlot[ParameterSlices]):
     def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
         """Create a trace slice histogram."""
         burn_in_end: float = TraceDial.burn_in_iter / mcmc_run.samples.num_samples
-        slcs: List[Slice] = [Slice(0.0, burn_in_end), Slice(burn_in_end, 1)]
+        slcs: List[Domain] = [(0.0, burn_in_end), (burn_in_end, 1)]
         return TraceDial(
             x_domain=(0.0, 1.0),
             y_domain=(0.0, 1.0),

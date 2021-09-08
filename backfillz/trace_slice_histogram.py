@@ -4,7 +4,7 @@ from typing import List
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import MCMCRun, ParameterSlices, Props, scale, segment, Slice
+from backfillz.data import Domain, MCMCRun, ParameterSlices, Props, scale, segment
 from backfillz.plot import AggregatePlot, annotate, fresh_axis_id, LeafPlot, Plot, RootPlot
 from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
@@ -32,11 +32,12 @@ class TracePlot(LeafPlot[ParameterSlices]):
         return [
             go.Scatter(
                 x=[self.data.min_sample] * 2 + [self.data.max_sample] * 2 + [self.data.min_sample],
-                y=scale(self.data.n_iter, [slc.lower, slc.upper, slc.upper, slc.lower, slc.lower]),
+                y=scale(self.data.n_iter, [start, end, end, start, start]),
                 mode='lines',
                 line=dict(width=2, color=self.theme.fg_colour),
             )
             for slc in self.data.slcs
+            for start, end in [slc]
         ]
 
     @property
@@ -63,13 +64,14 @@ class JoiningSegments(LeafPlot[ParameterSlices]):
             go.Scatter(
                 xaxis='x' + self.axis_id,
                 x=[0, 1, 1, 0],
-                y=scale(self.data.n_iter, [slc.lower, lower, upper, slc.upper]),
+                y=scale(self.data.n_iter, [start, lower, upper, end]),
                 mode='lines',
                 line=dict(color=self.theme.fg_colour, width=1),
                 fill='toself',
                 fillcolor='rgba(240,240,240,255)',
             )
             for n, slc in enumerate(self.data.slcs, start=1)
+            for start, end in [slc]
             for lower, upper in [((n - 1) / len(self.data.slcs), n / len(self.data.slcs))]
         ]
 
@@ -89,7 +91,9 @@ class JoiningSegments(LeafPlot[ParameterSlices]):
     @property
     def slice_delimiters(self) -> List[float]:
         """Unique slice start/end points, expressed in iterations."""
-        delims: List[float] = [*{*[y for slc in self.data.slcs for y in [slc.lower, slc.upper]]}]
+        delims: List[float] = [*{
+            *[y for slc in self.data.slcs for start, end in [slc] for y in [start, end]]
+        }]
         return scale(self.data.n_iter, delims)
 
     @property
@@ -177,7 +181,7 @@ class TraceSliceHistogram(RootPlot[ParameterSlices]):
     @staticmethod
     def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
         """Create a slice histogram."""
-        slcs: List[Slice] = [Slice(0.028, 0.04), Slice(0.1, 0.2), Slice(0.4, 0.9)]
+        slcs: List[Domain] = [(0.028, 0.04), (0.1, 0.2), (0.4, 0.9)]
         return TraceSliceHistogram(
             x_domain=(0.0, 1.0),
             y_domain=(0.0, 1.0),

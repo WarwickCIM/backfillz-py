@@ -25,17 +25,9 @@ class MCMCRun:
         return [*self.samples.param_names]
 
 
-@dataclass
-class Slice:
-    """A slice of an MCMC trace."""
-
-    lower: float
-    upper: float
-
-
 Domain = Tuple[float, float]
 Param = str
-Slices = Dict[Param, List[Slice]]
+Slices = Dict[Param, List[Domain]]
 Props = Dict[str, Any]
 Point = Tuple[float, float]
 
@@ -93,14 +85,12 @@ class ParameterData:
 class ParameterSlices(ParameterData):
     """Parameter data, plus a set of slices."""
 
-    slcs: List[Slice]
+    slcs: List[Domain]
 
-    def chain_slices(self, slc: Slice) -> List[np.ndarray]:
+    def chain_slices(self, slc: Domain) -> List[np.ndarray]:
         """The specified slice of each chain."""
+        start, end = slc
         return [
-            self.chains[
-                n,
-                floor(slc.lower * self.n_iter):floor(slc.upper * self.n_iter)
-            ]
+            self.chains[n, floor(start * self.n_iter):floor(end * self.n_iter)]
             for n, _ in enumerate(self.chains)
         ]
