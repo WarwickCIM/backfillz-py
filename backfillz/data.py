@@ -33,7 +33,7 @@ class Slice:
     upper: float
 
 
-Domain = Tuple[float, float]  # normalised domain of a plot
+Domain = Tuple[float, float]
 Param = str
 Slices = Dict[Param, List[Slice]]
 Props = Dict[str, Any]
