@@ -6,7 +6,7 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Axis, Domain, map_domain, MCMCRun, ParameterSlices, Props, segment
+from backfillz.data import Axis, Domain, MCMCRun, ParameterSlices, Props, segment
 from backfillz.plot import (
     AggregatePlot, background_rect, fresh_axis_id, LeafPlot, left_vertical_title,
     Plot, polar_plot, RootPlot, tick_every
@@ -64,8 +64,8 @@ class DialPlot(LeafPlot[TraceDialData]):
         burn_in_col, remaining_col = self.theme.burn_in_segment, self.theme.remaining_segment
         x_axis = Axis((0, 1), DialPlot.angular_domain)
         return [
-            DialPlot.donut_segment(map_domain(burn_in, x_axis), burn_in_col),
-            DialPlot.donut_segment(map_domain(remaining, x_axis), remaining_col)
+            DialPlot.donut_segment(x_axis.map_domain(burn_in), burn_in_col),
+            DialPlot.donut_segment(x_axis.map_domain(remaining), remaining_col)
         ]
 
     @property

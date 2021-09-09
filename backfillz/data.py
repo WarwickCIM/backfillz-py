@@ -63,11 +63,10 @@ class Axis:
         start, end = self.range
         return [to_domain((x - start) / (end - start), self.domain) for x in xs]
 
-
-def map_domain(src: Domain, x_axis: Axis) -> Domain:
-    """Map a normalised domain into another."""
-    start, end = src
-    return tuple(x_axis.map([start, end]))
+    def map_domain(self, src: Domain) -> Domain:
+        """Map a normalised domain into another."""
+        start, end = src
+        return tuple(self.map([start, end]))
 
 
 @dataclass
