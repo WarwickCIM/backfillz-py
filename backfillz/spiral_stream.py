@@ -36,12 +36,13 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
         chain: List[float] = self.data.variance(self.n_chain, self.step)
         xs: List[int] = [*range(0, self.data.n_iter)]
         y_range: Domain = min(chain), max(chain)
+        # plot variance (which is always positive) and its negation in the same plot, and close into a polygon
         xs1, ys1 = spiral_plot(xs, chain, self.angular_axis, Axis(y_range, (0.5, 1)), 1 / (2 * pi))
         xs2, ys2 = spiral_plot(xs, chain, self.angular_axis, Axis(y_range, (0.5, 0)), 1 / (2 * pi))
         return go.Scatter(
             x=xs1 + xs2[::-1],
             y=ys1 + ys2[::-1],
-            fill='toself',  # polygon
+            fill='toself',
             fillcolor=alpha(self.theme.palette[self.n_chain], 0.5),
             line=dict(width=0.5, color=self.theme.palette[self.n_chain]),
             xaxis='x' + self.axis_id,
