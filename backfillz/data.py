@@ -52,7 +52,7 @@ def to_domain(x: float, domain: Domain) -> float:
 
 
 def map_domain(src: Domain, tgt: Domain) -> Domain:
-    """Maps a domain into another."""
+    """Map a normalised domain into another."""
     start, end = src
     return to_domain(start, tgt), to_domain(end, tgt)
 
@@ -64,10 +64,10 @@ class Axis:
     range: Domain
     domain: Domain
 
-    # Don't require that r_start <= x <= r_end.
+    # Don't require start <= x <= end.
     def map(self, xs: Sequence[float]) -> Sequence[float]:
-        r_start, r_end = self.range
-        return [to_domain((x - r_start) / (r_end - r_start), self.domain) for x in xs]
+        start, end = self.range
+        return [to_domain((x - start) / (end - start), self.domain) for x in xs]
 
 
 @dataclass
