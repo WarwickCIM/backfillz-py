@@ -5,7 +5,7 @@ from typing import Any, Dict, Generic, List, Literal, Optional, Sequence, Tuple,
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, ParameterData, Point, Props
+from backfillz.data import Axis, Domain, ParameterData, Point, Props
 from backfillz.theme import BackfillzTheme
 
 
@@ -167,20 +167,6 @@ class RootPlot(AggregatePlot[T]):
         self.add_additional_titles(fig)
         self.render(fig)
         return fig
-
-
-@dataclass
-class Axis:
-    """Map a range into a domain."""
-
-    range: Domain
-    domain: Domain
-
-    # Don't require that r_start <= x <= r_end.
-    def translate(self, xs: Sequence[float]) -> Sequence[float]:
-        r_start, r_end = self.range
-        d_start, d_end = self.domain
-        return [(x - r_start) / (r_end - r_start) * (d_end - d_start) + d_start for x in xs]
 
 
 def fresh_axis_id() -> str:

@@ -4,8 +4,8 @@ from typing import List, Sequence, Tuple
 
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, ParameterData, Props, segment
-from backfillz.plot import AggregatePlot, annotate, Axis, fresh_axis_id, LeafPlot, RootPlot, spiral_plot
+from backfillz.data import Axis, Domain, MCMCRun, ParameterData, Props, segment
+from backfillz.plot import AggregatePlot, annotate, fresh_axis_id, LeafPlot, RootPlot, spiral_plot
 from backfillz.theme import alpha, BackfillzTheme
 
 

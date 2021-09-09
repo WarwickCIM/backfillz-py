@@ -32,6 +32,20 @@ Props = Dict[str, Any]
 Point = Tuple[float, float]
 
 
+@dataclass
+class Axis:
+    """Map a range into a domain."""
+
+    range: Domain
+    domain: Domain
+
+    # Don't require that r_start <= x <= r_end.
+    def translate(self, xs: Sequence[float]) -> Sequence[float]:
+        r_start, r_end = self.range
+        d_start, d_end = self.domain
+        return [(x - r_start) / (r_end - r_start) * (d_end - d_start) + d_start for x in xs]
+
+
 def scale(factor: float, xs: Sequence[float]) -> List[float]:
     """Element-wise product."""
     return [x * factor for x in xs]

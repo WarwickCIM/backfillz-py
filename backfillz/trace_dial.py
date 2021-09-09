@@ -6,9 +6,9 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, map_domain, MCMCRun, ParameterSlices, Props, segment
+from backfillz.data import Axis, Domain, map_domain, MCMCRun, ParameterSlices, Props, segment
 from backfillz.plot import (
-    AggregatePlot, Axis, background_rect, fresh_axis_id, LeafPlot, left_vertical_title,
+    AggregatePlot, background_rect, fresh_axis_id, LeafPlot, left_vertical_title,
     Plot, polar_plot, RootPlot, tick_every
 )
 from backfillz.slice_histograms import SliceHistogram
@@ -17,7 +17,7 @@ from backfillz.theme import BackfillzTheme
 
 @dataclass
 class TraceDialData(ParameterSlices):
-    """Data being visualised by a trace dial plot."""
+    """Data visualised by a trace dial plot."""
 
     burn_in_iter: int
 
