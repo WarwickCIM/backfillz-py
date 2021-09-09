@@ -26,14 +26,14 @@ def arc(x_domain: Domain, y: float, n_steps: int) -> Tuple[List[float], List[flo
     """An arc at distance y from (0,0) with angular extent x_domain."""
     xs = [*range(0, n_steps)]
     ys = [y] * n_steps
-    return polar_plot(xs, ys, Axis((0, n_steps - 1), x_domain), Axis((0.0, 1.0), DialPlot.radial_domain))
+    return polar_plot(xs, ys, Axis((0, n_steps - 1), x_domain), Axis((0, 1), DialPlot.radial_domain))
 
 
 @dataclass
 class DialPlot(LeafPlot[TraceDialData]):
     """Trace dial plot (3/4 segment)."""
 
-    radial_domain: Domain = 1 / 3, 1.0
+    radial_domain: Domain = 1 / 3, 1
     angular_domain: Domain = 0.5 * pi, 2 * pi
 
     @property
@@ -52,8 +52,8 @@ class DialPlot(LeafPlot[TraceDialData]):
 
     @staticmethod
     def donut_segment(x_domain: Domain, fillcolor: str) -> go.Scatter:
-        xs1, ys1 = arc(x_domain, 1.0, 100)
-        xs2, ys2 = arc(x_domain, 0.0, 50)
+        xs1, ys1 = arc(x_domain, 1, 100)
+        xs2, ys2 = arc(x_domain, 0, 50)
         xs = xs1 + xs2[::-1]
         ys = ys1 + ys2[::-1]
         return go.Scatter(x=xs, y=ys, line=dict(width=0), fill='toself', fillcolor=fillcolor)
@@ -62,6 +62,7 @@ class DialPlot(LeafPlot[TraceDialData]):
     def donut_segments(self) -> List[go.Scatter]:
         [burn_in, remaining] = self.data.slcs
         burn_in_col, remaining_col = self.theme.burn_in_segment, self.theme.remaining_segment
+#        x_axis = Axis((0, 1), DialPlot.angular_domain)
         return [
             DialPlot.donut_segment(map_domain(burn_in, DialPlot.angular_domain), burn_in_col),
             DialPlot.donut_segment(map_domain(remaining, DialPlot.angular_domain), remaining_col)
@@ -92,7 +93,7 @@ class DialPlot(LeafPlot[TraceDialData]):
     def radial_ticks(self, xs: Sequence[float], tick_size: Tuple[float, float], colour: str) -> go.Scatter:
         """Ticks at supplied angular positions, sized relative to radial_domain."""
         top, bottom = tick_size
-        y_axis: Axis = Axis((0.0, 1.0), DialPlot.radial_domain)
+        y_axis: Axis = Axis((0, 1), DialPlot.radial_domain)
         x1, y1 = polar_plot(xs, [top] * len(xs), self.angular_axis, y_axis)
         x2, y2 = polar_plot(xs, [bottom] * len(xs), self.angular_axis, y_axis)
         x = [x for p in zip(x1, x2, x2) for x in p]
@@ -100,7 +101,7 @@ class DialPlot(LeafPlot[TraceDialData]):
         return go.Scatter(x=x, y=y, mode='lines', line=dict(width=1, color=colour))
 
     def tick_labels(self, xs: Sequence[float], tick_bottom: float) -> go.Scatter:
-        y_axis: Axis = Axis((0.0, 1.0), DialPlot.radial_domain)
+        y_axis: Axis = Axis((0, 1), DialPlot.radial_domain)
         x, y = polar_plot(xs, [tick_bottom - 0.05] * len(xs), self.angular_axis, y_axis)
         return go.Scatter(x=x, y=y, text=[str(x) for x in xs], mode='text', textposition='middle left')
 
@@ -175,14 +176,14 @@ class TraceDial(RootPlot[TraceDialData]):
     @property
     def dial_plot(self) -> DialPlot:
         # Use Plotly default axes
-        return DialPlot(axis_id='', x_domain=(0.0, 1), y_domain=(0.0, 1), data=self.data, theme=self.theme)
+        return DialPlot(axis_id='', x_domain=(0, 1), y_domain=(0, 1), data=self.data, theme=self.theme)
 
     @property
     def histograms(self) -> SliceHistograms:
         start, end = DialPlot.radial_domain
         return SliceHistograms(
             x_domain=(0.5 + start * 0.5, 0.5 + end * 0.5),
-            y_domain=(0.5, 1.0),
+            y_domain=(0.5, 1),
             data=self.data,
             theme=self.theme,
         )
@@ -226,10 +227,10 @@ class TraceDial(RootPlot[TraceDialData]):
     ) -> go.Figure:
         """Create a trace slice histogram."""
         burn_in_end: float = burn_in_iter / mcmc_run.samples.num_samples
-        slcs: List[Domain] = [(0.0, burn_in_end), (burn_in_end, 1)]
+        slcs: List[Domain] = [(0, burn_in_end), (burn_in_end, 1)]
         return TraceDial(
-            x_domain=(0.0, 1.0),
-            y_domain=(0.0, 1.0),
+            x_domain=(0, 1),
+            y_domain=(0, 1),
             data=TraceDialData(mcmc_run, param, slcs, burn_in_iter),
             theme=theme,
             verbose=verbose,
