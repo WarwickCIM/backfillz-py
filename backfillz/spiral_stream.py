@@ -23,15 +23,13 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
     n_chain: int
     step: int
 
-    angular_domain: Domain = 0.5 * pi, 2 * pi * 3
-
     @property
     def plot_elements(self) -> List[go.Scatter]:
         return [self.spiral_plot]
 
     @property
     def angular_axis(self) -> Axis:
-        return Axis((0, self.data.n_iter), SpiralPlot.angular_domain)
+        return Axis((0, self.data.n_iter), (0.5 * pi, 2 * pi * 3))
 
     @property
     def spiral_plot(self) -> go.Scatter:
@@ -53,7 +51,7 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
     @property
     def overall_range(self) -> Tuple[int, int]:
         """Number of rotations determines x and y range (expressed in unit radii)."""
-        _, end = self.angular_domain
+        _, end = self.angular_axis.domain
         rotations: int = floor(end / (2 * pi) + 1)
         return (-rotations, rotations)
 
