@@ -173,13 +173,8 @@ class TraceDial(RootPlot[ParameterSlices]):
 
     @property
     def dial_plot(self) -> DialPlot:
-        return DialPlot(
-            axis_id='',  # Plotly default axes
-            x_domain=(0.0, 1),
-            y_domain=(0.0, 1),
-            data=self.data,
-            theme=self.theme,
-        )
+        # Use Plotly default axes
+        return DialPlot(axis_id='', x_domain=(0.0, 1), y_domain=(0.0, 1), data=self.data, theme=self.theme)
 
     @property
     def histograms(self) -> SliceHistograms:
