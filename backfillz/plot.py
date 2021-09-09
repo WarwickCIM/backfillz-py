@@ -245,8 +245,8 @@ def spiral_plot(
 ) -> Tuple[List[float], List[float]]:
     """Plot along arithmetic spiral r = a + b * theta, via the supplied axes. 12 o'clock = 0.5 * pi."""
     assert len(xs) == len(ys)
-    thetas = x_axis.translate(xs)
-    ys_radial = [y + b * theta for theta, y in zip(thetas, y_axis.translate(ys))]
+    thetas = x_axis.map(xs)
+    ys_radial = [y + b * theta for theta, y in zip(thetas, y_axis.map(ys))]
     rs_thetas: List[Tuple[float, float]] = [
         (cos(theta) * y, sin(theta) * y)
         for theta, y in zip(thetas, ys_radial)

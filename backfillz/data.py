@@ -65,7 +65,7 @@ class Axis:
     domain: Domain
 
     # Don't require that r_start <= x <= r_end.
-    def translate(self, xs: Sequence[float]) -> Sequence[float]:
+    def map(self, xs: Sequence[float]) -> Sequence[float]:
         r_start, r_end = self.range
         return [to_domain((x - r_start) / (r_end - r_start), self.domain) for x in xs]
 
