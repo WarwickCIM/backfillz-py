@@ -4,16 +4,14 @@ from typing import List, Sequence, Tuple
 
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, ParameterData, Props, segment
-from backfillz.plot import (
-    AggregatePlot, alpha, annotate, Axis, fresh_axis_id, LeafPlot, RootPlot, spiral_plot
-)
-from backfillz.theme import BackfillzTheme
+from backfillz.data import Axis, Domain, MCMCRun, ParameterData, Props, segment
+from backfillz.plot import AggregatePlot, annotate, fresh_axis_id, LeafPlot, RootPlot, spiral_plot
+from backfillz.theme import alpha, BackfillzTheme
 
 
 @dataclass
 class ParameterSteps(ParameterData):
-    """Data being visualised by a spiral stream plot."""
+    """Data visualised by spiral stream plot."""
 
     steps: List[int]
 
@@ -25,17 +23,23 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
     n_chain: int
     step: int
 
-    angular_domain: Domain = 0.5 * pi, 2 * pi * 3
-
     @property
     def plot_elements(self) -> List[go.Scatter]:
+        return [self.spiral_plot]
+
+    @property
+    def angular_axis(self) -> Axis:
+        return Axis((0, self.data.n_iter), (0.5 * pi, 2 * pi * 3))
+
+    @property
+    def spiral_plot(self) -> go.Scatter:
         chain: List[float] = self.data.variance(self.n_chain, self.step)
-        xs: List[int] = [*range(0, len(chain))]
-        x_axis: Axis = Axis((0, len(chain)), SpiralPlot.angular_domain)
+        xs: List[int] = [*range(0, self.data.n_iter)]
         y_range: Domain = min(chain), max(chain)
-        xs1, ys1 = spiral_plot(xs, chain, x_axis, Axis(y_range, (0.5, 1)), 1 / (2 * pi))
-        xs2, ys2 = spiral_plot(xs, chain, x_axis, Axis(y_range, (0.5, 0)), 1 / (2 * pi))
-        return [go.Scatter(
+        # plot variance (which is always positive) and its negation in the same plot, and close into a polygon
+        xs1, ys1 = spiral_plot(xs, chain, self.angular_axis, Axis(y_range, (0.5, 1)), 1 / (2 * pi))
+        xs2, ys2 = spiral_plot(xs, chain, self.angular_axis, Axis(y_range, (0.5, 0)), 1 / (2 * pi))
+        return go.Scatter(
             x=xs1 + xs2[::-1],
             y=ys1 + ys2[::-1],
             fill='toself',
@@ -43,11 +47,12 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
             line=dict(width=0.5, color=self.theme.palette[self.n_chain]),
             xaxis='x' + self.axis_id,
             yaxis='y' + self.axis_id,
-        )]
+        )
 
     @property
-    def overall_range(self) -> Tuple[float, float]:
-        _, end = self.angular_domain
+    def overall_range(self) -> Tuple[int, int]:
+        """Number of rotations determines x and y range (expressed in unit radii)."""
+        _, end = self.angular_axis.domain
         rotations: int = floor(end / (2 * pi) + 1)
         return (-rotations, rotations)
 

@@ -6,9 +6,9 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, ParameterSlices, Props, segment, Slice, to_domain
+from backfillz.data import Axis, Domain, MCMCRun, ParameterSlices, Props, segment
 from backfillz.plot import (
-    AggregatePlot, alpha, Axis, background_rect, fresh_axis_id, LeafPlot, left_vertical_title, normalise,
+    AggregatePlot, background_rect, fresh_axis_id, LeafPlot, left_vertical_title,
     Plot, polar_plot, RootPlot, tick_every
 )
 from backfillz.slice_histograms import SliceHistogram
@@ -16,10 +16,24 @@ from backfillz.theme import BackfillzTheme
 
 
 @dataclass
-class DialPlot(LeafPlot[ParameterSlices]):
+class TraceDialData(ParameterSlices):
+    """Data visualised by trace dial plot."""
+
+    burn_in_iter: int
+
+
+def arc(x_size: Domain, y: float, n_steps: int) -> Tuple[List[float], List[float]]:
+    """Arc at distance y from (0,0) with angular extent x_domain."""
+    xs = [*range(0, n_steps)]
+    ys = [y] * n_steps
+    return polar_plot(xs, ys, Axis((0, n_steps - 1), x_size), Axis((0, 1), DialPlot.radial_domain))
+
+
+@dataclass
+class DialPlot(LeafPlot[TraceDialData]):
     """Trace dial plot (3/4 segment)."""
 
-    radial_domain: Domain = 1 / 3, 1.0
+    radial_domain: Domain = 1 / 3, 1
     angular_domain: Domain = 0.5 * pi, 2 * pi
 
     @property
@@ -37,30 +51,20 @@ class DialPlot(LeafPlot[ParameterSlices]):
         return dict(range=[-1, 1], visible=False)
 
     @staticmethod
-    def arc(x_domain: Domain, y: float, n_segments: int) -> Tuple[List[float], List[float]]:
-        xs = [*range(0, n_segments)]
-        ys = [y] * n_segments
-        return polar_plot(xs, ys, normalise(xs, x_domain), Axis((0.0, 1.0), DialPlot.radial_domain))
-
-    @staticmethod
     def donut_segment(x_domain: Domain, fillcolor: str) -> go.Scatter:
-        xs1, ys1 = DialPlot.arc(x_domain, 1.0, 100)
-        xs2, ys2 = DialPlot.arc(x_domain, 0.0, 50)
+        xs1, ys1 = arc(x_domain, 1, 100)
+        xs2, ys2 = arc(x_domain, 0, 50)
         xs = xs1 + xs2[::-1]
         ys = ys1 + ys2[::-1]
         return go.Scatter(x=xs, y=ys, line=dict(width=0), fill='toself', fillcolor=fillcolor)
 
-    @staticmethod
-    def slice_domain(slc: Slice) -> Domain:
-        return to_domain(slc.lower, DialPlot.angular_domain), to_domain(slc.upper, DialPlot.angular_domain)
-
     @property
     def donut_segments(self) -> List[go.Scatter]:
         [burn_in, remaining] = self.data.slcs
-        colours = DerivativeColours(self.theme)
+        x_axis = Axis((0, 1), DialPlot.angular_domain)
         return [
-            DialPlot.donut_segment(DialPlot.slice_domain(burn_in), colours.burn_in_segment),
-            DialPlot.donut_segment(DialPlot.slice_domain(remaining), colours.remaining_segment)
+            DialPlot.donut_segment(x_axis.map_domain(burn_in), self.theme.burn_in_segment),
+            DialPlot.donut_segment(x_axis.map_domain(remaining), self.theme.remaining_segment)
         ]
 
     @property
@@ -77,44 +81,41 @@ class DialPlot(LeafPlot[ParameterSlices]):
         tick_gap: int = tick_every(ticks_per_circle, self.angular_axis)
         start, end = self.angular_axis.range
         xs1 = [x * tick_gap for x in range(floor(start), floor(end / tick_gap))]
-        xs2 = [start, TraceDial.burn_in_iter, end]
-        top, bottom1, bottom2 = -0.04, -0.07, -0.14
+        xs2 = [start, self.data.burn_in_iter, end]
+        tick_top, tick_bot_1, tick_bot_2 = -0.04, -0.07, -0.14  # tick sizes relative to radial domain
         return [
-            self.radial_ticks(xs1, (top, bottom1), self.theme.mg_colour),
-            self.radial_ticks(xs2, (top, bottom2), self.theme.fg_colour),
-            self.radial_tick_marks(xs2, bottom2)
+            self.radial_ticks(xs1, (tick_top, tick_bot_1), self.theme.mg_colour),
+            self.radial_ticks(xs2, (tick_top, tick_bot_2), self.theme.fg_colour),
+            self.tick_labels(xs2, tick_bot_2)
         ]
-
-    def radial_tick_marks(self, xs: Sequence[float], tick_bottom: float) -> go.Scatter:
-        y_axis: Axis = Axis((0.0, 1.0), DialPlot.radial_domain)
-        x, y = polar_plot(xs, [tick_bottom - 0.05] * len(xs), self.angular_axis, y_axis)
-        return go.Scatter(x=x, y=y, text=[str(x) for x in xs], mode='text', textposition='middle left')
 
     def radial_ticks(self, xs: Sequence[float], tick_size: Tuple[float, float], colour: str) -> go.Scatter:
         """Ticks at supplied angular positions, sized relative to radial_domain."""
         top, bottom = tick_size
-        y_axis: Axis = Axis((0.0, 1.0), DialPlot.radial_domain)
+        y_axis: Axis = Axis((0, 1), DialPlot.radial_domain)
         x1, y1 = polar_plot(xs, [top] * len(xs), self.angular_axis, y_axis)
         x2, y2 = polar_plot(xs, [bottom] * len(xs), self.angular_axis, y_axis)
         x = [x for p in zip(x1, x2, x2) for x in p]
-        y = [y for p in zip(y1, y2, [nan] * len(x2)) for y in p]
+        y = [y for p in zip(y1, y2, [nan] * len(x2)) for y in p]  # nan to avoid joining all points
         return go.Scatter(x=x, y=y, mode='lines', line=dict(width=1, color=colour))
 
-    def polar_trace(self, n: int, x_axis: Axis, y_axis: Axis) -> go.Scatter:
+    def tick_labels(self, xs: Sequence[float], tick_bottom: float) -> go.Scatter:
+        y_axis: Axis = Axis((0, 1), DialPlot.radial_domain)
+        x, y = polar_plot(xs, [tick_bottom - 0.05] * len(xs), self.angular_axis, y_axis)
+        return go.Scatter(x=x, y=y, text=[str(x) for x in xs], mode='text', textposition='middle left')
+
+    def polar_trace(self, n: int) -> go.Scatter:
         chain: np.ndarray = self.data.chains[n]
-        xs, ys = polar_plot([*range(0, len(chain))], [*chain], x_axis, y_axis)
+        xs, ys = polar_plot([*range(0, len(chain))], [*chain], self.angular_axis, self.radial_axis)
         return go.Scatter(x=xs, y=ys, line=dict(color=self.theme.palette[n]))
 
     @property
     def polar_traces(self) -> List[go.Scatter]:
-        return [
-            self.polar_trace(n, self.angular_axis, self.radial_axis)
-            for n, _ in enumerate(self.data.chains)
-        ]
+        return [self.polar_trace(n) for n, _ in enumerate(self.data.chains)]
 
 
 @dataclass
-class TraceDialHistogram(SliceHistogram):
+class TraceDialHistogram(SliceHistogram[TraceDialData]):
     """Slice histogram for trace dial plot."""
 
     bin_size: float = 1.0
@@ -146,10 +147,10 @@ class TraceDialHistogram(SliceHistogram):
 
 
 @dataclass
-class SliceHistograms(AggregatePlot[ParameterSlices]):
+class SliceHistograms(AggregatePlot[TraceDialData]):
     """One slice histogram per slice."""
 
-    def make_plots(self) -> List[Plot[ParameterSlices]]:
+    def make_plots(self) -> List[Plot[TraceDialData]]:
         return [
             TraceDialHistogram(
                 axis_id=fresh_axis_id(),
@@ -165,30 +166,23 @@ class SliceHistograms(AggregatePlot[ParameterSlices]):
 
 
 @dataclass
-class TraceDial(RootPlot[ParameterSlices]):
+class TraceDial(RootPlot[TraceDialData]):
     """Top-level plot, for a given parameter and chain."""
 
-    burn_in_iter: int = 500  # hard-coded for now -- should be a parameter?
-
-    def make_plots(self) -> List[Plot[ParameterSlices]]:
+    def make_plots(self) -> List[Plot[TraceDialData]]:
         return [self.dial_plot, self.histograms]
 
     @property
     def dial_plot(self) -> DialPlot:
-        return DialPlot(
-            axis_id='',  # Plotly default axes
-            x_domain=(0.0, 1),
-            y_domain=(0.0, 1),
-            data=self.data,
-            theme=self.theme,
-        )
+        # Use Plotly default axes
+        return DialPlot(axis_id='', x_domain=(0, 1), y_domain=(0, 1), data=self.data, theme=self.theme)
 
     @property
     def histograms(self) -> SliceHistograms:
         start, end = DialPlot.radial_domain
         return SliceHistograms(
             x_domain=(0.5 + start * 0.5, 0.5 + end * 0.5),
-            y_domain=(0.5, 1.0),
+            y_domain=(0.5, 1),
             data=self.data,
             theme=self.theme,
         )
@@ -198,24 +192,23 @@ class TraceDial(RootPlot[ParameterSlices]):
         return f"Pretzel plot for {self.data.param}"
 
     @property
-    def burn_in_histo(self) -> Plot[ParameterSlices]:
+    def burn_in_histo(self) -> Plot[TraceDialData]:
         return self.histograms.plots[0]
 
     @property
-    def sample_histo(self) -> Plot[ParameterSlices]:
+    def sample_histo(self) -> Plot[TraceDialData]:
         return self.histograms.plots[1]
 
     @property
     def layout_props(self) -> Props:
-        colours = DerivativeColours(self.theme)
         # plotting region won't be exactly square but best we can do to align histogram width with donut
         length: int = 800
         return dict(
             width=length,
             height=length,
             shapes=[
-                background_rect(self.burn_in_histo, colours.burn_in_segment),
-                background_rect(self.sample_histo, colours.remaining_segment)
+                background_rect(self.burn_in_histo, self.theme.burn_in_segment),
+                background_rect(self.sample_histo, self.theme.remaining_segment)
             ]
         )
 
@@ -224,29 +217,20 @@ class TraceDial(RootPlot[ParameterSlices]):
         left_vertical_title(fig, self.sample_histo, "Sample histogram")
 
     @staticmethod
-    def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
+    def fig(
+        mcmc_run: MCMCRun,
+        theme: BackfillzTheme,
+        verbose: bool,
+        param: str,
+        burn_in_iter: int
+    ) -> go.Figure:
         """Create a trace slice histogram."""
-        burn_in_end: float = TraceDial.burn_in_iter / mcmc_run.samples.num_samples
-        slcs: List[Slice] = [Slice(0.0, burn_in_end), Slice(burn_in_end, 1)]
+        burn_in_end: float = burn_in_iter / mcmc_run.samples.num_samples
+        slcs: List[Domain] = [(0, burn_in_end), (burn_in_end, 1)]
         return TraceDial(
-            x_domain=(0.0, 1.0),
-            y_domain=(0.0, 1.0),
-            data=ParameterSlices(mcmc_run, param, slcs),
+            x_domain=(0, 1),
+            y_domain=(0, 1),
+            data=TraceDialData(mcmc_run, param, slcs, burn_in_iter),
             theme=theme,
-            verbose=verbose
+            verbose=verbose,
         ).make_fig()
-
-
-@dataclass
-class DerivativeColours:
-    """Colours uniquely determined by a theme."""
-
-    theme: BackfillzTheme
-
-    @property
-    def burn_in_segment(self) -> str:
-        return alpha(self.theme.mg_colour, self.theme.alpha + 0.2)
-
-    @property
-    def remaining_segment(self) -> str:
-        return alpha(self.theme.mg_colour, self.theme.alpha - 0.3)
