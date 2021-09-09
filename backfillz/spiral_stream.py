@@ -36,7 +36,7 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
     @property
     def spiral_plot(self) -> go.Scatter:
         chain: List[float] = self.data.variance(self.n_chain, self.step)
-        xs: List[int] = [*range(0, len(chain))]
+        xs: List[int] = [*range(0, self.data.n_iter)]
         y_range: Domain = min(chain), max(chain)
         xs1, ys1 = spiral_plot(xs, chain, self.angular_axis, Axis(y_range, (0.5, 1)), 1 / (2 * pi))
         xs2, ys2 = spiral_plot(xs, chain, self.angular_axis, Axis(y_range, (0.5, 0)), 1 / (2 * pi))
