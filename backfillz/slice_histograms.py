@@ -29,16 +29,16 @@ class SliceHistogram(LeafPlot[T]):
         ns: List[int] = [*range(0, len(self.data.chains))]
         return [self.histo(ns, self.theme.fg_colour, 1), *[self.chain_plot(n) for n in ns]]
 
-    # Histogram bins for specified subset of chains.
     def bins(self, ns: List[int], bin_size: float) -> Bins:
+        """Histogram bins for specified subset of chains."""
         return cast(Bins, np.histogram(
             [x for n in ns for x in self.data.chain_slices(self.slc)[n]],
             [*np.arange(floor(self.data.min_sample), ceil(self.data.max_sample), bin_size)],
             density=True,
         ))
 
-    # Histogram for specified subset of chains. Compute our own bins so we're in full control.
     def histo(self, ns: List[int], color: str, bin_size: float) -> go.Bar:
+        """Histogram for specified subset of chains. Compute our own bins so we're in full control."""
         ys, xs = self.bins(ns, bin_size)
         return go.Bar(
             x=xs,
@@ -48,8 +48,8 @@ class SliceHistogram(LeafPlot[T]):
             yaxis='y' + self.axis_id,
         )
 
-    # Non-parametric KDE, smoothed with a Gaussian kernel, for a given chain.
     def chain_plot(self, n: int) -> go.Scatter:
+        """Non-parametric KDE, smoothed with a Gaussian kernel, for a given chain."""
         x = np.linspace(self.data.min_sample, self.data.max_sample, 200)
         chain_slices = self.data.chain_slices(self.slc)
         return go.Scatter(

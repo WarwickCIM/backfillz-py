@@ -45,7 +45,7 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
 
     @property
     def overall_range(self) -> Tuple[int, int]:
-        """The number of rotations determines the x and y range (expressed in terms of the unit radius)."""
+        """Number of rotations determines x and y range (expressed in unit radii)."""
         _, end = self.angular_domain
         rotations: int = floor(end / (2 * pi) + 1)
         return (-rotations, rotations)

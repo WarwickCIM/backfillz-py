@@ -48,7 +48,7 @@ class Plot(Generic[T]):
 
 @dataclass
 class LeafPlot(Plot[T]):
-    """A leaf subplot."""
+    """Leaf plot."""
 
     # Either generated using fresh_axis_id, or '' to mean the figure's default axes.
     axis_id: AxisId
@@ -106,7 +106,7 @@ class LeafPlot(Plot[T]):
 
 @dataclass
 class AggregatePlot(Plot[T]):
-    """A collection of subplots."""
+    """Collection of subplots."""
 
     plots: Sequence[Plot[T]] = field(init=False)
 
@@ -274,5 +274,5 @@ def polar_plot(
     x_axis: Axis,
     y_axis: Axis
 ) -> Tuple[List[float], List[float]]:
-    """A spiral plot with b = 0."""
+    """Spiral plot with b = 0."""
     return spiral_plot(xs, ys, x_axis, y_axis, 0)

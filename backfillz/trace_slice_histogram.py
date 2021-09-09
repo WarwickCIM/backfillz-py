@@ -18,17 +18,17 @@ class TracePlot(LeafPlot[ParameterSlices]):
     def plot_elements(self) -> List[BaseTraceType]:
         return self.traces + self.boxes
 
-    # one per chain
     @property
     def traces(self) -> List[go.Scatter]:
+        """One trace plot per chain."""
         return [
             go.Scatter(x=chain, y=[*range(0, self.data.n_iter)], line=dict(color=self.theme.palette[n]))
             for n, chain in enumerate(self.data.chains)
         ]
 
-    # one per slice
     @property
     def boxes(self) -> List[go.Scatter]:
+        """One box per slice."""
         return [
             go.Scatter(
                 x=[self.data.min_sample] * 2 + [self.data.max_sample] * 2 + [self.data.min_sample],
@@ -57,9 +57,9 @@ class JoiningSegments(LeafPlot[ParameterSlices]):
     def plot_elements(self) -> List[BaseTraceType]:
         return self.segments + [self.y_labels]
 
-    # one per slice
     @property
     def segments(self) -> List[go.Scatter]:
+        """One segment per slice."""
         return [
             go.Scatter(
                 xaxis='x' + self.axis_id,
@@ -75,9 +75,9 @@ class JoiningSegments(LeafPlot[ParameterSlices]):
             for lower, upper in [((n - 1) / len(self.data.slcs), n / len(self.data.slcs))]
         ]
 
-    # one numerical marker per slice delimiter
     @property
     def y_labels(self) -> go.Scatter:
+        """One numerical marker per slice delimiter."""
         y = self.slice_delimiters
         return go.Scatter(
             xaxis='x' + self.axis_id,

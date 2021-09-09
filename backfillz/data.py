@@ -13,7 +13,7 @@ class MCMCRun:
     samples: Fit
 
     def iter_chains(self, param: str, index: int = 0) -> np.ndarray:
-        """Return (n_chains × n_samples) matrix of draws for a given parameter."""
+        """(n_chains × n_samples) matrix of draws for a given parameter."""
         n_chains, n_samples = self.samples.num_chains, self.samples.num_samples
         xss = np.zeros((n_chains, n_samples))
         for n in range(0, n_chains):
@@ -69,7 +69,7 @@ class ParameterData:
 
     @property
     def n_iter(self) -> int:
-        """Return number of MCMC iterations per chain."""
+        """Number of MCMC iterations per chain."""
         return int(self.chains.shape[1])
 
     def variance(self, n: int, span: int) -> List[float]:
