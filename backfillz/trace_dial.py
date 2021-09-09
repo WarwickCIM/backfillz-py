@@ -17,16 +17,16 @@ from backfillz.theme import BackfillzTheme
 
 @dataclass
 class TraceDialData(ParameterSlices):
-    """Data visualised by a trace dial plot."""
+    """Data visualised by trace dial plot."""
 
     burn_in_iter: int
 
 
-def arc(x_domain: Domain, y: float, n_steps: int) -> Tuple[List[float], List[float]]:
-    """An arc at distance y from (0,0) with angular extent x_domain."""
+def arc(x_size: Domain, y: float, n_steps: int) -> Tuple[List[float], List[float]]:
+    """Arc at distance y from (0,0) with angular extent x_domain."""
     xs = [*range(0, n_steps)]
     ys = [y] * n_steps
-    return polar_plot(xs, ys, Axis((0, n_steps - 1), x_domain), Axis((0, 1), DialPlot.radial_domain))
+    return polar_plot(xs, ys, Axis((0, n_steps - 1), x_size), Axis((0, 1), DialPlot.radial_domain))
 
 
 @dataclass
