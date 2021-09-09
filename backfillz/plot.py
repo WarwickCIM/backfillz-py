@@ -3,10 +3,9 @@ from math import cos, floor, log10, pi, sin
 from typing import Any, Dict, Generic, List, Literal, Optional, Sequence, Tuple, TypeVar
 
 from plotly.basedatatypes import BaseTraceType  # type: ignore
-from plotly.colors import hex_to_rgb  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, ParameterData, Point, Props
+from backfillz.data import Axis, Domain, ParameterData, Point, Props
 from backfillz.theme import BackfillzTheme
 
 
@@ -49,7 +48,7 @@ class Plot(Generic[T]):
 
 @dataclass
 class LeafPlot(Plot[T]):
-    """A leaf subplot."""
+    """Leaf plot."""
 
     # Either generated using fresh_axis_id, or '' to mean the figure's default axes.
     axis_id: AxisId
@@ -107,7 +106,7 @@ class LeafPlot(Plot[T]):
 
 @dataclass
 class AggregatePlot(Plot[T]):
-    """A collection of subplots."""
+    """Collection of subplots."""
 
     plots: Sequence[Plot[T]] = field(init=False)
 
@@ -170,25 +169,6 @@ class RootPlot(AggregatePlot[T]):
         return fig
 
 
-@dataclass
-class Axis:
-    """Map a range into a domain."""
-
-    range: Domain
-    domain: Domain
-
-    # Don't require that r_start <= x <= r_end.
-    def translate(self, xs: Sequence[float]) -> Sequence[float]:
-        r_start, r_end = self.range
-        d_start, d_end = self.domain
-        return [(x - r_start) / (r_end - r_start) * (d_end - d_start) + d_start for x in xs]
-
-
-def normalise(xs: Sequence[float], domain: Domain) -> Axis:
-    """Map a data range into a domain."""
-    return Axis((min(xs), max(xs)), domain)
-
-
 def fresh_axis_id() -> str:
     """Allocate an axis id that hasn't been used elsewhere."""
     global axis_count
@@ -200,12 +180,6 @@ def fresh_axis_id() -> str:
 def default_config() -> Props:
     """Preferred settings for Plotly figure."""
     return dict(displayModeBar=False, showAxisDragHandles=False)
-
-
-def alpha(hex_colour: str, a: float) -> str:
-    """Add an alpha component to a colour represented as a hex string without an alpha component."""
-    rgb: tuple[int, int, int] = hex_to_rgb(hex_colour)
-    return f"rgba({rgb[0]},{rgb[1]},{rgb[2]},{a})"
 
 
 def annotate(
@@ -271,8 +245,8 @@ def spiral_plot(
 ) -> Tuple[List[float], List[float]]:
     """Plot along arithmetic spiral r = a + b * theta, via the supplied axes. 12 o'clock = 0.5 * pi."""
     assert len(xs) == len(ys)
-    thetas = x_axis.translate(xs)
-    ys_radial = [y + b * theta for theta, y in zip(thetas, y_axis.translate(ys))]
+    thetas = x_axis.map(xs)
+    ys_radial = [y + b * theta for theta, y in zip(thetas, y_axis.map(ys))]
     rs_thetas: List[Tuple[float, float]] = [
         (cos(theta) * y, sin(theta) * y)
         for theta, y in zip(thetas, ys_radial)
@@ -286,5 +260,5 @@ def polar_plot(
     x_axis: Axis,
     y_axis: Axis
 ) -> Tuple[List[float], List[float]]:
-    """A spiral plot with b = 0."""
+    """Spiral plot with b = 0."""
     return spiral_plot(xs, ys, x_axis, y_axis, 0)

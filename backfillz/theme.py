@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 
+from plotly.colors import hex_to_rgb  # type: ignore
+
 
 @dataclass
 class BackfillzTheme:
@@ -21,6 +23,20 @@ class BackfillzTheme:
     fg_colour: str
     alpha: float
     palette: List[str]
+
+    @property
+    def burn_in_segment(self) -> str:
+        return alpha(self.mg_colour, self.alpha + 0.2)
+
+    @property
+    def remaining_segment(self) -> str:
+        return alpha(self.mg_colour, self.alpha - 0.3)
+
+
+def alpha(hex_colour: str, a: float) -> str:
+    """Add an alpha component to a colour represented as a hex string without an alpha component."""
+    rgb: tuple[int, int, int] = hex_to_rgb(hex_colour)
+    return f"rgba({rgb[0]},{rgb[1]},{rgb[2]},{a})"
 
 
 default: BackfillzTheme = BackfillzTheme(
