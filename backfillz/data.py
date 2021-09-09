@@ -51,6 +51,12 @@ def to_domain(x: float, domain: Domain) -> float:
     return start + x * (end - start)
 
 
+def map_domain(src: Domain, tgt: Domain) -> Domain:
+    """Maps a domain into another."""
+    start, end = src
+    return to_domain(start, tgt), to_domain(end, tgt)
+
+
 @dataclass
 class ParameterData:
     """MCMC data for a given parameter."""

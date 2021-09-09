@@ -6,7 +6,7 @@ import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 
-from backfillz.data import Domain, MCMCRun, ParameterSlices, Props, segment, to_domain
+from backfillz.data import Domain, map_domain, MCMCRun, ParameterSlices, Props, segment
 from backfillz.plot import (
     AggregatePlot, Axis, background_rect, fresh_axis_id, LeafPlot, left_vertical_title,
     Plot, polar_plot, RootPlot, tick_every
@@ -58,17 +58,13 @@ class DialPlot(LeafPlot[TraceDialData]):
         ys = ys1 + ys2[::-1]
         return go.Scatter(x=xs, y=ys, line=dict(width=0), fill='toself', fillcolor=fillcolor)
 
-    @staticmethod
-    def slice_domain(slc: Domain) -> Domain:
-        start, end = slc
-        return to_domain(start, DialPlot.angular_domain), to_domain(end, DialPlot.angular_domain)
-
     @property
     def donut_segments(self) -> List[go.Scatter]:
         [burn_in, remaining] = self.data.slcs
+        burn_in_col, remaining_col = self.theme.burn_in_segment, self.theme.remaining_segment
         return [
-            DialPlot.donut_segment(DialPlot.slice_domain(burn_in), self.theme.burn_in_segment),
-            DialPlot.donut_segment(DialPlot.slice_domain(remaining), self.theme.remaining_segment)
+            DialPlot.donut_segment(map_domain(burn_in, DialPlot.angular_domain), burn_in_col),
+            DialPlot.donut_segment(map_domain(remaining, DialPlot.angular_domain), remaining_col)
         ]
 
     @property
