@@ -31,7 +31,7 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
 
     @property
     def angular_axis(self) -> Axis:
-        return Axis((0, len(self.data.chains[self.n_chain])), SpiralPlot.angular_domain)
+        return Axis((0, self.data.n_iter), SpiralPlot.angular_domain)
 
     @property
     def spiral_plot(self) -> go.Scatter:
