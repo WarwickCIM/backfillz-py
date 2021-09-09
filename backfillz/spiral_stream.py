@@ -11,7 +11,7 @@ from backfillz.theme import alpha, BackfillzTheme
 
 @dataclass
 class ParameterSteps(ParameterData):
-    """Data being visualised by a spiral stream plot."""
+    """Data visualised by spiral stream plot."""
 
     steps: List[int]
 
@@ -27,21 +27,28 @@ class SpiralPlot(LeafPlot[ParameterSteps]):
 
     @property
     def plot_elements(self) -> List[go.Scatter]:
+        return [self.spiral_plot]
+
+    @property
+    def angular_axis(self) -> Axis:
+        return Axis((0, len(self.data.chains[self.n_chain])), SpiralPlot.angular_domain)
+
+    @property
+    def spiral_plot(self) -> go.Scatter:
         chain: List[float] = self.data.variance(self.n_chain, self.step)
         xs: List[int] = [*range(0, len(chain))]
-        x_axis: Axis = Axis((0, len(chain)), SpiralPlot.angular_domain)
         y_range: Domain = min(chain), max(chain)
-        xs1, ys1 = spiral_plot(xs, chain, x_axis, Axis(y_range, (0.5, 1)), 1 / (2 * pi))
-        xs2, ys2 = spiral_plot(xs, chain, x_axis, Axis(y_range, (0.5, 0)), 1 / (2 * pi))
-        return [go.Scatter(
+        xs1, ys1 = spiral_plot(xs, chain, self.angular_axis, Axis(y_range, (0.5, 1)), 1 / (2 * pi))
+        xs2, ys2 = spiral_plot(xs, chain, self.angular_axis, Axis(y_range, (0.5, 0)), 1 / (2 * pi))
+        return go.Scatter(
             x=xs1 + xs2[::-1],
             y=ys1 + ys2[::-1],
-            fill='toself',
+            fill='toself',  # polygon
             fillcolor=alpha(self.theme.palette[self.n_chain], 0.5),
             line=dict(width=0.5, color=self.theme.palette[self.n_chain]),
             xaxis='x' + self.axis_id,
             yaxis='y' + self.axis_id,
-        )]
+        )
 
     @property
     def overall_range(self) -> Tuple[int, int]:
