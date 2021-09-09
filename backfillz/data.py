@@ -53,10 +53,10 @@ def to_domain(x: float, domain: Domain) -> float:
 
 @dataclass
 class Axis:
-    """Map a range into a domain."""
+    """Map a range into a domain (using Plotly terminology)."""
 
-    range: Domain
-    domain: Domain
+    range: Domain  # src
+    domain: Domain  # tgt
 
     # Don't require start <= x <= end.
     def map(self, xs: Sequence[float]) -> List[float]:
@@ -64,7 +64,7 @@ class Axis:
         return [to_domain((x - start) / (end - start), self.domain) for x in xs]
 
     def map_domain(self, src: Domain) -> Domain:
-        """Map a normalised domain into another."""
+        """Map a domain (normalised with respect to my range) into my target."""
         start, end = src
         [tgt_start, tgt_end] = self.map([start, end])
         return tgt_start, tgt_end
