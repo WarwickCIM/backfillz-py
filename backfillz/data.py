@@ -66,7 +66,8 @@ class Axis:
     def map_domain(self, src: Domain) -> Domain:
         """Map a normalised domain into another."""
         start, end = src
-        return tuple(self.map([start, end]))
+        [tgt_start, tgt_end] = self.map([start, end])
+        return tgt_start, tgt_end
 
 
 @dataclass
