@@ -51,13 +51,6 @@ def to_domain(x: float, domain: Domain) -> float:
     return start + x * (end - start)
 
 
-def map_domain(src: Domain, tgt: Domain) -> Domain:
-    """Map a normalised domain into another."""
-    x_axis = Axis((0, 1), tgt)
-    start, end = src
-    return tuple(x_axis.map([start, end]))
-
-
 @dataclass
 class Axis:
     """Map a range into a domain."""
@@ -69,6 +62,12 @@ class Axis:
     def map(self, xs: Sequence[float]) -> List[float]:
         start, end = self.range
         return [to_domain((x - start) / (end - start), self.domain) for x in xs]
+
+
+def map_domain(src: Domain, x_axis: Axis) -> Domain:
+    """Map a normalised domain into another."""
+    start, end = src
+    return tuple(x_axis.map([start, end]))
 
 
 @dataclass
