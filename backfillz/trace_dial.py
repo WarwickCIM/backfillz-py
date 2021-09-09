@@ -62,7 +62,6 @@ class DialPlot(LeafPlot[TraceDialData]):
     def donut_segments(self) -> List[go.Scatter]:
         [burn_in, remaining] = self.data.slcs
         burn_in_col, remaining_col = self.theme.burn_in_segment, self.theme.remaining_segment
-#        x_axis = Axis((0, 1), DialPlot.angular_domain)
         return [
             DialPlot.donut_segment(map_domain(burn_in, DialPlot.angular_domain), burn_in_col),
             DialPlot.donut_segment(map_domain(remaining, DialPlot.angular_domain), remaining_col)

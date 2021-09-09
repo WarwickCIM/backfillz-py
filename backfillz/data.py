@@ -53,8 +53,9 @@ def to_domain(x: float, domain: Domain) -> float:
 
 def map_domain(src: Domain, tgt: Domain) -> Domain:
     """Map a normalised domain into another."""
+    x_axis = Axis((0, 1), tgt)
     start, end = src
-    return to_domain(start, tgt), to_domain(end, tgt)
+    return tuple(x_axis.map([start, end]))
 
 
 @dataclass
