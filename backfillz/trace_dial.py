@@ -86,17 +86,12 @@ class DialPlot(LeafPlot[TraceDialData]):
         start, end = self.angular_axis.range
         xs1 = [x * tick_gap for x in range(floor(start), floor(end / tick_gap))]
         xs2 = [start, self.data.burn_in_iter, end]
-        top, bottom1, bottom2 = -0.04, -0.07, -0.14
+        tick_top, tick_bot_1, tick_bot_2 = -0.04, -0.07, -0.14
         return [
-            self.radial_ticks(xs1, (top, bottom1), self.theme.mg_colour),
-            self.radial_ticks(xs2, (top, bottom2), self.theme.fg_colour),
-            self.radial_tick_marks(xs2, bottom2)
+            self.radial_ticks(xs1, (tick_top, tick_bot_1), self.theme.mg_colour),
+            self.radial_ticks(xs2, (tick_top, tick_bot_2), self.theme.fg_colour),
+            self.radial_tick_marks(xs2, tick_bot_2)
         ]
-
-    def radial_tick_marks(self, xs: Sequence[float], tick_bottom: float) -> go.Scatter:
-        y_axis: Axis = Axis((0.0, 1.0), DialPlot.radial_domain)
-        x, y = polar_plot(xs, [tick_bottom - 0.05] * len(xs), self.angular_axis, y_axis)
-        return go.Scatter(x=x, y=y, text=[str(x) for x in xs], mode='text', textposition='middle left')
 
     def radial_ticks(self, xs: Sequence[float], tick_size: Tuple[float, float], colour: str) -> go.Scatter:
         """Ticks at supplied angular positions, sized relative to radial_domain."""
@@ -107,6 +102,11 @@ class DialPlot(LeafPlot[TraceDialData]):
         x = [x for p in zip(x1, x2, x2) for x in p]
         y = [y for p in zip(y1, y2, [nan] * len(x2)) for y in p]  # nan to avoid joining all points
         return go.Scatter(x=x, y=y, mode='lines', line=dict(width=1, color=colour))
+
+    def radial_tick_marks(self, xs: Sequence[float], tick_bottom: float) -> go.Scatter:
+        y_axis: Axis = Axis((0.0, 1.0), DialPlot.radial_domain)
+        x, y = polar_plot(xs, [tick_bottom - 0.05] * len(xs), self.angular_axis, y_axis)
+        return go.Scatter(x=x, y=y, text=[str(x) for x in xs], mode='text', textposition='middle left')
 
     def polar_trace(self, n: int) -> go.Scatter:
         chain: np.ndarray = self.data.chains[n]
