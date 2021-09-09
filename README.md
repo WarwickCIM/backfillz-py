@@ -55,7 +55,7 @@ Based on a Theodorus spiral, we turn MCMC chains into glyphs and extract propert
 
 # Emojis on commit messages
 
-Recent commits use the following `git` aliases:
+Recent commits use the following `git` aliases (add to `[alias]` section of your `.gitconfig`):
 
 ```
 doc      = "!f() { git commit -a -m \"📚 : $1\"; }; f"
