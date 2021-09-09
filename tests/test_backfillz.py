@@ -74,7 +74,7 @@ def test_trace_dial(stan: Stan, compare_images: bool) -> None:
     """Trace dial plot is generated without error."""
     backfillz = Backfillz(stan.fit)
     backfillz.set_theme(default)
-    fig: go.Figure = backfillz.plot_trace_dial('mu')
+    fig: go.Figure = backfillz.plot_trace_dial('mu', 500)
     expect_fig(fig, "tests/expected_trace_dial", compare_images)
 
 

@@ -15,6 +15,13 @@ from backfillz.slice_histograms import SliceHistogram
 from backfillz.theme import BackfillzTheme
 
 
+@dataclass
+class TraceDialData(ParameterSlices):
+    """Data being visualised by a trace dial plot."""
+
+    burn_in_iter: int
+
+
 def arc(x_domain: Domain, y: float, n_steps: int) -> Tuple[List[float], List[float]]:
     """An arc at distance y from (0,0) with angular extent x_domain."""
     xs = [*range(0, n_steps)]
@@ -23,7 +30,7 @@ def arc(x_domain: Domain, y: float, n_steps: int) -> Tuple[List[float], List[flo
 
 
 @dataclass
-class DialPlot(LeafPlot[ParameterSlices]):
+class DialPlot(LeafPlot[TraceDialData]):
     """Trace dial plot (3/4 segment)."""
 
     radial_domain: Domain = 1 / 3, 1.0
@@ -78,7 +85,7 @@ class DialPlot(LeafPlot[ParameterSlices]):
         tick_gap: int = tick_every(ticks_per_circle, self.angular_axis)
         start, end = self.angular_axis.range
         xs1 = [x * tick_gap for x in range(floor(start), floor(end / tick_gap))]
-        xs2 = [start, TraceDial.burn_in_iter, end]
+        xs2 = [start, self.data.burn_in_iter, end]
         top, bottom1, bottom2 = -0.04, -0.07, -0.14
         return [
             self.radial_ticks(xs1, (top, bottom1), self.theme.mg_colour),
@@ -112,7 +119,7 @@ class DialPlot(LeafPlot[ParameterSlices]):
 
 
 @dataclass
-class TraceDialHistogram(SliceHistogram):
+class TraceDialHistogram(SliceHistogram[TraceDialData]):
     """Slice histogram for trace dial plot."""
 
     bin_size: float = 1.0
@@ -144,10 +151,10 @@ class TraceDialHistogram(SliceHistogram):
 
 
 @dataclass
-class SliceHistograms(AggregatePlot[ParameterSlices]):
+class SliceHistograms(AggregatePlot[TraceDialData]):
     """One slice histogram per slice."""
 
-    def make_plots(self) -> List[Plot[ParameterSlices]]:
+    def make_plots(self) -> List[Plot[TraceDialData]]:
         return [
             TraceDialHistogram(
                 axis_id=fresh_axis_id(),
@@ -163,12 +170,10 @@ class SliceHistograms(AggregatePlot[ParameterSlices]):
 
 
 @dataclass
-class TraceDial(RootPlot[ParameterSlices]):
+class TraceDial(RootPlot[TraceDialData]):
     """Top-level plot, for a given parameter and chain."""
 
-    burn_in_iter: int = 500  # hard-coded for now -- should be a parameter?
-
-    def make_plots(self) -> List[Plot[ParameterSlices]]:
+    def make_plots(self) -> List[Plot[TraceDialData]]:
         return [self.dial_plot, self.histograms]
 
     @property
@@ -191,11 +196,11 @@ class TraceDial(RootPlot[ParameterSlices]):
         return f"Pretzel plot for {self.data.param}"
 
     @property
-    def burn_in_histo(self) -> Plot[ParameterSlices]:
+    def burn_in_histo(self) -> Plot[TraceDialData]:
         return self.histograms.plots[0]
 
     @property
-    def sample_histo(self) -> Plot[ParameterSlices]:
+    def sample_histo(self) -> Plot[TraceDialData]:
         return self.histograms.plots[1]
 
     @property
@@ -216,14 +221,20 @@ class TraceDial(RootPlot[ParameterSlices]):
         left_vertical_title(fig, self.sample_histo, "Sample histogram")
 
     @staticmethod
-    def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
+    def fig(
+        mcmc_run: MCMCRun,
+        theme: BackfillzTheme,
+        verbose: bool,
+        param: str,
+        burn_in_iter: int
+    ) -> go.Figure:
         """Create a trace slice histogram."""
-        burn_in_end: float = TraceDial.burn_in_iter / mcmc_run.samples.num_samples
+        burn_in_end: float = burn_in_iter / mcmc_run.samples.num_samples
         slcs: List[Domain] = [(0.0, burn_in_end), (burn_in_end, 1)]
         return TraceDial(
             x_domain=(0.0, 1.0),
             y_domain=(0.0, 1.0),
-            data=ParameterSlices(mcmc_run, param, slcs),
+            data=TraceDialData(mcmc_run, param, slcs, burn_in_iter),
             theme=theme,
-            verbose=verbose
+            verbose=verbose,
         ).make_fig()

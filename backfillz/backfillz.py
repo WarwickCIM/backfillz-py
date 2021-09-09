@@ -33,9 +33,9 @@ class Backfillz:
         """Create and plot a slice histogram."""
         return TraceSliceHistogram.fig(self.mcmc_run, self.theme, self.verbose, param)
 
-    def plot_trace_dial(self, param: str, save_plot: bool = False) -> go.Figure:
+    def plot_trace_dial(self, param: str, burn_in_iter: int, save_plot: bool = False) -> go.Figure:
         """Create and plot a trace dial."""
-        return TraceDial.fig(self.mcmc_run, self.theme, self.verbose, param)
+        return TraceDial.fig(self.mcmc_run, self.theme, self.verbose, param, burn_in_iter)
 
     def plot_spiral_stream(self, param: str, steps: List[int], save_plot: bool = False) -> go.Figure:
         """Create and plot a spiral stream."""

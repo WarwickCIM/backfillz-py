@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import ceil, floor
-from typing import cast, List, Tuple
+from typing import cast, List, Tuple, TypeVar
 
 import numpy as np
 from plotly.basedatatypes import BaseTraceType  # type: ignore
@@ -13,9 +13,11 @@ from backfillz.plot import LeafPlot
 
 Bins = Tuple[List[float], List[float]]
 
+T = TypeVar('T', bound='ParameterSlices')
+
 
 @dataclass
-class SliceHistogram(LeafPlot[ParameterSlices]):
+class SliceHistogram(LeafPlot[T]):
     """Histogram for arbitrary subsets of chains, plus optional KDE plots for individual chains."""
 
     slc: Domain
