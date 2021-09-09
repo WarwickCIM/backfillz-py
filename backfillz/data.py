@@ -45,12 +45,6 @@ def segment(domain: Domain, n: int, m: int) -> Domain:
     return start + m * width, start + (m + 1) * width
 
 
-def to_domain(x: float, domain: Domain) -> float:
-    """Convert normalised coordinate to position within supplied domain."""
-    start, end = domain
-    return start + x * (end - start)
-
-
 @dataclass
 class Axis:
     """Map a range into a domain (using Plotly terminology)."""
@@ -60,8 +54,10 @@ class Axis:
 
     # Don't require start <= x <= end.
     def map(self, xs: Sequence[float]) -> List[float]:
+        """Map points (normalised with respect to my range) into my target."""
         start, end = self.range
-        return [to_domain((x - start) / (end - start), self.domain) for x in xs]
+        tgt_start, tgt_end = self.domain
+        return [tgt_start + (x - start) / (end - start) * (tgt_end - tgt_start) for x in xs]
 
     def map_domain(self, src: Domain) -> Domain:
         """Map a domain (normalised with respect to my range) into my target."""
