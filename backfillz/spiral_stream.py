@@ -113,9 +113,9 @@ class SpiralStream(RootPlot[ParameterSteps]):
 
     @property
     def layout_props(self) -> Props:
-        length: int = 800
+        width: int = 800
         # ensure each individual spiral plot is square; see trace_dial
-        return dict(width=length, height=length * len(self.data.chains) / len(self.data.steps))
+        return dict(width=width, height=width * len(self.data.chains) / len(self.data.steps))
 
     @staticmethod
     def fig(
