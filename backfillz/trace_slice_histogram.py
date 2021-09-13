@@ -174,9 +174,14 @@ class TraceSliceHistogram(RootPlot[ParameterSlices]):
 
     def add_additional_titles(self, fig: go.Figure) -> None:
         super().add_additional_titles(fig)
-        annotate(fig, 16, self.trace_plot.top_left, 'left', 'bottom', None, "Trace Plot With Slices")
+        annotate(fig, 16, self.trace_plot.top_left, 'left', 'bottom', 0.01, "Trace Plot With Slices")
         # oof -- adjust for x-axis
-        annotate(fig, 16, self.density_plots.top_left, 'left', 'bottom', 0.03, "Density Plots for Slices")
+        annotate(fig, 16, self.density_plots.top_left, 'left', 'bottom', 0.05, "Density Plots for Slices")
+
+    @property
+    def layout_props(self) -> Props:
+        width: int = 1000
+        return dict(width=width, height=width * 2 / 3)
 
     @staticmethod
     def fig(mcmc_run: MCMCRun, theme: BackfillzTheme, verbose: bool, param: str) -> go.Figure:
