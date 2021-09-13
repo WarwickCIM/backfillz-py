@@ -213,6 +213,7 @@ class TraceDial(RootPlot[TraceDialData]):
         )
 
     def add_additional_titles(self, fig: go.Figure) -> None:
+        # super().add_additional_titles(fig)
         left_vertical_title(fig, self.burn_in_histo, "Burn-in histogram")
         left_vertical_title(fig, self.sample_histo, "Sample histogram")
 
