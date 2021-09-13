@@ -39,7 +39,7 @@ def expect_fig(fig: go.Figure, filename: str, check: bool) -> None:
                 print(f"{filename}: differs from reference image.")
                 raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filename + ".new." + ext)
             print(f"{filename}: image identical.")
-#           fig.show(config=default_config())
+#            fig.show(config=default_config())
         except FileNotFoundError as e:
             file_new = open(e.filename, "wb")
             file_new.write(found)

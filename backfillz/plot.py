@@ -141,7 +141,7 @@ class RootPlot(AggregatePlot[T]):
 
     def add_additional_titles(self, fig: go.Figure) -> None:
         annotate(
-            fig, 14, (1, -0.03), 'right', 'top', None,  # leave room for an x-axis, if needed
+            fig, 14, (1, -0.05), 'right', 'top', None,  # leave room for an x-axis, if needed
             "Backfillz-py by CIM, University of Warwick and The Alan Turing Institute"
         )
 
